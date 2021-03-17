@@ -29,7 +29,7 @@ model_flags = ['add_tok_struct_emb', 'add_sent_struct_emb' ,'tok_pos_emb_type','
 
 def train_multi_ext(args):
     """ Spawns 1 process per GPU """
-    init_logger()
+#    init_logger()
 
     nb_gpu = args.world_size
     mp = torch.multiprocessing.get_context('spawn')
@@ -59,13 +59,18 @@ def run(args, device_id, error_queue):
         gpu_rank = distributed.multi_init(device_id, args.world_size, args.gpu_ranks)
         print('gpu_rank %d' % gpu_rank)
         if gpu_rank != args.gpu_ranks[device_id]:
+            print("An error occurred in \
+                  Distributed initialization")
             raise AssertionError("An error occurred in \
                   Distributed initialization")
-
+        print("train_single_ext")
         train_single_ext(args, device_id)
+         print("train_single_ext DONE")
     except KeyboardInterrupt:
+        print("KeyboardInterrupt")
         pass  # killed by parent, do nothing
     except Exception:
+        print("Traceback")
         # propagate exception to parent process, keeping original traceback
         import traceback
         error_queue.put((args.gpu_ranks[device_id], traceback.format_exc()))
@@ -346,7 +351,7 @@ def train_ext(args, device_id):
 
 
 def train_single_ext(args, device_id):
-    init_logger(args.log_file)
+#    init_logger(args.log_file)
 
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
     logger.info('Device ID %d' % device_id)
