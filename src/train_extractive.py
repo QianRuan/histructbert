@@ -65,7 +65,7 @@ def run(args, device_id, error_queue):
                   Distributed initialization")
         print("train_single_ext")
         train_single_ext(args, device_id)
-         print("train_single_ext DONE")
+        print("train_single_ext DONE")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
         pass  # killed by parent, do nothing
