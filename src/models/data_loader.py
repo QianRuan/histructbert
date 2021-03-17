@@ -41,6 +41,8 @@ class Batch(object):
             #print(type(pre_segs))
             pre_clss = [x[5] for x in data]
             pre_src_sent_labels = [x[6] for x in data]#
+            pre_overall_sent_pos = [x[7] for x in data]#
+            pre_tgt_sent_idx = [x[8] for x in data]#
 
             src = torch.tensor(self._pad(pre_src, 0))
             tgt = torch.tensor(self._pad(pre_tgt, 0))
@@ -63,14 +65,17 @@ class Batch(object):
 #            print("#####-------pre_tok_struct_vec",len(pre_tok_struct_vec),pre_tok_struct_vec)
             
             #print(self._pad2(pre_sent_struct_vec, 0))
-            sent_struct_vec = torch.tensor(self._pad2(pre_sent_struct_vec, 0))#
-            tok_struct_vec = torch.tensor(self._pad3(pre_tok_struct_vec, 0))#
-            
+            sent_struct_vec = torch.tensor(self._pad2(pre_sent_struct_vec, -1))#
+            tok_struct_vec = torch.tensor(self._pad3(pre_tok_struct_vec, -1))#
+            overall_sent_pos = torch.tensor(self._pad(pre_overall_sent_pos, -1))
+            tgt_sent_idx = torch.tensor(self._pad(pre_tgt_sent_idx, -1))
 #            print("#####-------sent_struct_vec",len(sent_struct_vec),sent_struct_vec.shape,sent_struct_vec)
 #            print("#####-------tok_struct_vec",len(tok_struct_vec),tok_struct_vec.shape,tok_struct_vec)
             
             setattr(self, 'sent_struct_vec', sent_struct_vec.to(device))
             setattr(self, 'tok_struct_vec', tok_struct_vec.to(device))
+            setattr(self, 'overall_sent_pos', overall_sent_pos.to(device))
+            setattr(self, 'tgt_sent_idx', tgt_sent_idx.to(device))
             
             setattr(self, 'clss', clss.to(device))
             setattr(self, 'mask_cls', mask_cls.to(device))
@@ -237,6 +242,8 @@ class DataIterator(object):
         
         sent_struct_vec = ex['sent_struct_vec']#
         tok_struct_vec = ex['token_struct_vec']#
+        overall_sent_pos = ex['overall_sent_pos']
+        tgt_sent_idx = ex['tgt_sent_idx']
 
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
@@ -244,16 +251,16 @@ class DataIterator(object):
         max_sent_id = bisect.bisect_left(clss, self.args.max_pos)
         src_sent_labels = src_sent_labels[:max_sent_id]
         clss = clss[:max_sent_id]
-        # src_txt = src_txt[:max_sent_id]
-        #print("#####!!!!!",max_sent_id)
         tok_struct_vec = tok_struct_vec[:self.args.max_pos]
         sent_struct_vec = sent_struct_vec[:max_sent_id]
+        overall_sent_pos = overall_sent_pos[:max_sent_id]
+        
 
 
         if(is_test):
-            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, src_txt, tgt_txt
+            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx, src_txt, tgt_txt
         else:
-            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels
+            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx
 
     def batch_buffer(self, data, batch_size):
         minibatch, size_so_far = [], 0

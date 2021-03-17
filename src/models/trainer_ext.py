@@ -256,6 +256,9 @@ class Trainer(object):
                         mask_cls = batch.mask_cls
                         sent_struct_vec = batch.sent_struct_vec
                         tok_struct_vec = batch.tok_struct_vec
+                        overall_sent_pos = batch.overall_sent_pos
+#                        tgt_sent_idx = batch.tgt_sent_idx
+                        
 
                         gold = []
                         pred = []
@@ -265,6 +268,8 @@ class Trainer(object):
                         elif (cal_oracle):
                             selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
                                             range(batch.batch_size)]
+#                            print("###1tgt_sent_idx",tgt_sent_idx.shape,tgt_sent_idx)
+#                            print("###2selected_ids",len(selected_ids),selected_ids)
                         else:
                             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
 
@@ -276,6 +281,7 @@ class Trainer(object):
                             sent_scores = sent_scores + mask.float()
                             sent_scores = sent_scores.cpu().data.numpy()
                             selected_ids = np.argsort(-sent_scores, 1)
+#                            print(selected_ids)
                             
                         # selected_ids = np.sort(selected_ids,1)
                         
@@ -301,13 +307,17 @@ class Trainer(object):
                                 if (self.args.block_trigram):
                                     if (not _block_tri(candidate, _pred)):
                                         _pred.append(candidate)
-                                        _selected.append(int(j))
+#                                        _selected.append(int(j))
+#                                        print("####j",j)
+#                                        print("####pos",overall_sent_pos[i][j].item())
+                                        _selected.append(overall_sent_pos[i][j].item())
 #                                        
                                 else:
                                     _pred.append(candidate)
-                                    _selected.append(int(j))
+                                    #_selected.append(int(j))
+                                    _selected.append(overall_sent_pos[i][j].item())
 
-                                if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == 3):#!!!!select top 3
+                                if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == self.args.select_top_n_sent):#!!!!select top 3
                                     break
 
                             _pred = '<q>'.join(_pred)
@@ -322,6 +332,7 @@ class Trainer(object):
 #                        print(selected)
                         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
                         with open(se_path, 'w+') as f:
+#                            print("###3selected",len(selected),selected)
                             json.dump(selected,f)
 #                        with open(se_path, 'r') as f:
 #                            s=json.load(f)

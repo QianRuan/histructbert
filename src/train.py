@@ -6,7 +6,7 @@ from __future__ import division
 
 import argparse
 import os
-from others.logging import init_logger
+
 from train_abstractive import validate_abs, train_abs, baseline, test_abs, test_text_abs
 from train_extractive import train_ext, validate_ext, test_ext, baseline_ext
 import torch
@@ -41,6 +41,7 @@ if __name__ == '__main__':
     parser.add_argument('-eval_folder', default='eval')
     parser.add_argument('-eval_path', default='')
     parser.add_argument("-remove_models_after_val", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument("-select_top_n_sent", default=3, type=int)
     
     
     parser.add_argument("-bert_data_path", default='')

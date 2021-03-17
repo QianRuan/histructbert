@@ -7,19 +7,26 @@ from pytorch_transformers import BertConfig, BertModel, BertPreTrainedModel
 from pytorch_transformers.modeling_bert import BertLayerNorm
 
 
-def compute_se(pos, pe, position_embeddings):   
-            
-            x_position_embeddings = torch.zeros_like(position_embeddings)
+def compute_se(pos, pe, position_embeddings): 
+#    print (pos)
+
+#    print("###pe3",pe.shape)
+    x_position_embeddings = torch.zeros_like(position_embeddings)
+#            print(x_position_embeddings)
   
-            for i in range(pos.size(0)):
+    for i in range(pos.size(0)):
   
-                for j in range (pos.size(1)):
-                
-                    idx = int(pos[i][j].item())
-               
-                    x_position_embeddings[i][j] = pe[0][idx]
+        for j in range (pos.size(1)):
         
-            return x_position_embeddings
+            idx = int(pos[i][j].item())
+#            print("###pe[0]",pe[0].shape)
+#            print(x_position_embeddings[i][j])
+#            print(pe[0][idx])
+       
+            x_position_embeddings[i][j] = pe[0][idx]
+            
+#            print(x_position_embeddings)
+    return x_position_embeddings
 
 
 
@@ -45,12 +52,15 @@ class SinPositionalEncoding(nn.Module):
         sent_struct_vec,
         position_ids=None,
     ):
-       
+#        print("####inputs",inputs.shape)
         batch_size = inputs.size(0)
         n = inputs.size(1)
+#        print("####pe1",self.pe.shape)
         pe = self.pe[:, :n]
+#        print("####pe2",pe.shape)
         
         pos_embs = pe.expand(batch_size,-1,-1)
+#        print("####pos",pos_embs.shape)
                
         return pe,pos_embs
 
@@ -166,12 +176,21 @@ class SINSentAddEmb(nn.Module):
         
       
         #768 dim
-        pe, position_embeddings= self.position_embeddings(top_vecs,tok_struct_vec,sent_struct_vec)
+#        pe, position_embeddings= self.position_embeddings(top_vecs,tok_struct_vec,sent_struct_vec)
+        
+        batch_size = top_vecs.size(0)
+        n = top_vecs.size(1)
+        pe = self.position_embeddings.pe[:, :n]      
+        position_embeddings = pe.expand(batch_size,-1,-1)
+       
 
         
         #256 dim
         if (self.histruct_position_embeddings != None):
-            hs_pe,hs_position_embeddings = self.histruct_position_embeddings(top_vecs,tok_struct_vec,sent_struct_vec)
+#            hs_pe,hs_position_embeddings = self.histruct_position_embeddings(top_vecs,tok_struct_vec,sent_struct_vec)
+            hs_pe = self.histruct_position_embeddings.pe[:, :n]   
+            hs_position_embeddings = hs_pe.expand(batch_size,-1,-1)
+            
         else:
             hs_pe,hs_position_embeddings = None, None
         
@@ -181,18 +200,19 @@ class SINSentAddEmb(nn.Module):
 #        print("########position_embeddings",position_embeddings.shape, position_embeddings)
 #        print("########tok_struct_vec",tok_struct_vec.shape, tok_struct_vec)
 #        print("########sent_struct_vec",sent_struct_vec.shape, sent_struct_vec)
-              
+#        print("###sent_struct_vec",sent_struct_vec.shape)      
         para_pos = sent_struct_vec[:,:,0]
         sent_pos = sent_struct_vec[:,:,1]
+#        print("###para_pos",para_pos.shape) 
         
       
                     
         if(self.args.sent_se_comb_mode == 'concat'):
-            para_position_embeddings = compute_se(para_pos, hs_pe, hs_position_embeddings)
-            sent_position_embeddings = compute_se(sent_pos, hs_pe, hs_position_embeddings)
+            para_position_embeddings = compute_se(para_pos, self.histruct_position_embeddings.pe, hs_position_embeddings)
+            sent_position_embeddings = compute_se(sent_pos, self.histruct_position_embeddings.pe, hs_position_embeddings)
         else:
-            para_position_embeddings = compute_se(para_pos, pe, position_embeddings)
-            sent_position_embeddings = compute_se(sent_pos, pe, position_embeddings)
+            para_position_embeddings = compute_se(para_pos, self.position_embeddings.pe, position_embeddings)
+            sent_position_embeddings = compute_se(sent_pos, self.position_embeddings.pe, position_embeddings)
             
        
         

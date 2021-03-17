@@ -96,6 +96,7 @@ def obtain_histruct_info(doc, args, tokenizer):
     #list of tokens
     src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
     src_para_tokens = doc['src_para_tokens']
+    overall_sent_pos = [i for i in range(len(src_sent_tokens))]
     
 #    idxs = [i for i, s in enumerate(src_sent_tokens) if (len(s) > args.min_src_ntokens_per_sent)]   # 
 #    src_sent_tokens = [src_sent_tokens[i][:args.max_src_ntokens_per_sent] for i in idxs]      # 
@@ -193,15 +194,16 @@ def obtain_histruct_info(doc, args, tokenizer):
             print(len(token_struct_vec[i]),token_struct_vec[i])
             raise ValueError("3###len(src_sent_tokens_bert_cp[i])+2 != len(token_struct_vec[i])")
     ################################################################################################
-    
-    for i in range(len(token_struct_vec)):
-        src_sent_list = src_sent_tokens[i][:args.max_src_ntokens_per_sent]
-        src_sent_str = ' '.join(src_sent_list) 
-        length = len(tokenizer.tokenize(src_sent_str))+2
-        token_struct_vec[i] = token_struct_vec[i][:length]
+    if args.max_src_ntokens_per_sent!=0:
+        
+        for i in range(len(token_struct_vec)):        
+            src_sent_list = src_sent_tokens[i][:args.max_src_ntokens_per_sent]        
+            src_sent_str = ' '.join(src_sent_list) 
+            length = len(tokenizer.tokenize(src_sent_str))+2
+            token_struct_vec[i] = token_struct_vec[i][:length]
         
     #token_struct_vec = [sent_tok_struct_vec[:length] for sent_tok_struct_vec in token_struct_vec]                       
-    return sent_struct_vec, token_struct_vec
+    return overall_sent_pos, sent_struct_vec, token_struct_vec
 
 
 def cal_rouge(evaluated_ngrams, reference_ngrams):
@@ -306,7 +308,7 @@ class BertData():
             logger.info('######---- not preprocessed')
             return None
         #--------------------------------------------------------------------------------------------------------histruct info
-        _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc,self.args,self.tokenizer)
+        _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc,self.args,self.tokenizer)
         
               
         #--------------------------------------------------------------------------------------------------------min/max_src_ntokens_per_sent
@@ -324,7 +326,11 @@ class BertData():
         for l in sent_labels:
             _sent_labels[l] = 1
             
-        src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
+        if self.args.max_src_ntokens_per_sent!=0:     
+            src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
+        else:
+            src = [src[i] for i in idxs]
+            
 #        token_struct_vec = [_token_struct_vec[i][:self.args.max_src_ntokens_per_sent+2] for i in idxs]##
         
 #        src = [src[i] for i in idxs]
@@ -334,16 +340,19 @@ class BertData():
         #remove short sentences
         sent_labels = [_sent_labels[i] for i in idxs]
         sent_struct_vec = [_sent_struct_vec[i] for i in idxs]#######
+        overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
         #print("#################sent_labels",len(sent_labels),sent_labels)
-        
-        src = src[:self.args.max_src_nsents]
-        token_struct_vec = token_struct_vec[:self.args.max_src_nsents]
+        if (self.args.max_src_nsents!=0):
+            src = src[:self.args.max_src_nsents]
+            token_struct_vec = token_struct_vec[:self.args.max_src_nsents]
+            sent_labels = sent_labels[:self.args.max_src_nsents]
+            sent_struct_vec = sent_struct_vec[:self.args.max_src_nsents]######
+            overall_sent_pos = overall_sent_pos[:self.args.max_src_nsents]
         
         token_struct_vec = sum(token_struct_vec,[]) #flat list
         #print("#################idxs",len(src),src)
         
-        sent_labels = sent_labels[:self.args.max_src_nsents]
-        sent_struct_vec = sent_struct_vec[:self.args.max_src_nsents]######
+        
         
         #print("#################self.args.max_src_nsents",self.args.max_src_nsents)
         #print("#################sent_labels",len(sent_labels),sent_labels)
@@ -390,8 +399,12 @@ class BertData():
         #--------------------------------------------------------------------------------------------------------tgt_subtoken_idxs
         tgt_subtokens_str = '[unused0] ' + ' [unused2] '.join(
             [' '.join(self.tokenizer.tokenize(' '.join(tt), use_bert_basic_tokenizer=use_bert_basic_tokenizer)) for tt in tgt]) + ' [unused1]'
-        tgt_subtoken = tgt_subtokens_str.split()
-        tgt_subtoken = tgt_subtokens_str.split()[:self.args.max_tgt_ntokens]
+        
+        if self.args.max_tgt_ntokens!=0:
+            tgt_subtoken = tgt_subtokens_str.split()[:self.args.max_tgt_ntokens]
+        else:
+            tgt_subtoken = tgt_subtokens_str.split()
+            
         
         if ((not is_test) and len(tgt_subtoken) < self.args.min_tgt_ntokens):
             return None
@@ -517,7 +530,7 @@ class BertData():
             raise ValueError("7----length check failed")
             
 
-        return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec
+        return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos
 
 
 def format_to_histructbert(args):
@@ -572,11 +585,20 @@ def _format_to_histructbert(params):
         
 
         if (args.summ_size!=0):
-            sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, args.summ_size) 
+            if (args.max_src_nsents!=0):
+                sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, args.summ_size) 
+            else:
+                sent_labels = greedy_selection(source, tgt, args.summ_size) 
         else: 
-            sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, len(source[:args.max_src_nsents]))
+            if (args.max_src_nsents!=0):
+                sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, len(source[:args.max_src_nsents]))
+            else:
+                sent_labels = greedy_selection(source, tgt, len(source))
+                
+                
+                
             
-#        tgt_sent_idx = sent_labels
+        tgt_sent_idx = sent_labels
         #print("####################sent_labels",len(sent_labels),sent_labels)#可能有2
         
         #do lowercase
@@ -592,7 +614,7 @@ def _format_to_histructbert(params):
         if (b_data is None):
             continue
         
-        src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec = b_data
+        src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos = b_data
         
               
         b_data_dict = {"src": src_subtoken_idxs, ##!!
@@ -603,109 +625,15 @@ def _format_to_histructbert(params):
                        'src_txt': src_txt, ##!!
                        "tgt_txt": tgt_txt, ##!!
 #                       "tgt_sent": tgt, #-- 
-#                       "tgt_sent_idx":tgt_sent_idx,#--
-#                       "overall_sent_pos":overall_sent_pos,#--
+                       "tgt_sent_idx":tgt_sent_idx,#--
+                       "overall_sent_pos":overall_sent_pos,#--
                        "sent_struct_vec":sent_struct_vec, ##!!
                        "token_struct_vec":token_struct_vec}##!!
         
-#        if (len(b_data_dict['src_sent_labels'])==len(b_data_dict['clss'])==len(b_data_dict['src_txt'])==len(b_data_dict['sent_struct_vec'])):
-#             if (len(b_data_dict['segs'])==len(b_data_dict['src'])==len(b_data_dict['token_struct_vec'])):
-#                 datasets.append(b_data_dict)
-             
+
 
         datasets.append(b_data_dict)
-#        #len = nr. of sentences
-#        print("#################src_sent_labels",len(b_data_dict['src_sent_labels']),b_data_dict['src_sent_labels']) 
-#        print("#################clss",len(b_data_dict['clss']),b_data_dict['clss'])
-#        print("#################src_txt",len(b_data_dict['src_txt']),b_data_dict['src_txt'])
-#        print("#################overall_sent_pos",len(b_data_dict['overall_sent_pos']),b_data_dict['overall_sent_pos'])
-#        print("#################sent_struct_vec, len =",len(b_data_dict['sent_struct_vec']),b_data_dict['sent_struct_vec'])
-#        
-#        #len = nr. of tokens including [CLS]  and [SEP]   
-#        print("#################segs",len(b_data_dict['segs']),b_data_dict['segs'])
-#        print("#################src",len(b_data_dict['src']),b_data_dict['src'])
-#        print("#################token_struct_vec, len =",len(b_data_dict['token_struct_vec']),b_data_dict['token_struct_vec'])
-#        
-#        #summary info      
-#        print("#################tgt_txt",len(b_data_dict['tgt_txt']),b_data_dict['tgt_txt'])
-#        print("#################tgt_sent_idx",len(b_data_dict['tgt_sent_idx']),b_data_dict['tgt_sent_idx'])
-#        print("#################tgt",len(b_data_dict['tgt']),b_data_dict['tgt'])
-              
-        #len = nr. of sentences
-#        logger.info("#############################") 
-#        logger.info("src_sent_labels "+str(len(b_data_dict['src_sent_labels']))) 
-#        logger.info("clss "+str(len(b_data_dict['clss'])))
-#        logger.info("src_txt "+str(len(b_data_dict['src_txt'])))
-#        #logger.info("overall_sent_pos "+str(len(b_data_dict['overall_sent_pos'])))
-#        logger.info("sent_struct_vec "+str(len(b_data_dict['sent_struct_vec'])))
-#        logger.info("-------------------") 
 
-#        #len = nr. of tokens including [CLS]  and [SEP]   
-#        logger.info("segs "+str(len(b_data_dict['segs'])))
-#        logger.info("src "+str(len(b_data_dict['src'])))
-#        logger.info("token_struct_vec "+str(len(b_data_dict['token_struct_vec'])))
-#        logger.info("-------------------") 
-        
-        
-#         
-#        if not (len(b_data_dict['segs'])==len(b_data_dict['src'])==len(b_data_dict['token_struct_vec'])):
-#            
-#            li=[]
-#            lists=[]
-#            for idx in b_data_dict['src']:
-#                if not idx==102:
-#                    li.append(idx)
-#                else:
-#                    li.append(idx)
-#                    lists.append(li)
-#                    li=[]
-#                    continue
-#            #print(lists)
-#            
-#            li2=[]
-#            lists2=[]
-#            count=0
-#            t=b_data_dict['token_struct_vec']
-#            for i in range(len(t)):
-#               
-#                if t[i][2]==0:                
-#                    count+=1
-#                    if count==1 :
-#                        li2.append(t[i])
-#                    elif count>1:
-#                        lists2.append(li2)
-#                        li2=[]
-#                        li2.append(t[i])
-#                        count=1
-#                        
-#                    
-#                else:
-#                    li2.append(t[i])
-#                    if i == len(t)-1:
-#                        lists2.append(li2)
-#                        
-#                    
-#            #print(lists2)
-#                
-#            l=[len(x) for x in lists]
-#            l2=[len(x) for x in lists2]
-#            print(len(l),l)
-#            print(len(l2),l2)
-#            
-#            for i in range(len(l)):
-#                if l[i]!=l2[i]:
-#                    print(i, l[i], l2[i])
-#                    print (lists[i])
-#                    print (lists2[i])
-#                    print(b_data_dict['src_txt'][i])
-##            
-#            raise ValueError('2++++Length should be the same')
-#        #summary info 
-#        #logger.info("tgt_sent "+str(len(b_data_dict['tgt_sent'])))      
-#        #logger.info("tgt_sent_idx "+str(len(b_data_dict['tgt_sent_idx']))+"-----"+" ,".join(str(x) for x in b_data_dict['tgt_sent_idx']))
-#        logger.info("tgt_txt "+str(len(b_data_dict['tgt_txt'])))
-#        logger.info("tgt "+str(len(b_data_dict['tgt'])))
-#        logger.info("#############################") 
               
                
     logger.info('Processed instances %d' % len(datasets))
