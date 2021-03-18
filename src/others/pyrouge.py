@@ -369,12 +369,14 @@ class Rouge155(object):
         options = self.__get_options(rouge_args)
         command = [self._bin_path] + options
         command = ["perl"]+command
+       
 #        command=" ".join(command)
 #        command=" ".join(["perl"]+command)#
+        print(command)
         self.log.info(
             "Running ROUGE with command {}".format(" ".join(command)))
     
-        rouge_output = check_output(command,shell=True).decode("UTF-8")
+        rouge_output = check_output(command).decode("UTF-8")
 #        rouge_output = check_output(command).decode("UTF-8")
         
 
