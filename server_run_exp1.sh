@@ -1,9 +1,13 @@
 #!/bin/bash
+: '
 #######################################----------------------------cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu
+'
+: '
 #################------------------------------------------------------------TRAIN
+'
 export CUDA_VISIBLE_DEVICES=1,5,6,7
 python histruct/src/train.py -task ext \
--mode train 
+-mode train \
 -add_tok_struct_emb false \
 -add_sent_struct_emb true \
 -sent_pos_emb_type sinusoidal \
@@ -23,7 +27,9 @@ python histruct/src/train.py -task ext \
 -use_interval true \
 -warmup_steps 10000 \
 -max_pos 512
+: '
 #################------------------------------------------------------------EVAL
+'
 python histruct/src/train.py -task ext \-mode validate \
 -test_all true \
 -select_top_n_sent 3 \
