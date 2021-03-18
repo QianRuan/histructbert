@@ -368,7 +368,8 @@ class Rouge155(object):
         self.write_config(system_id=system_id)
         options = self.__get_options(rouge_args)
         command = [self._bin_path] + options
-        command=" ".join(command)
+        command = ["perl"]+command
+#        command=" ".join(command)
 #        command=" ".join(["perl"]+command)#
         self.log.info(
             "Running ROUGE with command {}".format(" ".join(command)))
