@@ -57,7 +57,9 @@ def run(args, device_id, error_queue):
 
     try:
         gpu_rank = distributed.multi_init(device_id, args.world_size, args.gpu_ranks)
-        print('gpu_rank %d' % gpu_rank)
+        print('device_id %d' % device_id)
+        print('gpu_rank %d' % gpu_rank)      
+        print('args.gpu_ranks[device_id] %d' % args.gpu_ranks[device_id])
         if gpu_rank != args.gpu_ranks[device_id]:
             print("An error occurred in \
                   Distributed initialization")
@@ -73,6 +75,7 @@ def run(args, device_id, error_queue):
         print("Traceback")
         # propagate exception to parent process, keeping original traceback
         import traceback
+        print(traceback.format_exc())
         error_queue.put((args.gpu_ranks[device_id], traceback.format_exc()))
 
 
