@@ -47,7 +47,7 @@ if __name__ == '__main__':
     parser.add_argument("-bert_data_path", default='')
     parser.add_argument("-model_path", default='')
     parser.add_argument("-result_path", default='')
-    parser.add_argument("-temp_dir", default='../temp')
+    parser.add_argument("-temp_dir", default='temp')
 
     parser.add_argument("-batch_size", default=140, type=int)
     parser.add_argument("-test_batch_size", default=200, type=int)
