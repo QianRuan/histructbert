@@ -10,7 +10,7 @@ python histruct/src/train.py -task ext \
 -sent_se_comb_mode sum \
 -bert_data_path bert_data_cnndm/cnndm \
 -ext_dropout 0.1 \
--model_path models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu  \
+-model_path models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu \
 -lr 2e-3 \
 -visible_gpus 1,5,6,7 \
 -report_every 50 \
