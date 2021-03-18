@@ -370,9 +370,9 @@ class Rouge155(object):
         command = [self._bin_path] + options
 #        command = ["perl"]+command
        
-        command=" ".join(command)
+#        command=" ".join(command)
 #        command=" ".join(["perl"]+command)#
-        print(command)
+        print("#####command",command)
         self.log.info(
             "Running ROUGE with command {}".format(" ".join(command)))
     
