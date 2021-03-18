@@ -1,9 +1,9 @@
 #!/bin/bash
 #######################################----------------------------cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu
-#################--------------------------------TRAIN
+#################------------------------------------------------------------TRAIN
 export CUDA_VISIBLE_DEVICES=1,5,6,7
 python histruct/src/train.py -task ext \
--mode train \
+-mode train 
 -add_tok_struct_emb false \
 -add_sent_struct_emb true \
 -sent_pos_emb_type sinusoidal \
@@ -23,7 +23,7 @@ python histruct/src/train.py -task ext \
 -use_interval true \
 -warmup_steps 10000 \
 -max_pos 512
-#################--------------------------------EVAL
+#################------------------------------------------------------------EVAL
 python histruct/src/train.py -task ext \-mode validate \
 -test_all true \
 -select_top_n_sent 3 \
@@ -32,7 +32,7 @@ python histruct/src/train.py -task ext \-mode validate \
 -bert_data_path bert_data_cnndm/cnndm \
 -eval_folder eval \
 -model_path models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu \
--log_file models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu/eval/eval.log  \
+-log_file models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu/eval/eval.log \
 -result_path models/cnndm_hs_bert_s_sin_sum_bs400ts50K_4gpu/eval/cnndm.test \
 -sep_optim true \
 -visible_gpus 5,6,7 \
