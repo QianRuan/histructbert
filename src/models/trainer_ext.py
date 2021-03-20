@@ -137,12 +137,12 @@ class Trainer(object):
 
             reduce_counter = 0
             for i, batch in enumerate(train_iter):
-                ###############################################################empty_cache
-#                device = "cpu" if self.args.visible_gpus == '-1' else "cuda"
-#                if device == "cuda": #
-#                    #print("###torch.cuda.empty_cache")
-#                    torch.cuda.empty_cache()
-                ###############################################################empty_cache
+                ##############################################################empty_cache
+                device = "cpu" if self.args.visible_gpus == '-1' else "cuda"
+                if device == "cuda": #
+                    #print("###torch.cuda.empty_cache")
+                    torch.cuda.empty_cache()
+                ##############################################################empty_cache
                 if self.n_gpu == 0 or (i % self.n_gpu == self.gpu_rank):
 
                     true_batchs.append(batch)
