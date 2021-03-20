@@ -137,12 +137,12 @@ class Trainer(object):
 
             reduce_counter = 0
             for i, batch in enumerate(train_iter):
-                ################################################################empty_cache
-#                device = "cpu" if self.args.visible_gpus == '-1' else "cuda"
-#                if device == "cuda": #
-##                    print("###torch.cuda.empty_cache")
-#                    torch.cuda.empty_cache()
-                ################################################################empty_cache
+                ###############################################################empty_cache
+                device = "cpu" if self.args.visible_gpus == '-1' else "cuda"
+                if device == "cuda": #
+                    print("###torch.cuda.empty_cache")
+                    torch.cuda.empty_cache()
+                ###############################################################empty_cache
                 if self.n_gpu == 0 or (i % self.n_gpu == self.gpu_rank):
 
                     true_batchs.append(batch)
@@ -373,7 +373,8 @@ class Trainer(object):
             tok_struct_vec = batch.tok_struct_vec
 
             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
-
+            del sent_struct_vec
+            del tok_struct_vec
             loss = self.loss(sent_scores, labels.float())
             loss = (loss * mask.float()).sum()
             (loss / loss.numel()).backward()
