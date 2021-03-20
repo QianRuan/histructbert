@@ -375,6 +375,10 @@ class Trainer(object):
             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
             del sent_struct_vec
             del tok_struct_vec
+            del src
+            del segs
+            del clss
+            del mask_cls
             loss = self.loss(sent_scores, labels.float())
             loss = (loss * mask.float()).sum()
             (loss / loss.numel()).backward()
