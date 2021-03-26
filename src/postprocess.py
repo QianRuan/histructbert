@@ -210,7 +210,7 @@ def copy_result_file(source):
     #copy the excelfile  
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%d-%H-%M")
-    target = source[:-5]+'_Copy'+dt_string +'.xlsx'
+    target = source[:-5]+'_Copy/'+source[:-5]+'_Copy'+dt_string +'.xlsx'
     wb = load_workbook(source)
     wb.save(target)
     
@@ -415,7 +415,7 @@ def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
     prob_dics.update(best_bert_prob_dics)
     prob_dics.update(best_hs_prob_dics)
 
-    png_file = args.models_path+'summ.dist.png'
+    png_file = args.models_path+args.dataset+'.summ.dist.png'
     lens = [len(v) for v in prob_dics.values()]
     max_le = max(lens)
     index = [i for i  in range(max_le)]
