@@ -139,9 +139,9 @@ if __name__ == '__main__':
 #    init_logger(args.log_file)
         
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
-    if device == "cuda": #
-        #print("###torch.cuda.empty_cache")
-        torch.cuda.empty_cache()
+#    if device == "cuda": #
+#        #print("###torch.cuda.empty_cache")
+#        torch.cuda.empty_cache()
     device_id = 0 if device == "cuda" else -1
 
     if (args.task == 'abs'):
@@ -171,12 +171,18 @@ if __name__ == '__main__':
     elif (args.task == 'ext'):
         if (args.mode == 'train'):
             train_ext(args, device_id)
+            os.mkdir(args.model_path+'/DONE')
         elif (args.mode == 'validate'):
             validate_ext(args, device_id)
+            os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'lead'):
             baseline_ext(args, cal_lead=True)
+            os.mkdir(args.model_path+'/DONE')
+            os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'oracle'):
             baseline_ext(args, cal_oracle=True)
+            os.mkdir(args.model_path+'/DONE')
+            os.mkdir(args.model_path+'/eval/DONE')
         if (args.mode == 'test'):
             cp = args.test_from
             try:
@@ -184,6 +190,7 @@ if __name__ == '__main__':
             except:
                 step = 0
             test_ext(args, device_id, cp, step)
+            os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'test_text'):
             cp = args.test_from
             try:
