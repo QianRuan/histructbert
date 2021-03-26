@@ -300,7 +300,7 @@ def remove_step_models(args):
             files = os.listdir(args.models_path + model)
             step_models = [file for file in files if file.endswith('.pt')]
             removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
-            
+            logger.info("remove %i step models from model %s")%(len(removed_step_models),model))
             for m in removed_step_models:
                 path = args.models_path + model + '/' + m
                 os.remove(path)
@@ -336,7 +336,8 @@ def plot_val_xent(args):
                 for v in val_xents:
                     xent = round(v[0],2)
                 
-                    step = int(v[1].split('\\')[1].split('_')[-1].split('.')[0])
+                    step = int(v[1].split('/')[-1].split('_')[-1].split('.')[0])#
+                    
                     steps.append(step)
                     val_xents_dict.update({step:xent})
                 steps.sort()
