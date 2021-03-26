@@ -9,9 +9,9 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import  PatternFill, Font
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from others.logging import init_logger,logger
 
 val_xents_file = 'validation_xent.json'
