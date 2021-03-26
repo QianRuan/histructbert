@@ -10,6 +10,7 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import  PatternFill, Font
 import matplotlib.pyplot as plt
+matplotlib.use('agg')
 from others.logging import init_logger,logger
 
 val_xents_file = 'validation_xent.json'
