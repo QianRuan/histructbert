@@ -210,7 +210,10 @@ def copy_result_file(source):
     #copy the excelfile  
     now = datetime.now()
     dt_string = now.strftime("%Y-%m-%d-%H-%M")
-    target = source[:-5]+'_Copy/'+source[:-5]+'_Copy'+dt_string +'.xlsx'
+    dir_path = source[:-5]+'_Copy'
+    if not os.path.isdir(dir_path):
+     os.mkdir(dir_path)
+    target = dir_path +'/Copy'+dt_string +'.xlsx'
     wb = load_workbook(source)
     wb.save(target)
     
