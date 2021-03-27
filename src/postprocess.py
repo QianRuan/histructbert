@@ -192,12 +192,12 @@ def color_the_best_metric(excelfile, sheetname, best_models, color, font):
             
             if 'step' in ColNames.keys():
                 if row_cells[ColNames['model']].value == best_models[m][0] and row_cells[ColNames['step']].value == best_models[m][1]:
-                    logger.info(row_cells)
+                    
                     row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
                     row_cells[ColNames[m]].font = Font(b=font)
             else:
                 if row_cells[ColNames['model']].value == best_models[m][0]:
-                    logger.info(row_cells)
+                    
                     row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
                     row_cells[ColNames[m]].font = Font(b=font)
                      
@@ -218,8 +218,17 @@ def copy_result_file(source):
     wb.save(target)
     
     return target
-    
-    
+
+def mark_best_models(best_models, df)
+    if 'step' not in df.columns:
+        for m in metrics:
+            if best_models[m][0] == df['model'].split('!')[-1]:
+               df['model']='!'+df['model']
+    else:
+        for m in metrics:
+            if best_models[m][0] == df['model'].split('!')[-1] and str(best_models[m][1]) == str(df['step']):
+               df['model']='!'+df['model']
+      
 def generate_eval_results_overview(args):
     logger.info("=================================================")
     logger.info("Generating evaluation results overview...")
@@ -268,6 +277,8 @@ def generate_eval_results_overview(args):
   
     hs_avg_best_models = check_best_models(df3)
     hs_step_best_models = check_best_models(df4)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     #color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
     #color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
@@ -275,22 +286,20 @@ def generate_eval_results_overview(args):
     df13,df14 = get_rouges_df(bert_baseline_models)
     bert_avg_best_models = check_best_models(df13)
     bert_step_best_models = check_best_models(df14)
+    color_the_best_metric(result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
+    color_the_best_metric(result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     #color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
     #color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
+    mark_best_models(bert_avg_best_models,avg_df)
+    mark_best_models(hs_avg_best_models,avg_df)
+    mark_best_models(bert_step_best_models,step_df)
+    mark_best_models(hs_step_best_models,step_df)
     logger.info('avg rouges-------------')
     logger.info(avg_df)
-    logger.info('best bert baseline:')
-    color_the_best_metric(result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
-    logger.info('best histruct')
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
     logger.info('step model rouges------')
     logger.info(step_df)
-    logger.info('best bert baseline')
-    color_the_best_metric(result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
-    logger.info('best histruct')
-    color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
-   
+
     logger.info("Generate evaluation results overview...DONE")
     
     #return best step models for plotting summary distribution
