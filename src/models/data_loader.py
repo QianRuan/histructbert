@@ -224,11 +224,6 @@ class DataIterator(object):
         xs = self.dataset
         return xs
 
-
-
-
-
-
     def preprocess(self, ex, is_test):
         src = ex['src']
         tgt = ex['tgt'][:self.args.max_tgt_len][:-1]+[2]
@@ -255,8 +250,6 @@ class DataIterator(object):
         sent_struct_vec = sent_struct_vec[:max_sent_id]
         overall_sent_pos = overall_sent_pos[:max_sent_id]
         
-
-
         if(is_test):
             return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx, src_txt, tgt_txt
         else:

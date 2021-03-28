@@ -9,10 +9,10 @@ import os
 
 from train_abstractive import validate_abs, train_abs, baseline, test_abs, test_text_abs
 from train_extractive import train_ext, validate_ext, test_ext, baseline_ext
-import torch
 
-model_flags = ['hidden_size', 'ff_size', 'heads', 'emb_size', 'enc_layers', 'enc_hidden_size', 'enc_ff_size',
-               'dec_layers', 'dec_hidden_size', 'dec_ff_size', 'encoder', 'ff_actv', 'use_interval']
+
+#model_flags = ['hidden_size', 'ff_size', 'heads', 'emb_size', 'enc_layers', 'enc_hidden_size', 'enc_ff_size',
+#               'dec_layers', 'dec_hidden_size', 'dec_ff_size', 'encoder', 'ff_actv', 'use_interval']
 
 
 def str2bool(v):
@@ -40,13 +40,14 @@ if __name__ == '__main__':
     parser.add_argument("-max_nsent", default=512, type=int)
     parser.add_argument('-eval_folder', default='eval')
     parser.add_argument('-eval_path', default='')
-    parser.add_argument("-remove_models_after_val", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument('-log_file', default='')
+    parser.add_argument("-result_path", default='')
     parser.add_argument("-select_top_n_sent", default=3, type=int)
     
     
     parser.add_argument("-bert_data_path", default='')
     parser.add_argument("-model_path", default='')
-    parser.add_argument("-result_path", default='')
+    
     parser.add_argument("-temp_dir", default='temp')
 
     parser.add_argument("-batch_size", default=140, type=int)
@@ -113,7 +114,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-visible_gpus', default='-1', type=str)
     parser.add_argument('-gpu_ranks', default='0', type=str)
-    parser.add_argument('-log_file', default='')
+    
     parser.add_argument('-seed', default=666, type=int)
 
     parser.add_argument("-test_all", type=str2bool, nargs='?',const=True,default=False)
@@ -129,20 +130,12 @@ if __name__ == '__main__':
     args.world_size = len(args.gpu_ranks)
     os.environ["CUDA_VISIBLE_DEVICES"] = args.visible_gpus
     
-#    model_path = '/'.join(args.log_file.split('/')[:-1])
-#    if not os.path.exists(model_path):
-#        os.mkdir(model_path)
-#    if os.path.exists(args.log_file):
-#        os.remove(args.log_file)
-#    if not os.path.exists(args.log_file):
-#        with open(args.log_file, 'w+'): pass      
-#    init_logger(args.log_file)
+    
         
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
-#    if device == "cuda": #
-#        #print("###torch.cuda.empty_cache")
-#        torch.cuda.empty_cache()
     device_id = 0 if device == "cuda" else -1
+    
+
 
     if (args.task == 'abs'):
         if (args.mode == 'train'):

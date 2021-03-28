@@ -85,7 +85,6 @@ class ErrorHandler(object):
 
     def __init__(self, error_queue):
         """ init error handler """
-        import signal
         import threading
         self.error_queue = error_queue
         self.children_pids = []
@@ -125,10 +124,11 @@ def validate_ext(args, device_id):
     
     if args.result_path=='':
         args.result_path=args.eval_path+'/eval.results'
-    elif '/'.join(args.result_path.split('/')[:-1]) != args.eval_path:
-        raise ValueError("Result path not in the eval folder")
         
-    #create eval folder if not exists, manual delete if exists
+    elif '/'.join(args.result_path.split('/')[:-1]) != args.eval_path:
+        raise ValueError("Evaluation result path not in the eval folder")
+        
+    #create eval folder if not exists, delete if exists
     if os.path.exists(args.eval_path):
         logger.info('Eval folder already exists, remove it!')
         shutil.rmtree(args.eval_path)
@@ -151,26 +151,17 @@ def validate_ext(args, device_id):
             max_step = xent_lst.index(min(xent_lst))
             if (i - max_step > 10):
                 break
-        ####################################################################  
+        
         #save info for post analysis
         with open(args.eval_path+'/validation_xent.json', 'w+') as f:
             xents = sorted(xent_lst, key=lambda x: x[0])
             json.dump(xents,f) 
-        ####################################################################  
+        
         
         xent_lst = sorted(xent_lst, key=lambda x: x[0])[:3]
         logger.info('PPL %s' % str(xent_lst))
         
-        ####################################################################
-        #remove models if not in top3 regarding to val loss      
-        if args.remove_models_after_val:
-            for cp in cp_files:
-                if cp not in [x[1] for x in xent_lst]:
-                    cp='/'.join(cp.split('\\'))
-                    os.remove(cp)
-                    logger.info(cp+" removed!")
-        
-        
+       
         test_xent_lst=[]
         test_rouge_lst=[]
         for xent, cp in xent_lst:
@@ -179,7 +170,7 @@ def validate_ext(args, device_id):
             test_xent_lst.append((xent,cp))
             test_rouge_lst.append((cp,rouges))
             
-        ####################################################################
+        
         #save info for post analysis
         with open(args.eval_path+'/test_xent.json', 'w+') as f:
             xents = sorted(test_xent_lst, key=lambda x: x[0])
@@ -201,7 +192,7 @@ def validate_ext(args, device_id):
             json.dump(dic,f)
             logger.info('Avg. rouges of the model______%s \n%s' % (args.model_path.split('/')[1], rouge_results_to_str(dic)))
         
-        ####################################################################  
+       
             
     else:
         while (True):
@@ -249,9 +240,7 @@ def validate(args, device_id, pt, step):
             setattr(args, k, opt[k])
             
     model = ExtSummarizer(args, device, checkpoint)
-    model.eval()
-
-    
+    model.eval()   
     valid_iter = data_loader.Dataloader(args, load_dataset(args, 'valid', shuffle=False),
                                         args.batch_size, device,
                                         shuffle=False, is_test=False)
@@ -306,14 +295,14 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
                                        shuffle=False, is_test=True)
 
     trainer = build_trainer(args, -1, None, None)
-    #
+   
     if (cal_lead):
         stats, rouges = trainer.test(test_iter, 0, cal_lead=True)
     elif (cal_oracle):
         stats, rouges = trainer.test(test_iter, 0, cal_oracle=True)
         
         
-     ####################################################################
+     
     #save info for post analysis
     with open(args.model_path+'/eval/test_rouges.json', 'w+') as f:
         json.dump(rouges,f)
@@ -329,21 +318,21 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
         json.dump(dic,f)
         logger.info('Avg. rouges of the model______%s \n%s' % (args.model_path.split('/')[1], rouge_results_to_str(dic)))
         
-    ####################################################################  
+    #
         
 
 def train_ext(args, device_id):
-    #create eval folder if not exists, manual delete if exists
+    #check if the model already exists
     if os.path.exists(args.model_path):
         raise ValueError('Model folder already exists, do you wan to remove the folder and retrain?')
-#        shutil.rmtree(args.model_path)
-#        os.mkdir(args.model_path)
+
     else:
         os.mkdir(args.model_path)
     
     if args.log_file=='':
         args.log_file=args.model_path+'/train.log'
     init_logger(args.log_file)
+    logger.info(args)
     
     if (args.world_size > 1):
         logger.info("Training (train_multi_ext)...")#
