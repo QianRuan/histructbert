@@ -222,15 +222,15 @@ def copy_result_file(source):
 def mark_best_models(best_models, df):
     if 'step' not in df.columns:
         for m in metrics:
-            print(df.shape)
-            for i in range(df.shape(0)):
-                if best_models[m][0] == str(df.iloc[[i]]['model']).split('!')[-1]:
-                     df.iloc[[i]]['model']='!'+str(df.iloc[[i]]['model'])
+            
+            for i in range(df.shape[0]):
+                if best_models[m][0] == df['model'].values[i].split('!')[-1]:
+                     df['model'].values[i] = '!' + df['model'].values[i]
     else:
         for m in metrics:
-            for i in range(df.shape(0)):
-                if best_models[m][0] == str(df.iloc[[i]]['model']).split('!')[-1] and str(best_models[m][1]) == str(df.iloc[[i]]['step']):
-                     df.iloc[[i]]['model']='!'+str(df.iloc[[i]]['model'])
+            for i in range(df.shape[0]):
+                if best_models[m][0] == df['model'].values[i].split('!')[-1] and str(best_models[m][1]) == df['step'].values[i]:
+                     df['model'].values[i] ='!' + df['model'].values[i]
       
 def generate_eval_results_overview(args):
     logger.info("=================================================")
@@ -282,8 +282,8 @@ def generate_eval_results_overview(args):
     hs_step_best_models = check_best_models(df4)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
-    #color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
-    #color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
+    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
+    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
     bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
     df13,df14 = get_rouges_df(bert_baseline_models)
@@ -291,8 +291,8 @@ def generate_eval_results_overview(args):
     bert_step_best_models = check_best_models(df14)
     color_the_best_metric(result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
     color_the_best_metric(result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
-    #color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
-    #color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
+    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
+    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
     mark_best_models(bert_avg_best_models,avg_df)
     mark_best_models(hs_avg_best_models,avg_df)
