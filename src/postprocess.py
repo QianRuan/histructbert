@@ -222,12 +222,14 @@ def copy_result_file(source):
 def mark_best_models(best_models, df):
     if 'step' not in df.columns:
         for m in metrics:
-            if best_models[m][0] == df['model'].split('!')[-1]:
-               df['model']='!'+df['model']
+            for i in range(df.shape(0)):
+                if best_models[m][0] == str(df.iloc[[i]]['model']).split('!')[-1]:
+                     df.iloc[[i]]['model']='!'+str(df.iloc[[i]]['model'])
     else:
         for m in metrics:
-            if best_models[m][0] == df['model'].split('!')[-1] and str(best_models[m][1]) == str(df['step']):
-               df['model']='!'+df['model']
+            for i in range(df.shape(0)):
+                if best_models[m][0] == str(df.iloc[[i]]['model']).split('!')[-1] and str(best_models[m][1]) == str(df.iloc[[i]]['step']):
+                     df.iloc[[i]]['model']='!'+str(df.iloc[[i]]['model'])
       
 def generate_eval_results_overview(args):
     logger.info("=================================================")
