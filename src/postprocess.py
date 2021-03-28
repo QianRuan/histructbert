@@ -222,6 +222,7 @@ def copy_result_file(source):
 def mark_best_models(best_models, df):
     if 'step' not in df.columns:
         for m in metrics:
+            print(df.shape)
             for i in range(df.shape(0)):
                 if best_models[m][0] == str(df.iloc[[i]]['model']).split('!')[-1]:
                      df.iloc[[i]]['model']='!'+str(df.iloc[[i]]['model'])
