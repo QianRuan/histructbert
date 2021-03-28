@@ -219,7 +219,7 @@ def copy_result_file(source):
     
     return target
 
-def mark_best_models(best_models, df)
+def mark_best_models(best_models, df):
     if 'step' not in df.columns:
         for m in metrics:
             if best_models[m][0] == df['model'].split('!')[-1]:
