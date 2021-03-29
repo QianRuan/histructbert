@@ -254,6 +254,7 @@ class Trainer(object):
         with open(can_path, 'w', encoding="utf-8") as save_pred:
             with open(gold_path, 'w', encoding="utf-8") as save_gold:
                 with torch.no_grad():
+                    selected=[]
                     for batch in test_iter:
                         src = batch.src
                         labels = batch.src_sent_labels
@@ -294,16 +295,12 @@ class Trainer(object):
                         
                         
                         
-                        selected=[]
+                        #selected=[]
                         for i, idx in enumerate(selected_ids):
-#                            print("####-----i,idx",i,idx)
+#                            
                             _pred = []
                             _selected=[]
-#                            ############################################################
-#                            if (len(batch.src_str[i])!=len(selected_ids[i])):
-#                                #raise ValueError("len(batch.src_str[i])!=selected_ids[i]")
-#                                print("###########----------len(batch.src_str[i])!=selected_ids[i]")
-#                            ############################################################
+#                           
                             if (len(batch.src_str[i]) == 0):
                                 continue
                             for j in selected_ids[i][:len(batch.src_str[i])]:
@@ -342,7 +339,7 @@ class Trainer(object):
 
                             pred.append(_pred)
                             gold.append(batch.tgt_str[i])
-                            print("###_selected",len(_selected),_selected)
+                            #print("###_selected",len(_selected),_selected)
                             selected.append(_selected)#
                         
 #                        print(len(gold),len(pred),len(selected),type(selected))
