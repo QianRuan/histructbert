@@ -307,15 +307,9 @@ def generate_eval_results_overview(args):
     
     #return best step models for plotting summary distribution
     return hs_step_best_models, bert_step_best_models
-    
-def remove_step_models(args):
-    logger.info("=================================================")
-    logger.info("Removing step models...")
-    models = os.listdir(args.models_path)
-    models = [model for model in models if model.startswith(args.dataset+'_')]
-    histruct_models = [model for model in models if model.split('_')[1]=='hs']
-    
-    for model in histruct_models:
+
+def remove_models(models):
+    for model in models:
         
         eval_path = args.models_path + model + '/eval/'
     
@@ -337,6 +331,18 @@ def remove_step_models(args):
                 logger.info("---Training of the model is not finished, skip it-------%s"%(model))
             if not os.path.exists(eval_path+'DONE'):
                 logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
+    
+    
+def remove_step_models(args):
+    logger.info("=================================================")
+    logger.info("Removing step models...")
+    models = os.listdir(args.models_path)
+    models = [model for model in models if model.startswith(args.dataset+'_')]
+    histruct_models = [model for model in models if model.split('_')[1]=='hs']
+    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
+    
+    remove_models(histruct_models)
+    remove_models(bert_baseline_models)
     
     logger.info("Remove step models...DONE")
             
