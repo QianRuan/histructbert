@@ -378,8 +378,8 @@ def train_single_ext(args, device_id):
                                       shuffle=True, is_test=False)
     if (args.add_sent_struct_emb and not args.add_tok_struct_emb):
         model = ExtSummarizerSent(args, device, checkpoint)
-    elif (args.add_tok_struct_emb and not args.add_sent_struct_emb):
-        model = ExtSummarizerTok(args, device, checkpoint)
+#    elif (args.add_tok_struct_emb and not args.add_sent_struct_emb):
+#        model = ExtSummarizerTok(args, device, checkpoint)
     else:
         model = ExtSummarizer(args, device, checkpoint)
 #    model = ExtSummarizer(args, device, checkpoint)

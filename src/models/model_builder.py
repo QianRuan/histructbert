@@ -225,7 +225,7 @@ class ExtSummarizer(nn.Module):
     
 class ExtSummarizerSent(nn.Module):
     def __init__(self, args, device, checkpoint):
-        super(ExtSummarizer, self).__init__()
+        super(ExtSummarizerSent, self).__init__()
         self.args = args
         self.device = device
         
@@ -283,7 +283,7 @@ class ExtSummarizerSent(nn.Module):
     
 class ExtSummarizerTok(nn.Module):
     def __init__(self, args, device, checkpoint):
-        super(ExtSummarizer, self).__init__()
+        super(ExtSummarizerTok, self).__init__()
         self.args = args
         self.device = device
         
