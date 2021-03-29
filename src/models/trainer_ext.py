@@ -276,7 +276,7 @@ class Trainer(object):
                             selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
                                             range(batch.batch_size)]
 #                            print("###1tgt_sent_idx",tgt_sent_idx.shape,tgt_sent_idx)
-#                            print("###2selected_ids",len(selected_ids),selected_ids)
+                            print("###2selected_ids",len(selected_ids),selected_ids)
                         else:
                             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
 
@@ -342,10 +342,12 @@ class Trainer(object):
 
                             pred.append(_pred)
                             gold.append(batch.tgt_str[i])
+                            print("###_selected",len(_selected),_selected)
                             selected.append(_selected)#
                         
 #                        print(len(gold),len(pred),len(selected),type(selected))
 #                        print(selected)
+                        print("###selected",len(selected),selected)
                         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
                         with open(se_path, 'w+') as f:
 #                            print("###3selected",len(selected),selected)

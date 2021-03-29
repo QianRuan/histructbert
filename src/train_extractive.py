@@ -294,7 +294,7 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
         os.mkdir(args.model_path)
     
     if args.eval_path=='':
-        args.eval_path=args.model_path+'/'+args.eval_folder
+        args.eval_path=args.model_path+'/eval'
         
     if args.log_file=='':
         args.log_file=args.eval_path+'/eval.log'
