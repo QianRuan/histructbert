@@ -331,6 +331,7 @@ def train_ext(args, device_id):
     
     if args.log_file=='':
         args.log_file=args.model_path+'/train.log'
+        
     init_logger(args.log_file)
     logger.info(args)
     
