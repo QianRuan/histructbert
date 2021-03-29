@@ -254,7 +254,7 @@ class Trainer(object):
         with open(can_path, 'w', encoding="utf-8") as save_pred:
             with open(gold_path, 'w', encoding="utf-8") as save_gold:
                 with torch.no_grad():
-                    selected=[]
+                    
                     for batch in test_iter:
                         src = batch.src
                         labels = batch.src_sent_labels
@@ -270,7 +270,8 @@ class Trainer(object):
 
                         gold = []
                         pred = []
-
+                        selected=[]
+                        
                         if (cal_lead):
                             selected_ids = [list(range(batch.clss.size(1)))] * batch.batch_size
                         elif (cal_oracle):
@@ -356,6 +357,7 @@ class Trainer(object):
 #                            print(type(s[0][0]),s[0][0])
                             
                         for i in range(len(gold)):
+                            print('len(gold)',len(gold))
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             save_pred.write(pred[i].strip() + '\n')
