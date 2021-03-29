@@ -40,9 +40,9 @@ def build_trainer(args, device_id, model, optim):
 
     print('gpu_rank %d' % gpu_rank)
 
-    tensorboard_log_dir = args.model_path
+    #tensorboard_log_dir = args.model_path
     
-    #tensorboard_log_dir = '/'.join(args.log_file.split('/')[:-1])
+    tensorboard_log_dir = '/'.join(args.log_file.split('/')[:-1])
         
     writer = SummaryWriter(tensorboard_log_dir, comment="Unmt")
 
@@ -278,7 +278,7 @@ class Trainer(object):
                             selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
                                             range(batch.batch_size)]
 #                            print("###1tgt_sent_idx",tgt_sent_idx.shape,tgt_sent_idx)
-                            print("###2selected_ids",len(selected_ids),selected_ids)
+#                            print("###2selected_ids",len(selected_ids),selected_ids)
                         else:
                             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
 
@@ -345,11 +345,13 @@ class Trainer(object):
                         
 #                        print(len(gold),len(pred),len(selected),type(selected))
 #                        print(selected)
-                        print("###selected",len(selected),selected)
+#                        print("###selected",len(selected),selected)
                         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
-                        with open(se_path, 'w+') as f:
+                        with open(se_path, 'a') as f:
 #                            print("###3selected",len(selected),selected)
-                            json.dump(selected,f)
+#                            json.dump(selected,f)
+                            for s in selected:
+                                json.dump(s, f)
 #                        with open(se_path, 'r') as f:
 #                            s=json.load(f)
 #                            print(type(s),s)
