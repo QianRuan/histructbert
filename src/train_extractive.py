@@ -240,7 +240,12 @@ def validate(args, device_id, pt, step):
         if (k in model_flags):
             setattr(args, k, opt[k])
             
-    model = ExtSummarizer(args, device, checkpoint)
+    if (args.add_sent_struct_emb and not args.add_tok_struct_emb):#
+        model = ExtSummarizerSent(args, device, checkpoint)#
+    else:#
+        model = ExtSummarizer(args, device, checkpoint)   #    
+    
+#    model = ExtSummarizer(args, device, checkpoint)
     model.eval()   
     valid_iter = data_loader.Dataloader(args, load_dataset(args, 'valid', shuffle=False),
                                         args.batch_size, device,
@@ -264,8 +269,11 @@ def test_ext(args, device_id, pt, step):
         if (k in model_flags):
             setattr(args, k, opt[k])
     
-    
-    model = ExtSummarizer(args, device, checkpoint)
+    if (args.add_sent_struct_emb and not args.add_tok_struct_emb):#
+        model = ExtSummarizerSent(args, device, checkpoint)#
+    else:#
+        model = ExtSummarizer(args, device, checkpoint)   #   
+#    model = ExtSummarizer(args, device, checkpoint)
    
     model.eval()
     
