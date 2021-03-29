@@ -80,7 +80,7 @@ class LASentAddEmb(nn.Module):
     def forward(
         self,
         top_vecs,
-        tok_struct_vec,
+#        tok_struct_vec,
         sent_struct_vec,
         position_ids=None,
     ):
@@ -160,7 +160,7 @@ class SINSentAddEmb(nn.Module):
     def forward(
         self,
         top_vecs,
-        tok_struct_vec,
+#        tok_struct_vec,
         sent_struct_vec,
         position_ids=None,
     ):
@@ -260,7 +260,7 @@ class LPSentAddEmb(nn.Module):
     def forward(
         self,
         top_vecs,
-        tok_struct_vec,
+#        tok_struct_vec,
         sent_struct_vec,
         position_ids=None,
     ):
@@ -333,8 +333,8 @@ class LPSentAddEmbPOS(nn.Module):
      def forward(
         self,
         top_vecs,
-        tok_struct_vec,
-        sent_struct_vec,
+#        tok_struct_vec,
+#        sent_struct_vec,
         position_ids=None,
     ):
         
