@@ -297,6 +297,7 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
     
     if not os.path.exists(eval_folder):
         os.mkdir(eval_folder)
+    args.log_file = eval_folder+'/eval.log'
     
     init_logger(args.log_file)
     test_iter = data_loader.Dataloader(args, load_dataset(args, 'test', shuffle=False),

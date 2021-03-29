@@ -317,12 +317,21 @@ class Trainer(object):
 #                                        _selected.append(int(j))
 #                                        print("####j",j)
 #                                        print("####pos",overall_sent_pos[i][j].item())
-                                        _selected.append(overall_sent_pos[i][j].item())
+                                        if (cal_lead or cal_oracle):
+                                            _selected.append(int(j))
+                                        else:
+                                            _selected.append(overall_sent_pos[i][j].item())
+                                            
+                                        #_selected.append(overall_sent_pos[i][j].item())
 #                                        
                                 else:
                                     _pred.append(candidate)
                                     #_selected.append(int(j))
-                                    _selected.append(overall_sent_pos[i][j].item())
+                                    if (cal_lead or cal_oracle):
+                                            _selected.append(int(j))
+                                    else:
+                                            _selected.append(overall_sent_pos[i][j].item())
+                                   # _selected.append(overall_sent_pos[i][j].item())
 
                                 if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == self.args.select_top_n_sent):#!!!!select top 3
                                     break
