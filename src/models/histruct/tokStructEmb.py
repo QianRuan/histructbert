@@ -41,8 +41,6 @@ class SinPositionalEncoding(nn.Module):
     def forward(
         self,
         inputs,
-        tok_struct_vec,
-        sent_struct_vec,
         position_ids=None,
     ):
         batch_size = inputs.size(0)
@@ -182,14 +180,20 @@ class SINTokInputEmb(nn.Module):
         
         token_type_embeddings = self.token_type_embeddings(token_type_ids)
         
-        
         #768 dim
-        pe, position_embeddings= self.position_embeddings(input_ids,tok_struct_vec,sent_struct_vec)
-#        position_embeddings = pe.expand(batch_size,-1,-1)
+#        pe, position_embeddings= self.position_embeddings(top_vecs,tok_struct_vec,sent_struct_vec)
+        
+        batch_size = input_ids.size(0)
+        n = input_ids.size(1)
+        pe = self.position_embeddings.pe[:, :n]      
+        position_embeddings = pe.expand(batch_size,-1,-1)
+        
         
         #256 dim
         if (self.histruct_position_embeddings != None):
-            hs_pe,hs_position_embeddings = self.histruct_position_embeddings(input_ids,tok_struct_vec,sent_struct_vec)
+           # hs_pe,hs_position_embeddings = self.histruct_position_embeddings(input_ids,tok_struct_vec,sent_struct_vec)
+            hs_pe = self.histruct_position_embeddings.pe[:, :n]   
+            hs_position_embeddings = hs_pe.expand(batch_size,-1,-1)
         else:
             hs_pe,hs_position_embeddings = None, None
         

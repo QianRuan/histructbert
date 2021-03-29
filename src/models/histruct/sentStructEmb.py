@@ -8,24 +8,17 @@ from pytorch_transformers.modeling_bert import BertLayerNorm
 
 
 def compute_se(pos, pe, position_embeddings): 
-#    print (pos)
 
-#    print("###pe3",pe.shape)
     x_position_embeddings = torch.zeros_like(position_embeddings)
-#            print(x_position_embeddings)
-  
+ 
     for i in range(pos.size(0)):
   
         for j in range (pos.size(1)):
         
             idx = int(pos[i][j].item())
-#            print("###pe[0]",pe[0].shape)
-#            print(x_position_embeddings[i][j])
-#            print(pe[0][idx])
-       
             x_position_embeddings[i][j] = pe[0][idx]
             
-#            print(x_position_embeddings)
+
     return x_position_embeddings
 
 
@@ -48,8 +41,6 @@ class SinPositionalEncoding(nn.Module):
     def forward(
         self,
         inputs,
-        tok_struct_vec,
-        sent_struct_vec,
         position_ids=None,
     ):
 #        print("####inputs",inputs.shape)
@@ -62,7 +53,7 @@ class SinPositionalEncoding(nn.Module):
         pos_embs = pe.expand(batch_size,-1,-1)
 #        print("####pos",pos_embs.shape)
                
-        return pe,pos_embs
+        return pe, pos_embs
 
 
 class LASentAddEmb(nn.Module):

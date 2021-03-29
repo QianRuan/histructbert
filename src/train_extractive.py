@@ -137,6 +137,7 @@ def validate_ext(args, device_id):
         os.mkdir(args.eval_path)
     
     init_logger(args.log_file)
+    logger.info(args)
     
     timestep = 0
     
