@@ -250,7 +250,7 @@ class Trainer(object):
 #        if not os.path.exists(result_dir):
 #            os.mkdir(result_dir)
         
-        
+        selected=[]
         with open(can_path, 'w', encoding="utf-8") as save_pred:
             with open(gold_path, 'w', encoding="utf-8") as save_gold:
                 with torch.no_grad():
@@ -270,7 +270,7 @@ class Trainer(object):
 
                         gold = []
                         pred = []
-                        selected=[]
+                        #selected=[]
                         
                         if (cal_lead):
                             selected_ids = [list(range(batch.clss.size(1)))] * batch.batch_size
@@ -346,12 +346,13 @@ class Trainer(object):
 #                        print(len(gold),len(pred),len(selected),type(selected))
 #                        print(selected)
 #                        print("###selected",len(selected),selected)
-                        se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
-                        with open(se_path, 'a') as f:
+#                        se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
+#                        with open(se_path, 'w') as f:
+#                            json.dump(selected,f)
 #                            print("###3selected",len(selected),selected)
 #                            json.dump(selected,f)
-                            for s in selected:
-                                json.dump(s, f)
+#                            for s in selected:
+#                                json.dump(s, f)
 #                        with open(se_path, 'r') as f:
 #                            s=json.load(f)
 #                            print(type(s),s)
@@ -359,10 +360,13 @@ class Trainer(object):
 #                            print(type(s[0][0]),s[0][0])
                             
                         for i in range(len(gold)):
-                            print('len(gold)',len(gold))
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             save_pred.write(pred[i].strip() + '\n')
+        se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
+        with open(se_path, 'w') as f:
+            json.dump(selected,f)
+            
         if (step != -1 and self.args.report_rouge):
             #print("###############################trainer_ext.test2")#
             rouges = test_rouge(self.args.temp_dir, can_path, gold_path)
