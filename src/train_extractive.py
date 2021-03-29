@@ -18,7 +18,7 @@ import torch
 import distributed
 from models import data_loader, model_builder
 from models.data_loader import load_dataset
-from models.model_builder import ExtSummarizer
+from models.model_builder import ExtSummarizer,ExtSummarizerSent,ExtSummarizerTok
 from models.trainer_ext import build_trainer
 from others.logging import logger, init_logger
 from others.utils import rouge_results_to_str
@@ -376,8 +376,13 @@ def train_single_ext(args, device_id):
     def train_iter_fct():
         return data_loader.Dataloader(args, load_dataset(args, 'train', shuffle=True), args.batch_size, device,
                                       shuffle=True, is_test=False)
-
-    model = ExtSummarizer(args, device, checkpoint)
+    if (args.add_sent_struct_emb and not args.add_tok_struct_emb):
+        model = ExtSummarizerSent(args, device, checkpoint)
+    elif (args.add_tok_struct_emb and not args.add_sent_struct_emb):
+        model = ExtSummarizerTok(args, device, checkpoint)
+    else:
+        model = ExtSummarizer(args, device, checkpoint)
+#    model = ExtSummarizer(args, device, checkpoint)
     optim = model_builder.build_optim(args, model, checkpoint)
 
     logger.info(model)
