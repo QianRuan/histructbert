@@ -29,8 +29,8 @@ cnndm_reported_baselines.append({'model':'MatchSum(BERT-base)', 'rouge_1_f_score
 cnndm_reported_baselines.append({'model':'BERTSUMEXT', 'rouge_1_f_score':43.25, 'rouge_2_f_score':20.24, 'rouge_l_f_score':39.63})
 cnndm_reported_baselines.append({'model':'BERTSUMEXT w/o interval embeddings', 'rouge_1_f_score':43.20, 'rouge_2_f_score':20.22, 'rouge_l_f_score':39.59})
 cnndm_reported_baselines.append({'model':'BERTSUMEXT (large)', 'rouge_1_f_score':43.85, 'rouge_2_f_score':20.34, 'rouge_l_f_score':39.90})
-cnndm_reported_baselines.append({'model':'BERTSUM-lead3', 'rouge_1_f_score':40.42, 'rouge_2_f_score':17.62, 'rouge_l_f_score':48.87})
-cnndm_reported_baselines.append({'model':'BERTSUM-oracle', 'rouge_1_f_score':52.59, 'rouge_2_f_score':31.24, 'rouge_l_f_score':36.67})
+cnndm_reported_baselines.append({'model':'BERTSUM-lead3', 'rouge_1_f_score':40.42, 'rouge_2_f_score':17.62, 'rouge_l_f_score':36.67})
+cnndm_reported_baselines.append({'model':'BERTSUM-oracle', 'rouge_1_f_score':52.59, 'rouge_2_f_score':31.24, 'rouge_l_f_score':48.87})
 
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
