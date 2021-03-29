@@ -293,13 +293,29 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
     if not os.path.exists(args.model_path):
         os.mkdir(args.model_path)
     
-    eval_folder= args.model_path+args.eval_folder
+    if args.eval_path=='':
+        args.eval_path=args.model_path+'/'+args.eval_folder
+        
+    if args.log_file=='':
+        args.log_file=args.eval_path+'/eval.log'
     
-    if not os.path.exists(eval_folder):
-        os.mkdir(eval_folder)
-    args.log_file = eval_folder+'/eval.log'
+    if args.result_path=='':
+        args.result_path=args.eval_path+'/eval.results'
+        
+    elif '/'.join(args.result_path.split('/')[:-1]) != args.eval_path:
+        raise ValueError("Evaluation result path not in the eval folder")
+        
+    #create eval folder if not exists, delete if exists
+    if os.path.exists(args.eval_path):
+        logger.info('Eval folder already exists, remove it!')
+        shutil.rmtree(args.eval_path)
+        os.mkdir(args.eval_path)
+    else:
+        os.mkdir(args.eval_path)
     
     init_logger(args.log_file)
+    logger.info(args)
+    
     test_iter = data_loader.Dataloader(args, load_dataset(args, 'test', shuffle=False),
                                        args.batch_size, 'cpu',
                                        shuffle=False, is_test=True)

@@ -246,9 +246,9 @@ class Trainer(object):
         gold_path = '%s_step%d.gold' % (self.args.result_path, step)
         #print("###############################trainer_ext.test1",can_path,gold_path)#
         
-        result_dir='/'.join(self.args.result_path.split('/')[:-1])
-        if not os.path.exists(result_dir):
-            os.mkdir(result_dir)
+#        result_dir='/'.join(self.args.result_path.split('/')[:-1])
+#        if not os.path.exists(result_dir):
+#            os.mkdir(result_dir)
         
         
         with open(can_path, 'w', encoding="utf-8") as save_pred:
