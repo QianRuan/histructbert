@@ -125,7 +125,7 @@ class ExtTransformerEncoder(nn.Module):
         self.wo = nn.Linear(d_model, 1, bias=True)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, top_vecs, mask,sent_struct_vec,tok_struct_vec):
+    def forward(self, top_vecs, mask,sent_struct_vec):
         """ See :obj:`EncoderBase.forward()`"""
 
 #        batch_size, n_sents = top_vecs.size(0), top_vecs.size(1)
@@ -134,7 +134,10 @@ class ExtTransformerEncoder(nn.Module):
 #        print("########tok_struct_vec",tok_struct_vec.shape, tok_struct_vec)
 #        print("########sent_struct_vec",sent_struct_vec.shape, sent_struct_vec)
         
-        add_emb = self.add_emb(top_vecs, tok_struct_vec=tok_struct_vec,sent_struct_vec=sent_struct_vec)
+        add_emb = self.add_emb(top_vecs, sent_struct_vec)
+         
+#        add_emb = self.add_emb(top_vecs, tok_struct_vec=tok_struct_vec,sent_struct_vec=sent_struct_vec)
+         
 #        add_emb = self.add_emb.add_embeddings#pe[:, :n_sents]
 #        add_emb = self.add_emb.pe#[:, :n_sents]
         

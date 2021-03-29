@@ -95,6 +95,8 @@ class Trainer(object):
         self.n_gpu = n_gpu
         self.gpu_rank = gpu_rank
         self.report_manager = report_manager
+#        self.add_tok_struct_emb = args.add_tok_struct_emb
+#        self.add_sent_struct_emb = args.add_sent_struct_emb
 
         self.loss = torch.nn.BCELoss(reduction='none')
         assert grad_accum_count > 0
@@ -371,8 +373,12 @@ class Trainer(object):
             mask_cls = batch.mask_cls
             sent_struct_vec = batch.sent_struct_vec
             tok_struct_vec = batch.tok_struct_vec
-
+            
+            
             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
+            
+            
+            
             del sent_struct_vec
             del tok_struct_vec
             del src
