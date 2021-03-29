@@ -223,150 +223,65 @@ class ExtSummarizer(nn.Module):
         sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
         return sent_scores, mask_cls
     
-class ExtSummarizerSent(nn.Module):
-    def __init__(self, args, device, checkpoint):
-        super(ExtSummarizerSent, self).__init__()
-        self.args = args
-        self.device = device
-        
-        
-        init_logger(self.args.log_file)
-        
-        #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
-        
-        
-        self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
-        logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
-        logger.info("-----use original BERT learnable PosEmb") 
-        
-                
-           
-        self.ext_layer = ExtTransformerEncoder(self.bert.model,args, self.bert.model.config.hidden_size, args.ext_ff_size, args.ext_heads,
-                                               args.ext_dropout, args.ext_layers)
-        
-        if (args.encoder == 'baseline'):
-            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.ext_hidden_size,
-                                     num_hidden_layers=args.ext_layers, num_attention_heads=args.ext_heads, intermediate_size=args.ext_ff_size)
-            self.bert.model = BertModel(bert_config)
-            self.ext_layer = Classifier(self.bert.model.config.hidden_size)
-
-        if(args.max_pos>512):
-            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
-            #my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
-            #my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
-            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
-        
-        
-
-
-        if checkpoint is not None:
-            self.load_state_dict(checkpoint['model'], strict=True)
-        else:
-            if args.param_init != 0.0:
-                for p in self.ext_layer.parameters():
-                    p.data.uniform_(-args.param_init, args.param_init)
-            if args.param_init_glorot:
-                for p in self.ext_layer.parameters():
-                    if p.dim() > 1:
-                        xavier_uniform_(p)
-
-        self.to(device)
-
-    def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec):#
-       
-        top_vec = self.bert(src, segs, mask_src)
-        sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
-        sents_vec = sents_vec * mask_cls[:, :, None].float()
-#        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
-        sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
-        return sent_scores, mask_cls
+#class ExtSummarizerSent(nn.Module):
+#    def __init__(self, args, device, checkpoint):
+#        super(ExtSummarizerSent, self).__init__()
+#        self.args = args
+#        self.device = device
+#        
+#        
+#        init_logger(self.args.log_file)
+#        
+#        #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
+#        
+#        
+#        self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
+#        logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
+#        logger.info("-----use original BERT learnable PosEmb") 
+#        
+#                
+#           
+#        self.ext_layer = ExtTransformerEncoder(self.bert.model,args, self.bert.model.config.hidden_size, args.ext_ff_size, args.ext_heads,
+#                                               args.ext_dropout, args.ext_layers)
+#        
+#        if (args.encoder == 'baseline'):
+#            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.ext_hidden_size,
+#                                     num_hidden_layers=args.ext_layers, num_attention_heads=args.ext_heads, intermediate_size=args.ext_ff_size)
+#            self.bert.model = BertModel(bert_config)
+#            self.ext_layer = Classifier(self.bert.model.config.hidden_size)
+#
+#        if(args.max_pos>512):
+#            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
+#            #my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
+#            #my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
+#            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+#        
+#        
+#
+#
+#        if checkpoint is not None:
+#            self.load_state_dict(checkpoint['model'], strict=True)
+#        else:
+#            if args.param_init != 0.0:
+#                for p in self.ext_layer.parameters():
+#                    p.data.uniform_(-args.param_init, args.param_init)
+#            if args.param_init_glorot:
+#                for p in self.ext_layer.parameters():
+#                    if p.dim() > 1:
+#                        xavier_uniform_(p)
+#
+#        self.to(device)
+#
+#    def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec):#
+#       
+#        top_vec = self.bert(src, segs, mask_src)
+#        sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
+#        sents_vec = sents_vec * mask_cls[:, :, None].float()
+##        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
+#        sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
+#        return sent_scores, mask_cls
     
-class ExtSummarizerTok(nn.Module):
-    def __init__(self, args, device, checkpoint):
-        super(ExtSummarizerTok, self).__init__()
-        self.args = args
-        self.device = device
-        
-        
-        init_logger(self.args.log_file)
-        
-        #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
-        
-        if (args.add_tok_struct_emb):
-            self.bert = HiStructBert(args.large, args.temp_dir, args.finetune_bert)
-            logger.info("#####Input embeddings_add token hierarchical structure embeddings: TRUE") 
-            if (args.tok_pos_emb_type == 'learned_all'):
-                logger.info("-----Type of positional embeddings...learnable")
-                logger.info("-----Sequential position and hiarchical positions...different PosEmbs ")
-                logger.info("-----Token Structure Embeddings_combination mode ... "+args.tok_se_comb_mode)
-                
-                self.bert.model.embeddings = LATokInputEmb(self.bert.model.config, args)
-               
-            elif (args.tok_pos_emb_type == 'learned_pos'):
-                logger.info("-----Type of positional embeddings...learnable")
-                logger.info("-----Sequential position and hiarchical positions...one same PosEmb ")
-                logger.info("-----Token Structure Embeddings_combination mode ... "+args.tok_se_comb_mode)
-                
-                self.bert.model.embeddings = LPTokInputEmb(self.bert.model.config, args)
-               
-                    
-            elif (args.tok_pos_emb_type == 'sinusoidal'):
-                logger.info("-----Type of positional embeddings...sinusoidal")
-                logger.info("-----Token Structure Embeddings_combination mode ... "+args.tok_se_comb_mode)
-                
-                self.bert.model.embeddings = SINTokInputEmb(self.bert.model.config, args)
-            else:
-                raise ValueError("Must choose one from: ['learned_pos', 'learned_all', 'sinusoidal'] as args.tok_pos_emb_type")
-                
-                
-        else:
-            self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
-            logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
-            logger.info("-----use original BERT learnable PosEmb") 
-        
-                
-           
-        self.ext_layer = ExtTransformerEncoder(self.bert.model,args, self.bert.model.config.hidden_size, args.ext_ff_size, args.ext_heads,
-                                               args.ext_dropout, args.ext_layers)
-        
-        if (args.encoder == 'baseline'):
-            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.ext_hidden_size,
-                                     num_hidden_layers=args.ext_layers, num_attention_heads=args.ext_heads, intermediate_size=args.ext_ff_size)
-            self.bert.model = BertModel(bert_config)
-            self.ext_layer = Classifier(self.bert.model.config.hidden_size)
 
-        if(args.max_pos>512):
-            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
-            #my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
-            #my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
-            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
-        
-        
-
-
-        if checkpoint is not None:
-            self.load_state_dict(checkpoint['model'], strict=True)
-        else:
-            if args.param_init != 0.0:
-                for p in self.ext_layer.parameters():
-                    p.data.uniform_(-args.param_init, args.param_init)
-            if args.param_init_glorot:
-                for p in self.ext_layer.parameters():
-                    if p.dim() > 1:
-                        xavier_uniform_(p)
-
-        self.to(device)
-
-    def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec):#
-        if (self.args.add_tok_struct_emb):
-            top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
-        else:
-            top_vec = self.bert(src, segs, mask_src)
-        sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
-        sents_vec = sents_vec * mask_cls[:, :, None].float()
-#        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
-        sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
-        return sent_scores, mask_cls
 
 
 class AbsSummarizer(nn.Module):
