@@ -214,13 +214,13 @@ class ExtSummarizer(nn.Module):
 
     def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec):#
         if (self.args.add_tok_struct_emb):
-            top_vec = self.bert(src, segs, mask_src,sent_struct_vec,tok_struct_vec)
+            top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
         else:
             top_vec = self.bert(src, segs, mask_src)
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
         sents_vec = sents_vec * mask_cls[:, :, None].float()
 #        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
-        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec).squeeze(-1)
+        sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
         return sent_scores, mask_cls
 
 
