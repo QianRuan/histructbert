@@ -415,12 +415,12 @@ def get_best_step_model_prob(best_models):
     total = sum(list(dic.values()))
     best = []
     for model in dic.keys():
-        if dic[model]/total > 0.45:
+        if dic[model]/total > 0.3:
             best.append(model)
             logger.info("Best step model: %s, (%i/%i)"%(model,dic[model],total))
     prob_dics = {}        
     if len(best)==0:
-        logger.info("There is no model won on more than 45% of the 9 rouge metrics, %s"%(dic))
+        logger.info("There is no model won on more than 30% of the 9 rouge metrics, %s"%(dic))
     else:       
         for model in best:
             name = model[0]
