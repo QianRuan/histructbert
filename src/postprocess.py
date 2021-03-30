@@ -236,7 +236,7 @@ def generate_eval_results_overview(args):
     logger.info("=================================================")
     logger.info("Generating evaluation results overview...")
     
-    models = os.listdir(args.models_path)
+    models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
     
     baseline_models = [model for model in models if model.split('_')[1]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
@@ -336,7 +336,7 @@ def remove_models(models):
 def remove_step_models(args):
     logger.info("=================================================")
     logger.info("Removing step models...")
-    models = os.listdir(args.models_path)
+    models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
     bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
@@ -350,7 +350,7 @@ def remove_step_models(args):
 def plot_val_xent(args):
     logger.info("=================================================")
     logger.info("Plotting validation loss...")
-    models = os.listdir(args.models_path)
+    models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
     
@@ -412,7 +412,6 @@ def get_prob_dic(modelname, step):
 def get_best_step_model_prob(best_models):
     
     dic = ({i:list(best_models.values()).count(i) for i in list(best_models.values())})
-#    dic_sorted = dict(sorted(dic.items(), key=lambda item: item[1]))
     max_v = max(list(dic.values()))
     total = sum(list(dic.values()))
     best = []
@@ -421,9 +420,7 @@ def get_best_step_model_prob(best_models):
             best.append(model)
             logger.info("Best step model: %s, won on (%i/%i) metrics"%(model,dic[model],total))
     prob_dics = {}        
-#    if len(best)==0:
-#        logger.info("There is no model won on more than 30% of the 9 rouge metrics, %s"%(dic))
-#    else:       
+      
     for model in best:
         name = model[0]
         step = model[1]
