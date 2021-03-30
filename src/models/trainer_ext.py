@@ -391,12 +391,12 @@ class Trainer(object):
             sent_struct_vec = batch.sent_struct_vec
             tok_struct_vec = batch.tok_struct_vec
             
-            if (self.add_sent_struct_emb and not self.add_tok_struct_emb):
-                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec)     
-            else:
-                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
+#            if (self.add_sent_struct_emb and not self.add_tok_struct_emb):
+#                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec)     
+#            else:
+#                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
         
-#            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
+            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
 #            
 #           
 #            del sent_struct_vec
