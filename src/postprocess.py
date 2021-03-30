@@ -243,10 +243,12 @@ def generate_eval_results_overview(args):
     
     baseline_models = [model for model in models if model.split('_')[1]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
     baseline_models.reverse()
+    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
     
     logger.info("DATASET: %s"%(args.dataset))
     logger.info("There are %i baseline models"%(len(baseline_models)))
+    logger.info("There are %i bert baseline models"%(len(bert_baseline_models)))
     logger.info("There are %i histruct models"%(len(histruct_models)))
     
     
@@ -287,7 +289,7 @@ def generate_eval_results_overview(args):
     color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
     color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
-    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
+    
     df13,df14 = get_rouges_df(bert_baseline_models)
     bert_avg_best_models = check_best_models(df13)
     bert_step_best_models = check_best_models(df14)
@@ -412,8 +414,9 @@ def get_prob_dic(modelname, step):
     
     
 def get_best_step_model_prob(best_models):
-    
-    dic = ({i:list(best_models.values()).count(i) for i in list(best_models.values())})
+    flat_list = [item for sublist in list(best_models.values()) for item in sublist]
+    dic = ({i:flat_list.count(i) for i in flat_list})
+#    dic = ({i:list(best_models.values()).count(i) for i in list(best_models.values())})
     max_v = max(list(dic.values()))
     total = sum(list(dic.values()))
     best = []
