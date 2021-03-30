@@ -440,12 +440,12 @@ def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
     
     prob_dics.update({oracle+'.step0': get_prob_dic(oracle, 0)})
     
-    
-    best_bert_prob_dics = get_best_step_model_prob(bert_step_best_models)
-    best_hs_prob_dics = get_best_step_model_prob(hs_step_best_models)
-    
-    prob_dics.update(best_bert_prob_dics)
-    prob_dics.update(best_hs_prob_dics)
+    for model in bert_step_best_models:
+        best_bert_prob_dics = get_best_step_model_prob(model)
+        prob_dics.update(best_bert_prob_dics)
+    for model in hs_step_best_models:   
+        best_hs_prob_dics = get_best_step_model_prob(hs_step_best_models)
+        prob_dics.update(best_hs_prob_dics)
 
     png_file = args.models_path+args.dataset+'.summ.dist.png'
     lens = [len(v) for v in prob_dics.values()]
