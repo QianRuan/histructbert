@@ -126,23 +126,21 @@ def check_best_models(df):
     
     best_models = {}
     for m in metrics:
-        best_models.update({m:None})
+        best_models.update({m:[]})
     
     
         
     for m in metrics:
-        idxmax = df[m].idxmax()
-        model = df['model'][idxmax]
-        
-        if 'step' in df.columns:
-            step = df['step'][idxmax]
-        else:
-            step=None
-        
-        best_models[m] = (model, step)
-    
-    
-    
+        max_v = df[m].max()
+        for index, row in df.iterrows():
+            if row[m] == max_v:
+                model = row['model']
+                if 'step' in df.columns:
+                    step = row['step']
+                else:
+                    step=None
+            best_models[m].append((model, step))
+  
     return best_models
         
         
@@ -189,17 +187,18 @@ def color_the_best_metric(excelfile, sheetname, best_models, color, font):
     # Color best metrics 
     for row_cells in ws.iter_rows(min_row=2, max_row=ws.max_row):
         for m in metrics:
-            
-            if 'step' in ColNames.keys():
-                if row_cells[ColNames['model']].value == best_models[m][0] and row_cells[ColNames['step']].value == best_models[m][1]:
-                    
-                    row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
-                    row_cells[ColNames[m]].font = Font(b=font)
-            else:
-                if row_cells[ColNames['model']].value == best_models[m][0]:
-                    
-                    row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
-                    row_cells[ColNames[m]].font = Font(b=font)
+            bests = best_models[m]
+            for model in bests:
+                if 'step' in ColNames.keys():
+                    if row_cells[ColNames['model']].value == model[0] and row_cells[ColNames['step']].value == model[1]:
+                        
+                        row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
+                        row_cells[ColNames[m]].font = Font(b=font)
+                else:
+                    if row_cells[ColNames['model']].value == model[0]:
+                        
+                        row_cells[ColNames[m]].fill = PatternFill("solid", fgColor=color)
+                        row_cells[ColNames[m]].font = Font(b=font)
                      
     wb.save(excelfile)
             
@@ -222,15 +221,18 @@ def copy_result_file(source):
 def mark_best_models(best_models, df):
     if 'step' not in df.columns:
         for m in metrics:
-            
-            for i in range(df.shape[0]):
-                if best_models[m][0] == df['model'].values[i].split('!')[-1]:
-                     df['model'].values[i] = '!' + df['model'].values[i]
+            bests = best_models[m]
+            for model in bests:
+                for i in range(df.shape[0]):
+                    if model[0] == df['model'].values[i].split('!')[-1]:
+                         df['model'].values[i] = '!' + df['model'].values[i]
     else:
         for m in metrics:
-            for i in range(df.shape[0]):
-                if best_models[m][0] == df['model'].values[i].split('!')[-1] and str(best_models[m][1]) == df['step'].values[i]:
-                     df['model'].values[i] ='!' + df['model'].values[i]
+            bests = best_models[m]
+            for model in bests:
+                for i in range(df.shape[0]):
+                    if model[0] == df['model'].values[i].split('!')[-1] and str(model[1]) == df['step'].values[i]:
+                         df['model'].values[i] ='!' + df['model'].values[i]
       
 def generate_eval_results_overview(args):
     logger.info("=================================================")
