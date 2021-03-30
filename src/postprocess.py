@@ -139,7 +139,7 @@ def check_best_models(df):
                     step = row['step']
                 else:
                     step=None
-            best_models[m].append((model, step))
+                best_models[m].append((model, step))
   
     return best_models
         
