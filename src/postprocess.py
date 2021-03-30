@@ -412,21 +412,23 @@ def get_prob_dic(modelname, step):
 def get_best_step_model_prob(best_models):
     
     dic = ({i:list(best_models.values()).count(i) for i in list(best_models.values())})
+#    dic_sorted = dict(sorted(dic.items(), key=lambda item: item[1]))
+    max_v = max(list(dic.values()))
     total = sum(list(dic.values()))
     best = []
     for model in dic.keys():
-        if dic[model]/total > 0.3:
+        if dic[model]==max_v:
             best.append(model)
-            logger.info("Best step model: %s, (%i/%i)"%(model,dic[model],total))
+            logger.info("Best step model: %s, won on (%i/%i) metrics"%(model,dic[model],total))
     prob_dics = {}        
-    if len(best)==0:
-        logger.info("There is no model won on more than 30% of the 9 rouge metrics, %s"%(dic))
-    else:       
-        for model in best:
-            name = model[0]
-            step = model[1]
-            prob_dic = get_prob_dic(name, step)
-            prob_dics.update({name+'.step'+str(step):prob_dic})
+#    if len(best)==0:
+#        logger.info("There is no model won on more than 30% of the 9 rouge metrics, %s"%(dic))
+#    else:       
+    for model in best:
+        name = model[0]
+        step = model[1]
+        prob_dic = get_prob_dic(name, step)
+        prob_dics.update({name+'.step'+str(step):prob_dic})
     return prob_dics
     
        
