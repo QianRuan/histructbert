@@ -455,7 +455,7 @@ def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
             prob_dics[k] = prob_dics[k] + [0]*(max_le - len(prob_dics[k]))
        
     df = pd.DataFrame(prob_dics, index=index)
-    ax = df.plot.bar(rot=0,figsize=(10,6),title='summary distribution, dataset %s'%(args.dataset))
+    ax = df.plot.bar(rot=0,figsize=(20,6),title='summary distribution, dataset %s'%(args.dataset))
     ax.set_ylim(0,0.3)
     ax.set_xlabel("sentence position in source text")
     ax.set_ylabel("propotion of selected sentences")
