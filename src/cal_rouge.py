@@ -1,14 +1,12 @@
 import argparse
 import os
 import time
-# from multiprocess import Pool as Pool2
 from multiprocessing import Pool
 
 import shutil
 import sys
 import codecs
 
-# from onmt.utils.logging import init_logger, logger
 from others import pyrouge
 
 
@@ -86,19 +84,15 @@ def rouge_results_to_str(results_dict):
     return ">> ROUGE-F(1/2/3/l): {:.2f}/{:.2f}/{:.2f}\nROUGE-R(1/2/3/l): {:.2f}/{:.2f}/{:.2f}\n".format(
         results_dict["rouge_1_f_score"] * 100,
         results_dict["rouge_2_f_score"] * 100,
-        # results_dict["rouge_3_f_score"] * 100,
         results_dict["rouge_l_f_score"] * 100,
     results_dict["rouge_1_recall"] * 100,
     results_dict["rouge_2_recall"] * 100,
-    # results_dict["rouge_3_f_score"] * 100,
     results_dict["rouge_l_recall"] * 100
-
-    # ,results_dict["rouge_su*_f_score"] * 100
     )
 
 
 if __name__ == "__main__":
-    # init_logger('test_rouge.log')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', type=str, default="candidate.txt",
                         help='candidate file')
@@ -117,8 +111,8 @@ if __name__ == "__main__":
     references = codecs.open(args.r, encoding="utf-8")
 
     results_dict = test_rouge(candidates, references,args.p)
-    # return 0
+    
     print(time.strftime('%H:%M:%S', time.localtime())
 )
     print(rouge_results_to_str(results_dict))
-    # logger.info(rouge_results_to_str(results_dict))
+    

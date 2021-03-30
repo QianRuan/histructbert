@@ -443,12 +443,10 @@ def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
     
     prob_dics.update({oracle+'.step0': get_prob_dic(oracle, 0)})
     
-    print(bert_step_best_models)
-    print(hs_step_best_models)
-#    for model in bert_step_best_models:
+ 
     best_bert_prob_dics = get_best_step_model_prob(bert_step_best_models)
     prob_dics.update(best_bert_prob_dics)
-#    for model in hs_step_best_models:   
+
     best_hs_prob_dics = get_best_step_model_prob(hs_step_best_models)
     prob_dics.update(best_hs_prob_dics)
 
