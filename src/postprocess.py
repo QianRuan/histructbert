@@ -503,7 +503,7 @@ if __name__ == '__main__':
         flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
         not_removed.extend(flat1+flat2+flat3+flat4)
         not_removed=set(not_removed)
-        logger.info('Best models are not removed',not_removed)
+        logger.info('Best models are not removed: '+not_removed)
     
         remove_step_models(args,not_removed)
     
