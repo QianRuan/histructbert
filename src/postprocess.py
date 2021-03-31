@@ -310,7 +310,7 @@ def generate_eval_results_overview(args):
     logger.info("Generate evaluation results overview...DONE")
     
     #return best step models for plotting summary distribution
-    return hs_step_best_models, bert_step_best_models
+    return hs_step_best_models, bert_step_best_models, hs_avg_best_models, bert_avg_best_models
 
 def remove_models(models):
     for model in models:
@@ -491,16 +491,17 @@ if __name__ == '__main__':
     os.environ['KMP_DUPLICATE_LIB_OK']='True'
   
     if (args.generate_eval_results_overview):
-        hs_step_best_models, bert_step_best_models = generate_eval_results_overview(args)
+        hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models = generate_eval_results_overview(args)
         
     if (args.remove_step_models):
-        remove_step_models(args)
-    
-    if (args.plot_val_xent):
-        plot_val_xent(args)
-        
-    if (args.plot_summ_distribution):
-        plot_summ_distribution(args, hs_step_best_models, bert_step_best_models)
+        print(hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models)
+#        remove_step_models(args)
+#    
+#    if (args.plot_val_xent):
+#        plot_val_xent(args)
+#        
+#    if (args.plot_summ_distribution):
+#        plot_summ_distribution(args, hs_step_best_models, bert_step_best_models)
         
     
         
