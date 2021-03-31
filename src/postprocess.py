@@ -312,32 +312,33 @@ def generate_eval_results_overview(args):
     #return best step models for plotting summary distribution
     return hs_step_best_models, bert_step_best_models, hs_avg_best_models, bert_avg_best_models
 
-def remove_models(models):
+def remove_models(models,nrm):
     for model in models:
-        
-        eval_path = args.models_path + model + '/eval/'
-    
-        if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
-            files = os.listdir(eval_path)
-            summ_files = [file for file in files if file.endswith('.gold')]
-            steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
+        if model not in nrm:
             
-            files = os.listdir(args.models_path + model)
-            step_models = [file for file in files if file.endswith('.pt')]
-            removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
-            logger.info("remove %i step models from model %s"%(len(removed_step_models),model))
-            for m in removed_step_models:
-                path = args.models_path + model + '/' + m
-                os.remove(path)
+            eval_path = args.models_path + model + '/eval/'
+        
+            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+                files = os.listdir(eval_path)
+                summ_files = [file for file in files if file.endswith('.gold')]
+                steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
                 
-        else:
-            if not os.path.exists(args.models_path + model+'/DONE'):
-                logger.info("---Training of the model is not finished, skip it-------%s"%(model))
-            if not os.path.exists(eval_path+'DONE'):
-                logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
+                files = os.listdir(args.models_path + model)
+                step_models = [file for file in files if file.endswith('.pt')]
+                removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
+                logger.info("remove %i step models from model %s"%(len(removed_step_models),model))
+                for m in removed_step_models:
+                    path = args.models_path + model + '/' + m
+                    os.remove(path)
+                    
+            else:
+                if not os.path.exists(args.models_path + model+'/DONE'):
+                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
+                if not os.path.exists(eval_path+'DONE'):
+                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
     
     
-def remove_step_models(args):
+def remove_step_models(args,nrm):
     logger.info("=================================================")
     logger.info("Removing step models...")
     models = sorted(os.listdir(args.models_path))
@@ -345,8 +346,8 @@ def remove_step_models(args):
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
     bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
     
-    remove_models(histruct_models)
-    remove_models(bert_baseline_models)
+    remove_models(histruct_models,nrm)
+    remove_models(bert_baseline_models,nrm)
     
     logger.info("Remove step models...DONE")
             
@@ -494,26 +495,23 @@ if __name__ == '__main__':
         hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models = generate_eval_results_overview(args)
         
     if (args.remove_step_models):
-#        print(hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models)
+
         not_removed = []
         flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
         flat2 = [item[0] for sublist in list(bert_step_best_models.values()) for item in sublist]
         flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
         flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
-        not_removed.extend(flat1)
-        not_removed.extend(flat2)
-        not_removed.extend(flat3)
-        not_removed.extend(flat4)
+        not_removed.extend(flat1+flat2+flat3+flat4)
         not_removed=set(not_removed)
-        print(not_removed)
+        logger.info('Best models are not removed',not_removed)
     
-#        remove_step_models(args)
-#    
-#    if (args.plot_val_xent):
-#        plot_val_xent(args)
-#        
-#    if (args.plot_summ_distribution):
-#        plot_summ_distribution(args, hs_step_best_models, bert_step_best_models)
+        remove_step_models(args,not_removed)
+    
+    if (args.plot_val_xent):
+        plot_val_xent(args)
+        
+    if (args.plot_summ_distribution):
+        plot_summ_distribution(args, hs_step_best_models, bert_step_best_models)
         
     
         
