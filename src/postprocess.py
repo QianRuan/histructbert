@@ -494,7 +494,19 @@ if __name__ == '__main__':
         hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models = generate_eval_results_overview(args)
         
     if (args.remove_step_models):
-        print(hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models)
+#        print(hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models)
+        not_removed = []
+        flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
+        flat2 = [item[0] for sublist in list(bert_step_best_models.values()) for item in sublist]
+        flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
+        flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
+        not_removed.extend(flat1)
+        not_removed.extend(flat2)
+        not_removed.extend(flat3)
+        not_removed.extend(flat4)
+        not_removed=set(not_removed)
+        print(not_removed)
+    
 #        remove_step_models(args)
 #    
 #    if (args.plot_val_xent):
