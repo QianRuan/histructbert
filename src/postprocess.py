@@ -280,14 +280,14 @@ def generate_eval_results_overview(args):
     save_eval_results_to_excel(result_file, avg_sheet, avg_df)
     save_eval_results_to_excel(result_file, step_sheet, step_df)
     #make a copy
-    cp_result_file = copy_result_file(result_file)
+#    cp_result_file = copy_result_file(result_file)
   
     hs_avg_best_models = check_best_models(df3)
     hs_step_best_models = check_best_models(df4)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
-    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
-    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
+#    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
+#    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
     
     df13,df14 = get_rouges_df(bert_baseline_models)
@@ -295,8 +295,8 @@ def generate_eval_results_overview(args):
     bert_step_best_models = check_best_models(df14)
     color_the_best_metric(result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
     color_the_best_metric(result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
+#    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
+#    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
     mark_best_models(bert_avg_best_models,avg_df)
     mark_best_models(hs_avg_best_models,avg_df)
