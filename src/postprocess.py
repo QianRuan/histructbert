@@ -419,7 +419,7 @@ def get_best_step_model_prob(best_models):
     dic = ({i:flat_list.count(i) for i in flat_list})
 #    dic = ({i:list(best_models.values()).count(i) for i in list(best_models.values())})
     max_v = max(list(dic.values()))
-    total = sum(list(dic.values()))
+    total = len(metrics)
     best = []
     for model in dic.keys():
         if dic[model]==max_v:

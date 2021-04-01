@@ -66,7 +66,7 @@ class HiStructBertModel(BertModel):
         self,
         input_ids,
         tok_struct_vec,
-        sent_struct_vec,
+#        sent_struct_vec,
         attention_mask=None,
         token_type_ids=None,
         position_ids=None,
@@ -120,8 +120,11 @@ class HiStructBertModel(BertModel):
         else:
             head_mask = [None] * self.config.num_hidden_layers
 
+#        embedding_output = self.embeddings(
+#            input_ids, tok_struct_vec=tok_struct_vec, sent_struct_vec=sent_struct_vec, position_ids=position_ids, token_type_ids=token_type_ids
+#        )
         embedding_output = self.embeddings(
-            input_ids, tok_struct_vec=tok_struct_vec, sent_struct_vec=sent_struct_vec, position_ids=position_ids, token_type_ids=token_type_ids
+            input_ids, tok_struct_vec=tok_struct_vec, position_ids=position_ids, token_type_ids=token_type_ids
         )
         encoder_outputs = self.encoder(
             embedding_output, extended_attention_mask, head_mask=head_mask
@@ -150,14 +153,14 @@ class HiStructBert(nn.Module):
         
         #self.model.embeddings = HiStructBertEmbeddings(self.model.config)#
 
-    def forward(self, x, segs, mask, sent_struct_vec,tok_struct_vec):
+    def forward(self, x, segs, mask, tok_struct_vec):###(self, x, segs, mask, sent_struct_vec, tok_struct_vec)
         if(self.finetune):
             #print("########mask",mask)
             top_vec, _ = self.model( 
                             x, 
                             token_type_ids=segs, 
                             attention_mask=mask,
-                            sent_struct_vec=sent_struct_vec,
+#                            sent_struct_vec=sent_struct_vec,
                             tok_struct_vec=tok_struct_vec
                             )
         else:
@@ -167,7 +170,7 @@ class HiStructBert(nn.Module):
                             x, 
                             token_type_ids=segs, 
                             attention_mask=mask,
-                            sent_struct_vec=sent_struct_vec,
+#                            sent_struct_vec=sent_struct_vec,
                             tok_struct_vec=tok_struct_vec
                             )
         return top_vec
