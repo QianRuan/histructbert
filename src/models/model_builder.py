@@ -148,7 +148,7 @@ class ExtSummarizer(nn.Module):
         #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
         
         if (args.add_tok_struct_emb):
-            self.bert = HiStructBert(args.large, args.temp_dir, args.finetune_bert)
+            self.bert = HiStructBert(args.base_LM, args.temp_dir, args.finetune_bert)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: TRUE") 
             if (args.tok_pos_emb_type == 'learned_all'):
                 logger.info("-----Type of positional embeddings...learnable")
