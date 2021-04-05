@@ -175,9 +175,9 @@ class ExtSummarizer(nn.Module):
                 
                 
         else:
-            self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
+            self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
-            logger.info("-----use original BERT learnable PosEmb") 
+            logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
         
                 
            
