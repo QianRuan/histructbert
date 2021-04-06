@@ -144,12 +144,19 @@ def validate_ext(args, device_id):
     if (args.test_all):
         cp_files = sorted(glob.glob(os.path.join(args.model_path, 'model_step_*.pt')))
         cp_files.sort(key=os.path.getmtime)
+        logger.info('There are %i checkpoints'%(len(cp_files)))
         xent_lst = []
         for i, cp in enumerate(cp_files):
             step = int(cp.split('.')[-2].split('_')[-1])
             xent = validate(args, device_id, cp, step)
             xent_lst.append((xent, cp))
             max_step = xent_lst.index(min(xent_lst))
+            print('#############################################')
+            print('step',step)
+            print('cp',cp)
+            print('xent_lst',xent_lst)
+            print('max_step',max_step)
+            print('i',i)
             if (i - max_step > 10):
                 break
         
