@@ -150,15 +150,15 @@ def validate_ext(args, device_id):
             step = int(cp.split('.')[-2].split('_')[-1])
             xent = validate(args, device_id, cp, step)
             xent_lst.append((xent, cp))
-            max_step = xent_lst.index(min(xent_lst))
-            print('#############################################')
-            print('step',step)
-            print('cp',cp)
-            print('xent_lst',xent_lst)
-            print('max_step',max_step)
-            print('i',i)
-            if (i - max_step > 10):
-                break
+#            max_step = xent_lst.index(min(xent_lst))
+#            print('#############################################')
+#            print('step',step)
+#            print('cp',cp)
+#            print('xent_lst',xent_lst)
+#            print('max_step',max_step)
+#            print('i',i)
+#            if (i - max_step > 10):
+#                break
         
         #save info for post analysis
         with open(args.eval_path+'/validation_xent.json', 'w+') as f:
