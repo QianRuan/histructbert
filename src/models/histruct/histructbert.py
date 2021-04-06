@@ -145,7 +145,7 @@ class HiStructBert(nn.Module):
         if(base_LM=='bert-large'):
             self.model = HiStructBertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
             #self.model = HiStructBertModel(large, temp_dir)
-        elif(base_LM=='bert-base' or base_LM==''):
+        elif(base_LM=='bert-base'):
             self.model = HiStructBertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
             #self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
 

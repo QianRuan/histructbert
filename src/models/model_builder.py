@@ -117,12 +117,14 @@ def get_generator(vocab_size, dec_hidden_size, device):
     return generator
 
 class Bert(nn.Module):
-    def __init__(self, large, temp_dir, finetune=False):
+    def __init__(self, base_LM, temp_dir, finetune=False):
         super(Bert, self).__init__()
-        if(large):
+        if(base_LM=='bert-large'):
             self.model = BertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
-        else:
+            #self.model = HiStructBertModel(large, temp_dir)
+        elif(base_LM=='bert-base'):
             self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
+        
 
         self.finetune = finetune
 
