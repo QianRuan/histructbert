@@ -220,10 +220,12 @@ def validate_ext(args, device_id):
             val_multi(args, cp_files)
             xent_lst = []
             xent_files = sorted(glob.glob(os.path.join(args.eval_path, 'val_xent_d*.json')))
-            print('xent_files',xent_files)
+            #print('xent_files',xent_files)
             for file in xent_files:
                 with open(file,'r',encoding='utf-8') as f:
-                    xent_lst.append(json.load(f))
+                    li = json.load(f)
+                    for item in li:
+                        xent_lst.append(item)
             
         else:
             logger.info("Val_single...")#
