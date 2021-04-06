@@ -14,7 +14,7 @@ import shutil
 import json
 import statistics
 import torch
-
+import numpy as np
 import distributed
 from models import data_loader, model_builder
 from models.data_loader import load_dataset
@@ -123,9 +123,14 @@ def val_multi(args, cp_files):
     error_queue = mp.SimpleQueue()
     error_handler = ErrorHandler(error_queue)
     #split checkpoints
-    # How many elements each list should have 
-    n = int(len(cp_files)/nb_gpu)+1
-    x = [cp_files[i:i + n] for i in range(0, len(cp_files), n)] 
+    
+    splits = np.array_split(cp_files, nb_gpu)
+    x=[]
+    for array in splits:
+        x.append(list(array))
+#    n = int(len(cp_files)/nb_gpu)
+#    if n>1:      
+#    x = [cp_files[i:i + n] for i in range(0, len(cp_files), n)] 
     print('x',x)
     # Train with multiprocessing.
     procs = []
