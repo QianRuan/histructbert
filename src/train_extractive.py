@@ -112,6 +112,7 @@ class ErrorHandler(object):
                  be ignored --\n\n"""
         msg += original_trace
         raise Exception(msg)
+        
 def val_multi(args, cp_files):
     """ Spawns 1 process per GPU """
 #    init_logger()
