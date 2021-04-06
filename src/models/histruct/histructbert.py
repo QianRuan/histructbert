@@ -138,14 +138,14 @@ class HiStructBertModel(BertModel):
         return outputs  # sequence_output, pooled_output, (hidden_states), (attentions)
 
 class HiStructBert(nn.Module):
-    def __init__(self, base_LM, temp_dir, finetune=False):
+    def __init__(self, base_LM, temp_dir, finetune):
         super(HiStructBert, self).__init__()
         
         #config = HiStructBertConfig.from_json_file('./tf_model/my_tf_model_config.json')
         if(base_LM=='bert-large'):
             self.model = HiStructBertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
             #self.model = HiStructBertModel(large, temp_dir)
-        elif(base_LM=='bert-base'):
+        elif(base_LM=='bert-base' or base_LM==''):
             self.model = HiStructBertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
             #self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
 
