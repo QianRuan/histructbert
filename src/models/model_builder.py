@@ -3,6 +3,7 @@ import copy
 import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
+from pytorch_transformers import RobertaModel
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -117,7 +118,7 @@ def get_generator(vocab_size, dec_hidden_size, device):
     return generator
 
 class Bert(nn.Module):
-    def __init__(self, base_LM, temp_dir, finetune=False):
+    def __init__(self, base_LM, temp_dir, finetune):
         super(Bert, self).__init__()
         if(base_LM=='bert-large'):
             self.model = BertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
@@ -150,7 +151,7 @@ class ExtSummarizer(nn.Module):
         #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
         
         if (args.add_tok_struct_emb):
-            self.bert = HiStructBert(args.base_LM, args.temp_dir, args.finetune_bert)
+            self.encoder = HiStructBert(args.base_LM, args.temp_dir, args.finetune_bert)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: TRUE") 
             if (args.tok_pos_emb_type == 'learned_all'):
                 logger.info("-----Type of positional embeddings...learnable")
@@ -177,7 +178,10 @@ class ExtSummarizer(nn.Module):
                 
                 
         else:
-            self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
+            if (args.base_LM.startswith('bert')):
+                self.encoder = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
+            elif (args.base_LM.startswith('roberta')):
+                self.encoder.model = RobertaModel.from_pretrained(args.base_LM,cache_dir=args.temp_dir)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
         
@@ -189,7 +193,7 @@ class ExtSummarizer(nn.Module):
         if (args.encoder == 'baseline'):
             bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.ext_hidden_size,
                                      num_hidden_layers=args.ext_layers, num_attention_heads=args.ext_heads, intermediate_size=args.ext_ff_size)
-            self.bert.model = BertModel(bert_config)
+            self.encoder.model = BertModel(bert_config)
             self.ext_layer = Classifier(self.bert.model.config.hidden_size)
 
         if(args.max_pos>512):
@@ -216,9 +220,9 @@ class ExtSummarizer(nn.Module):
 
     def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec):#
         if (self.args.add_tok_struct_emb):
-            top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
+            top_vec = self.encoder(src, segs, mask_src, tok_struct_vec)
         else:
-            top_vec = self.bert(src, segs, mask_src)
+            top_vec = self.encoder(src, segs, mask_src)
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
         sents_vec = sents_vec * mask_cls[:, :, None].float()
 #        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)

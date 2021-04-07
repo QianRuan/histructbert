@@ -113,75 +113,6 @@ class ErrorHandler(object):
         msg += original_trace
         raise Exception(msg)
         
-def val_multi(args, cp_files):
-    """ Spawns 1 process per GPU """
-#    init_logger()
-
-    nb_gpu = args.world_size
-    mp = torch.multiprocessing.get_context('spawn')
-
-    # Create a thread to listen for errors in the child processes.
-    error_queue = mp.SimpleQueue()
-    error_handler = ErrorHandler(error_queue)
-    #split checkpoints
-    
-    splits = np.array_split(cp_files, nb_gpu)
-    x=[]
-    for array in splits:
-        x.append(list(array))
-#    n = int(len(cp_files)/nb_gpu)
-#    if n>1:      
-#    x = [cp_files[i:i + n] for i in range(0, len(cp_files), n)] 
-    print('x',x)
-    # Train with multiprocessing.
-    procs = []
-    for i in range(nb_gpu):
-        device_id = i
-        procs.append(mp.Process(target=run_val, args=(args,
-                                                  device_id,x[i], error_queue,), daemon=True))
-        procs[i].start()
-        logger.info(" Starting process pid: %d  " % procs[i].pid)
-        error_handler.add_child(procs[i].pid)
-    for p in procs:
-        p.join()
-
-
-def run_val(args, device_id, cp_files, error_queue):
-    """ run process """
-    setattr(args, 'gpu_ranks', [int(i) for i in args.gpu_ranks])
-
-    try:
-        gpu_rank = distributed.multi_init(device_id, args.world_size, args.gpu_ranks)
-        print('device_id %d' % device_id)
-        print('gpu_rank %d' % gpu_rank)      
-        print('args.gpu_ranks[device_id] %d' % args.gpu_ranks[device_id])
-        if gpu_rank != args.gpu_ranks[device_id]:
-            print("An error occurred in \
-                  Distributed initialization")
-            raise AssertionError("An error occurred in \
-                  Distributed initialization")
-        print("val_single_ext")
-        val_single(args,cp_files,device_id)
-        print("val_single_ext DONE")
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt")
-        pass  # killed by parent, do nothing
-    except Exception:
-        print("Traceback")
-        # propagate exception to parent process, keeping original traceback
-        import traceback
-        print(traceback.format_exc())
-        error_queue.put((args.gpu_ranks[device_id], traceback.format_exc()))
-
-def val_single(args,cp_files,device_id):
-        xent_lst = []
-        for i, cp in enumerate(cp_files):
-            step = int(cp.split('.')[-2].split('_')[-1])
-            xent = validate(args, device_id, cp, step)
-            xent_lst.append((xent, cp))
-        with open(args.eval_path+'/val_xent_d%i.json'%(device_id), 'w+') as f:
-            json.dump(xent_lst,f)
-        return xent_lst
 
 def validate_ext(args, device_id):
     
@@ -215,33 +146,13 @@ def validate_ext(args, device_id):
         cp_files.sort(key=os.path.getmtime)
         logger.info('There are %i checkpoints'%(len(cp_files)))
         
-        if (args.world_size > 1):
-            logger.info("Val_multi...")#
-            val_multi(args, cp_files)
-            xent_lst = []
-            xent_files = sorted(glob.glob(os.path.join(args.eval_path, 'val_xent_d*.json')))
-            #print('xent_files',xent_files)
-            for file in xent_files:
-                with open(file,'r',encoding='utf-8') as f:
-                    li = json.load(f)
-                    for item in li:
-                        xent_lst.append(item)
-            
-        else:
-            logger.info("Val_single...")#
-            xent_lst = val_single(args,cp_files,device_id)
-#            xent_lst = []
-#            for i, cp in enumerate(cp_files):
-#                step = int(cp.split('.')[-2].split('_')[-1])
-#                xent = validate(args, device_id, cp, step)
-#                xent_lst.append((xent, cp))
+
+        xent_lst = []
+        for i, cp in enumerate(cp_files):
+            step = int(cp.split('.')[-2].split('_')[-1])
+            xent = validate(args, device_id, cp, step)
+            xent_lst.append((xent, cp))
 #            max_step = xent_lst.index(min(xent_lst))
-#            print('#############################################')
-#            print('step',step)
-#            print('cp',cp)
-#            print('xent_lst',xent_lst)
-#            print('max_step',max_step)
-#            print('i',i)
 #            if (i - max_step > 10):
 #                break
         
