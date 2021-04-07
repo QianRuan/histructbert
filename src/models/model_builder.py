@@ -181,7 +181,7 @@ class ExtSummarizer(nn.Module):
             if (args.base_LM.startswith('bert')):
                 self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
-                self.bert.model = RobertaModel.from_pretrained(args.base_LM,cache_dir=args.temp_dir)
+                self.bert = RobertaModel.from_pretrained(args.base_LM, cache_dir=args.temp_dir)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
         
