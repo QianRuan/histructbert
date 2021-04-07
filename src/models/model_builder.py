@@ -138,6 +138,21 @@ class Bert(nn.Module):
                 top_vec, _ = self.model(x, segs, attention_mask=mask)
         return top_vec
 
+class Roberta(nn.Module):
+    def __init__(self, base_LM, temp_dir, finetune):
+        super(Roberta, self).__init__()
+        self.model = RobertaModel.from_pretrained(base_LM, cache_dir=temp_dir)
+        
+        self.finetune = finetune
+
+    def forward(self, x, segs, mask):
+        if(self.finetune):
+            top_vec, _ = self.model(x, segs, attention_mask=mask)
+        else:
+            self.eval()
+            with torch.no_grad():
+                top_vec, _ = self.model(x, segs, attention_mask=mask)
+        return top_vec
 
 class ExtSummarizer(nn.Module):
     def __init__(self, args, device, checkpoint):
@@ -181,7 +196,7 @@ class ExtSummarizer(nn.Module):
             if (args.base_LM.startswith('bert')):
                 self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
-                self.bert = RobertaModel.from_pretrained(args.base_LM, cache_dir=args.temp_dir)
+                self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
         
