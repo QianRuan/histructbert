@@ -241,9 +241,9 @@ def generate_eval_results_overview(args):
     models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
     
-    baseline_models = [model for model in models if model.split('_')[1][:3]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
+    baseline_models = [model for model in models if model.split('_')[1]!='hs']  #or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
     baseline_models.reverse()
-    baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle' and model.split('_')[1].startswith('lead')]
+    baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle' and not model.split('_')[1].startswith('lead')]
     baseline_bert_base_models = [model for model in baseline_models if model.split('_')[1]=='bert']
     baseline_bert_large_models = [model for model in baseline_models if model.split('_')[1]=='bertL']
     
@@ -328,9 +328,9 @@ def generate_eval_results_overview(args):
 #    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
 #    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
-    mark_best_models(bert_avg_best_models,avg_df)
+    mark_best_models(baseline_avg_best_models,avg_df)
     mark_best_models(hs_avg_best_models,avg_df)
-    mark_best_models(bert_step_best_models,step_df)
+    mark_best_models(baseline_step_best_models,step_df)
     mark_best_models(hs_step_best_models,step_df)
     logger.info('avg rouges-------------')
     logger.info(avg_df)
