@@ -9,7 +9,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import  PatternFill, Font
-from openpyxl.styles.borders import Border, Side, BORDER_THICK,BORDER_THIH
+from openpyxl.styles.borders import Border, Side, BORDER_THICK, BORDER_THIN
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -213,11 +213,11 @@ def color_the_best_metric_border(excelfile, sheetname, best_models, color):
     top=Side(border_style=BORDER_THICK, color=color),
     bottom=Side(border_style=BORDER_THICK, color=color)
 )
-    thih_border = Border(
-    left=Side(border_style=BORDER_THIH, color=color),
-    right=Side(border_style=BORDER_THIH, color=color),
-    top=Side(border_style=BORDER_THIH, color=color),
-    bottom=Side(border_style=BORDER_THIH, color=color)
+    thin_border = Border(
+    left=Side(border_style=BORDER_THIN, color=color),
+    right=Side(border_style=BORDER_THIN, color=color),
+    top=Side(border_style=BORDER_THIN, color=color),
+    bottom=Side(border_style=BORDER_THIN, color=color)
 )
    
     # Create a dictionary of column names
@@ -235,12 +235,12 @@ def color_the_best_metric_border(excelfile, sheetname, best_models, color):
                 if 'step' in ColNames.keys():
                     if row_cells[ColNames['model']].value == model[0] and row_cells[ColNames['step']].value == model[1]:
                         
-                        row_cells[ColNames[m]].border = thih_border
+                        row_cells[ColNames[m]].border = thin_border
                         
                 else:
                     if row_cells[ColNames['model']].value == model[0]:
                         
-                        row_cells[ColNames[m]].border = thih_border
+                        row_cells[ColNames[m]].border = thin_border
                      
     wb.save(excelfile)
             
