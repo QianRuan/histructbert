@@ -241,19 +241,28 @@ def generate_eval_results_overview(args):
     models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
     
-    baseline_models = [model for model in models if model.split('_')[1]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
+    baseline_models = [model for model in models if model.split('_')[1][:3]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
     baseline_models.reverse()
-    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
+    baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle']
+    baseline_bert_base_models = [model for model in baseline_models if model.split('_')[1]=='bert']
+    baseline_bert_large_models = [model for model in baseline_models if model.split('_')[1]=='bertL']
+    
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
+    histruct_bert_base_models = [model for model in histruct_models if model.split('_')[2]=='bert']
+    histruct_bert_large_models = [model for model in histruct_models if model.split('_')[2]=='bertL']
     
     logger.info("DATASET: %s"%(args.dataset))
     logger.info("There are %i baseline models"%(len(baseline_models)))
     logger.info("There are %i bert baseline models"%(len(bert_baseline_models)))
     logger.info("There are %i histruct models"%(len(histruct_models)))
+    logger.info("--------- %i histruct bert_base models"%(len(histruct_bert_base_models)))
+    logger.info("--------- %i histruct bert_base models"%(len(histruct_bert_large_models)))
     
     
     df1, df2 = get_rouges_df(baseline_models)
     df3, df4 = get_rouges_df(histruct_models)
+    df3_1, df4_1 = get_rouges_df(histruct_bert_base_models)
+    df3_2, df4_2 = get_rouges_df(histruct_bert_large_models)
   
     df_cols = ['model'] + metrics
     df_cols1 = ['model','step'] + metrics
@@ -263,12 +272,14 @@ def generate_eval_results_overview(args):
     df7 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols) 
     df8 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols) 
     df9 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols) 
-    df10 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols1) 
-    df11 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols1) 
-    df12 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols1) 
+    df9_1 = pd.DataFrame([{'model':'------------bert_base models------------'}], columns = df_cols) 
+    df9_2 = pd.DataFrame([{'model':'------------bert_large models------------'}], columns = df_cols) 
+#    df10 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols1) 
+#    df11 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols1) 
+#    df12 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols1) 
     
-    avg_dfs = [df7, df5, df8, df1, df9, df3]
-    step_dfs = [df10, df6, df11, df2, df12, df4]
+    avg_dfs = [df7, df5, df8, df1, df9, df9_1, df3_1,df9_2, df3_2]
+    step_dfs = [df7, df6, df8, df2, df9, df9_1, df4_1,df9_2, df4_2]
     
     avg_df = pd.concat(avg_dfs)  
     step_df = pd.concat(step_dfs) 
@@ -280,23 +291,42 @@ def generate_eval_results_overview(args):
     save_eval_results_to_excel(result_file, avg_sheet, avg_df)
     save_eval_results_to_excel(result_file, step_sheet, step_df)
     #make a copy
-    cp_result_file = copy_result_file(result_file)
+#    cp_result_file = copy_result_file(result_file)
   
     hs_avg_best_models = check_best_models(df3)
     hs_step_best_models = check_best_models(df4)
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
-    color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
-    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
-    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
+    hs_avg_best_bert_base_models = check_best_models(df3_1)
+    hs_step_best_bert_base_models = check_best_models(df4_1)
+    hs_avg_best_bert_large_models = check_best_models(df3_2)
+    hs_step_best_bert_large_models = check_best_models(df4_2)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=False)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=False)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_base_models, color="FFFFFF",font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bert_base_models,color="FFFFFF", font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_large_models,color="FFFFFF", font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bert_large_models,color="FFFFFF", font=True)
+#    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
+#    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
     
-    df13,df14 = get_rouges_df(bert_baseline_models)
-    bert_avg_best_models = check_best_models(df13)
-    bert_step_best_models = check_best_models(df14)
-    color_the_best_metric(result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
+    df13,df14 = get_rouges_df(baseline_models2)
+    df13_1,df14_1 = get_rouges_df(baseline_bert_base_models)
+    df13_2,df14_2 = get_rouges_df(baseline_bert_large_models)
+    baseline_avg_best_models = check_best_models(df13)
+    baseline_step_best_models = check_best_models(df14)
+    baseline_avg_best_bert_base_models = check_best_models(df13_1)
+    baseline_step_best_bert_base_models = check_best_models(df14_1)
+    baseline_avg_best_bert_large_models = check_best_models(df13_2)
+    baseline_step_best_bert_large_models = check_best_models(df14_2)
+    
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_models, color="DDDDDD", font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_models, color="DDDDDD", font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_base_models, color="FFFFFF",font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_base_models,color="FFFFFF", font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_large_models,color="FFFFFF", font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_large_models,color="FFFFFF", font=True)
+#    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
+#    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
     mark_best_models(bert_avg_best_models,avg_df)
     mark_best_models(hs_avg_best_models,avg_df)
@@ -410,7 +440,7 @@ def get_prob_dic(modelname, step):
     for i in range(max(flat)+1):
         prob_dic.append(0)
     for i in set(flat):
-        prob_dic[i] = round(flat.count(i)/(len(data[0])*len(data)),2)
+        prob_dic[i] = flat.count(i)/len(flat)
     return prob_dic
     
     
@@ -435,9 +465,9 @@ def get_best_step_model_prob(best_models):
     return prob_dics
     
        
-def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
+def plot_best_summ_distribution(args, hs_step_best_models, bert_step_best_models):
     logger.info("=================================================")
-    logger.info("Plotting summary distribution...")
+    logger.info("Plotting best summary distribution...")
     prob_dics = {}
     
     oracle = args.dataset+'_oracle'
@@ -466,9 +496,9 @@ def plot_summ_distribution(args, hs_step_best_models, bert_step_best_models):
     ax.set_ylabel("propotion of selected sentences")
     ax.get_figure().savefig(png_file)
     
-    logger.info("Plot summary distribution...DONE")        
+    logger.info("Plot best summary distribution...DONE")        
         
-    
+     
     
 
 
@@ -477,6 +507,7 @@ if __name__ == '__main__':
     parser.add_argument("-generate_eval_results_overview", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_val_xent", type=str2bool, nargs='?',const=True,default=True)
+    parser.add_argument("-plot_best_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
 
     
@@ -511,7 +542,7 @@ if __name__ == '__main__':
         plot_val_xent(args)
         
     if (args.plot_summ_distribution):
-        plot_summ_distribution(args, hs_step_best_models, bert_step_best_models)
+        plot_best_summ_distribution(args, hs_step_best_models, bert_step_best_models)
         
     
         
