@@ -9,6 +9,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from openpyxl.styles import  PatternFill, Font
+from openpyxl.styles.borders import Border, Side, BORDER_THIN
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -201,6 +202,41 @@ def color_the_best_metric(excelfile, sheetname, best_models, color, font):
                         row_cells[ColNames[m]].font = Font(b=font)
                      
     wb.save(excelfile)
+    
+def color_the_best_metric_border(excelfile, sheetname, best_models, color):
+    wb = load_workbook(excelfile)
+    ws = wb[sheetname]
+    
+    thin_border = Border(
+    left=Side(border_style=BORDER_THIN, color=color),
+    right=Side(border_style=BORDER_THIN, color=color),
+    top=Side(border_style=BORDER_THIN, color=color),
+    bottom=Side(border_style=BORDER_THIN, color=color)
+)
+   
+    # Create a dictionary of column names
+    ColNames = {}
+    Current  = 0
+    for COL in ws.iter_cols(1, ws.max_column):
+        ColNames[COL[0].value] = Current
+        Current += 1
+ 
+    # border best metrics 
+    for row_cells in ws.iter_rows(min_row=2, max_row=ws.max_row):
+        for m in metrics:
+            bests = best_models[m]
+            for model in bests:
+                if 'step' in ColNames.keys():
+                    if row_cells[ColNames['model']].value == model[0] and row_cells[ColNames['step']].value == model[1]:
+                        
+                        row_cells[ColNames[m]].border = thin_border
+                        
+                else:
+                    if row_cells[ColNames['model']].value == model[0]:
+                        
+                        row_cells[ColNames[m]].border = thin_border
+                     
+    wb.save(excelfile)
             
 
     
@@ -306,8 +342,8 @@ def generate_eval_results_overview(args):
     color_the_best_metric(result_file, step_sheet, hs_step_best_bert_base_models,color="F5F5F5", font=True)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_large_models,color="F5F5F5", font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_bert_large_models,color="F5F5F5", font=True)
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
-    color_the_best_metric(result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
+    color_the_best_metric_border(result_file, avg_sheet, hs_avg_best_models, color="f0e40a")
+    color_the_best_metric_border(result_file, step_sheet, hs_step_best_models, color="f0e40a")
 #    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
 #    color_the_best_metric(cp_result_file, step_sheet, hs_step_best_models, color="f0e40a", font=True)
     
@@ -327,8 +363,8 @@ def generate_eval_results_overview(args):
     color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_base_models,color="F5F5F5", font=True)
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_large_models,color="F5F5F5", font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_large_models,color="F5F5F5", font=True)
-    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_models, color="DDDDDD", font=True)
-    color_the_best_metric(result_file, step_sheet, baseline_step_best_models, color="DDDDDD", font=True)
+    color_the_best_metric_border(result_file, avg_sheet, baseline_avg_best_models, color="DDDDDD")
+    color_the_best_metric_border(result_file, step_sheet, baseline_step_best_models, color="DDDDDD")
 #    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
 #    color_the_best_metric(cp_result_file, step_sheet, bert_step_best_models, color="DDDDDD", font=True)
     
