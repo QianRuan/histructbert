@@ -338,8 +338,8 @@ def generate_eval_results_overview(args):
     hs_avg_best_bert_large_models = check_best_models(df3_2)
     hs_step_best_bert_large_models = check_best_models(df4_2)
     
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_base_models, color="f0e40a",font=True)
-    color_the_best_metric(result_file, step_sheet, hs_step_best_bert_base_models,color="f0e40a", font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_base_models, color="F5F5F5",font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bert_base_models,color="F5F5F5", font=True)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_large_models,color="f0e40a", font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_bert_large_models,color="f0e40a", font=True)
     color_the_best_metric_border(result_file, avg_sheet, hs_avg_best_models, color="000000")
@@ -361,8 +361,8 @@ def generate_eval_results_overview(args):
     
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_base_models, color="F5F5F5",font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_base_models,color="F5F5F5", font=True)
-    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_large_models,color="F5F5F5", font=True)
-    color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_large_models,color="F5F5F5", font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_large_models,color="f0e40a", font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_large_models,color="f0e40a", font=True)
     color_the_best_metric_border(result_file, avg_sheet, baseline_avg_best_models, color="000000")
     color_the_best_metric_border(result_file, step_sheet, baseline_step_best_models, color="000000")
 #    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
