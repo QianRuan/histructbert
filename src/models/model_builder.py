@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
-from pytorch_transformers import LongformerModel
+#from pytorch_transformers import LongformerModel
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
