@@ -155,20 +155,20 @@ class Roberta(nn.Module):
                 top_vec, _ = self.model(x, segs, attention_mask=mask)
         return top_vec
     
-class Longformer(nn.Module):
-    def __init__(self, base_LM, temp_dir, finetune):
-        super(Longformer, self).__init__()
-        self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
-        self.finetune = finetune
-
-    def forward(self, x, segs, mask):
-        if(self.finetune):
-            top_vec, _ = self.model(x, segs, attention_mask=mask)
-        else:
-            self.eval()
-            with torch.no_grad():
-                top_vec, _ = self.model(x, segs, attention_mask=mask)
-        return top_vec
+#class Longformer(nn.Module):
+#    def __init__(self, base_LM, temp_dir, finetune):
+#        super(Longformer, self).__init__()
+#        self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
+#        self.finetune = finetune
+#
+#    def forward(self, x, segs, mask):
+#        if(self.finetune):
+#            top_vec, _ = self.model(x, segs, attention_mask=mask)
+#        else:
+#            self.eval()
+#            with torch.no_grad():
+#                top_vec, _ = self.model(x, segs, attention_mask=mask)
+#        return top_vec
 
 class ExtSummarizer(nn.Module):
     def __init__(self, args, device, checkpoint):
@@ -213,8 +213,8 @@ class ExtSummarizer(nn.Module):
                 self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
-            elif (args.base_LM.startswith('longformer')):
-                self.bert = Longformer(args.base_LM, args.temp_dir, args.finetune_bert)
+#            elif (args.base_LM.startswith('longformer')):
+#                self.bert = Longformer(args.base_LM, args.temp_dir, args.finetune_bert)
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
         
@@ -231,8 +231,8 @@ class ExtSummarizer(nn.Module):
 
         if(args.max_pos>512):
             my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
-            my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
-            my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
+#            my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
+#            my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
         
         
