@@ -243,7 +243,7 @@ def generate_eval_results_overview(args):
     
     baseline_models = [model for model in models if model.split('_')[1][:3]=='bert'  or model.split('_')[1]=='oracle' or model.split('_')[1].startswith('lead')]
     baseline_models.reverse()
-    baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle']
+    baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle' and model.split('_')[1].startswith('lead')]
     baseline_bert_base_models = [model for model in baseline_models if model.split('_')[1]=='bert']
     baseline_bert_large_models = [model for model in baseline_models if model.split('_')[1]=='bertL']
     
@@ -253,7 +253,7 @@ def generate_eval_results_overview(args):
     
     logger.info("DATASET: %s"%(args.dataset))
     logger.info("There are %i baseline models"%(len(baseline_models)))
-    logger.info("There are %i bert baseline models"%(len(bert_baseline_models)))
+    logger.info("There are %i LM baseline models"%(len(baseline_models2)))
     logger.info("There are %i histruct models"%(len(histruct_models)))
     logger.info("--------- %i histruct bert_base models"%(len(histruct_bert_base_models)))
     logger.info("--------- %i histruct bert_base models"%(len(histruct_bert_large_models)))
