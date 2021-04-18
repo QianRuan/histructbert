@@ -344,8 +344,10 @@ def generate_eval_results_overview(args):
     hs_avg_best_bert_large_models = check_best_models(df3_2)
     hs_step_best_bert_large_models = check_best_models(df4_2)
     
-    BERT_BASE_COLOR='F5F5F5'
-    BERT_LARGE_COLOR='FFFFE0'
+    BERT_BASE_COLOR='F5F5F5'#grey
+    BERT_LARGE_COLOR='FFFFE0'#yellow
+    ROBERTA_COLOR='90EE90'#green
+    LONGFORMER_COLOR='ADD8E6'#blue
     BORDER_COLOR="696969"
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_base_models, color=BERT_BASE_COLOR,font=True)
