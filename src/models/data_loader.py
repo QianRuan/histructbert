@@ -36,7 +36,7 @@ class Batch(object):
             #print(type(pre_sent_struct_vec))
             pre_tok_struct_vec = [x[1] for x in data]
             pre_src = [x[2] for x in data]
-            pre_tgt = [x[3] for x in data]
+##            pre_tgt = [x[3] for x in data]
             pre_segs = [x[4] for x in data]
             #print(type(pre_segs))
             pre_clss = [x[5] for x in data]
@@ -45,12 +45,12 @@ class Batch(object):
             pre_tgt_sent_idx = [x[8] for x in data]#
 
             src = torch.tensor(self._pad(pre_src, 0))
-            tgt = torch.tensor(self._pad(pre_tgt, 0))
+##            tgt = torch.tensor(self._pad(pre_tgt, 0))
         
 
             segs = torch.tensor(self._pad(pre_segs, 0))
             mask_src = 1 - (src == 0)
-            mask_tgt = 1 - (tgt == 0)
+##            mask_tgt = 1 - (tgt == 0)
 
 
             clss = torch.tensor(self._pad(pre_clss, -1))
@@ -83,10 +83,10 @@ class Batch(object):
 
 
             setattr(self, 'src', src.to(device))
-            setattr(self, 'tgt', tgt.to(device))
+##            setattr(self, 'tgt', tgt.to(device))
             setattr(self, 'segs', segs.to(device))
             setattr(self, 'mask_src', mask_src.to(device))
-            setattr(self, 'mask_tgt', mask_tgt.to(device))
+##            setattr(self, 'mask_tgt', mask_tgt.to(device))
 
 
             if (is_test):
