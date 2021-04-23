@@ -130,10 +130,13 @@ class LASentAddEmb(nn.Module):
             
        
         
-        embeddings = (           
-             position_embeddings          
-            + sent_struct_embeddings
-        )
+        if self.args.without_sent_pos :
+            embeddings = sent_struct_embeddings
+        else:
+            embeddings = (           
+                 position_embeddings          
+                + sent_struct_embeddings
+            )
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         
@@ -226,10 +229,13 @@ class SINSentAddEmb(nn.Module):
         else:
             raise ValueError("args.sent_se_comb_mode must be one of ['sum','mean','concat']")
         
-        embeddings = (           
-             position_embeddings          
-            + sent_struct_embeddings
-        )
+        if self.args.without_sent_pos :
+            embeddings = sent_struct_embeddings
+        else:
+            embeddings = (           
+                 position_embeddings          
+                + sent_struct_embeddings
+            )
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         
@@ -306,10 +312,13 @@ class LPSentAddEmb(nn.Module):
             raise ValueError ("args.sent_se_comb_mode must be one of ['sum', 'mean']")
         
         
-        embeddings = (           
-             position_embeddings          
-            + sent_struct_embeddings
-        )
+        if self.args.without_sent_pos :
+            embeddings = sent_struct_embeddings
+        else:
+            embeddings = (           
+                 position_embeddings          
+                + sent_struct_embeddings
+            )
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         
