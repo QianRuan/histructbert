@@ -291,7 +291,7 @@ class LPSentAddEmb(nn.Module):
         para_pos = sent_struct_vec[:,:,0]
         sent_pos = sent_struct_vec[:,:,1]
         
-        print(para_pos)
+       
         para_position_embeddings = self.position_embeddings(para_pos)
         sent_position_embeddings = self.position_embeddings(sent_pos)
         
