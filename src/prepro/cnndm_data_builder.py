@@ -734,8 +734,8 @@ def compute_statistics(args):
     init_logger(args.log_file)
     logger.info("Computing statistics...")
     
-    stat = json.load(open(stat_path, encoding='utf-8'))
-    print(stat)
+#    stat = json.load(open(stat_path, encoding='utf-8'))
+#    print(stat)
     
     doc_len_para=[]
     doc_len_sent=[]
@@ -762,10 +762,20 @@ def compute_statistics(args):
 
         
     stat = {'avg. doc length(words)': round(statistics.mean(doc_len_word),2), 
+            'min. doc length(words)': min(doc_len_word), 
+            'max. doc length(words)': max(doc_len_word),    
            'avg. doc length(sentences)': round(statistics.mean(doc_len_sent),2), 
-           'avg. doc length(paragraphs)':round(statistics.mean(doc_len_para),2), 
+           'min. doc length(sentences)': min(doc_len_sent), 
+           'max. doc length(sentences)': max(doc_len_sent), 
+           'avg. doc length(paragraphs)':round(statistics.mean(doc_len_para),2),
+           'min. doc length(paragraphs)':min(doc_len_para),
+           'max. doc length(paragraphs)':max(doc_len_para),
            'avg. summary length(words)': round(statistics.mean(summ_len_word),2), 
+           'min. summary length(words)': min(summ_len_word), 
+           'max. summary length(words)': max(summ_len_word), 
            'avg. summary length(sentences)': round(statistics.mean(summ_len_sent),2), 
+           'min. summary length(sentences)': min(summ_len_sent),
+           'max. summary length(sentences)': max(summ_len_sent),
            '% novel 1grams in gold summary': round(statistics.mean(novel_1grams),2),
            '% novel 2grams in gold summary': round(statistics.mean(novel_2grams),2)}
     

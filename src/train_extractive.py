@@ -23,7 +23,7 @@ from models.trainer_ext import build_trainer
 from others.logging import logger, init_logger
 from others.utils import rouge_results_to_str
 
-model_flags = ['without_sent_pos','ext_layers','base_LM','add_tok_struct_emb', 'add_sent_struct_emb' ,'tok_pos_emb_type','sent_pos_emb_type', 'tok_se_comb_mode' ,'sent_se_comb_mode',
+model_flags = ['max_nsent','without_sent_pos','ext_layers','base_LM','add_tok_struct_emb', 'add_sent_struct_emb' ,'tok_pos_emb_type','sent_pos_emb_type', 'tok_se_comb_mode' ,'sent_se_comb_mode',
                'hidden_size', 'ff_size', 'heads', 'inter_layers', 'encoder', 'ff_actv', 'use_interval', 'rnn_size']
 
 
