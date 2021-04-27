@@ -66,6 +66,7 @@ class LATokInputEmb(nn.Module):
             self.b_position_embeddings = nn.Embedding(config.max_position_embeddings, int(config.hidden_size/3))
             self.c_position_embeddings = nn.Embedding(config.max_position_embeddings, int(config.hidden_size/3))
         else:
+            print(config.max_position_embeddings)
             self.a_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
             self.b_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
             self.c_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
