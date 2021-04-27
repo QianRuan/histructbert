@@ -65,16 +65,16 @@ class LATokInputEmb(nn.Module):
 #            self.a_position_embeddings = nn.Embedding(config.max_position_embeddings, int(config.hidden_size/3))
 #            self.b_position_embeddings = nn.Embedding(config.max_position_embeddings, int(config.hidden_size/3))
 #            self.c_position_embeddings = nn.Embedding(config.max_position_embeddings, int(config.hidden_size/3))
-            self.a_position_embeddings = nn.Embedding(args.max_pos, int(config.hidden_size/3))
-            self.b_position_embeddings = nn.Embedding(args.max_pos, int(config.hidden_size/3))
+            self.a_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/3))
+            self.b_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/3))
             self.c_position_embeddings = nn.Embedding(args.max_pos, int(config.hidden_size/3))
         else:
             print('args.max_pos',args.max_pos)
 #            self.a_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
 #            self.b_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
 #            self.c_position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
-            self.a_position_embeddings = nn.Embedding(args.max_pos, config.hidden_size)
-            self.b_position_embeddings = nn.Embedding(args.max_pos, config.hidden_size)
+            self.a_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+            self.b_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
             self.c_position_embeddings = nn.Embedding(args.max_pos, config.hidden_size)
         
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
