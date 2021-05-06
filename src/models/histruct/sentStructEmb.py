@@ -131,21 +131,21 @@ class LASentAddEmb(nn.Module):
        
         
         if self.args.without_sent_pos and self.args.para_only:
-            print('self.args.without_sent_pos and self.args.para_only')
+            
             embeddings = para_position_embeddings
             
         elif self.args.without_sent_pos:
-            print('self.args.without_sent_pos and not self.args.para_only')
+            
             embeddings = sent_struct_embeddings
             
         elif self.args.para_only:
-            print('self.args.para_only and not self.args.without_sent_pos')
+            
             embeddings = (           
                  position_embeddings          
                 + para_position_embeddings
             )     
         else:
-            print('position_embeddings + sent_struct_embeddings')
+            
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
@@ -244,21 +244,21 @@ class SINSentAddEmb(nn.Module):
             
         
         if self.args.without_sent_pos and self.args.para_only:
-            print('self.args.without_sent_pos and self.args.para_only')
+            
             embeddings = para_position_embeddings
             
         elif self.args.without_sent_pos:
-            print('self.args.without_sent_pos and not self.args.para_only')
+            
             embeddings = sent_struct_embeddings
             
         elif self.args.para_only:
-            print('self.args.para_only and not self.args.without_sent_pos')
+           
             embeddings = (           
                  position_embeddings          
                 + para_position_embeddings
             )     
         else:
-            print('position_embeddings + sent_struct_embeddings')
+            
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
@@ -340,21 +340,21 @@ class LPSentAddEmb(nn.Module):
             
         
         if self.args.without_sent_pos and self.args.para_only:
-            print('self.args.without_sent_pos and self.args.para_only')
+            
             embeddings = para_position_embeddings
             
         elif self.args.without_sent_pos:
-            print('self.args.without_sent_pos and not self.args.para_only')
+            
             embeddings = sent_struct_embeddings
             
         elif self.args.para_only:
-            print('self.args.para_only and not self.args.without_sent_pos')
+            
             embeddings = (           
                  position_embeddings          
                 + para_position_embeddings
             )     
         else:
-            print('position_embeddings + sent_struct_embeddings')
+            
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
