@@ -44,6 +44,8 @@ if __name__ == '__main__':
     parser.add_argument("-result_path", default='')
     parser.add_argument("-select_top_n_sent", default=3, type=int)
     parser.add_argument("-without_sent_pos", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument("-para_only", type=str2bool, nargs='?',const=False,default=False)
+    
     
     
     parser.add_argument("-bert_data_path", default='')

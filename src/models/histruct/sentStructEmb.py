@@ -130,9 +130,22 @@ class LASentAddEmb(nn.Module):
             
        
         
-        if self.args.without_sent_pos :
+        if self.args.without_sent_pos and self.args.para_only:
+            print('self.args.without_sent_pos and self.args.para_only')
+            embeddings = para_position_embeddings
+            
+        elif self.args.without_sent_pos:
+            print('self.args.without_sent_pos and not self.args.para_only')
             embeddings = sent_struct_embeddings
+            
+        elif self.args.para_only:
+            print('self.args.para_only and not self.args.without_sent_pos')
+            embeddings = (           
+                 position_embeddings          
+                + para_position_embeddings
+            )     
         else:
+            print('position_embeddings + sent_struct_embeddings')
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
@@ -228,10 +241,24 @@ class SINSentAddEmb(nn.Module):
             
         else:
             raise ValueError("args.sent_se_comb_mode must be one of ['sum','mean','concat']")
+            
         
-        if self.args.without_sent_pos :
+        if self.args.without_sent_pos and self.args.para_only:
+            print('self.args.without_sent_pos and self.args.para_only')
+            embeddings = para_position_embeddings
+            
+        elif self.args.without_sent_pos:
+            print('self.args.without_sent_pos and not self.args.para_only')
             embeddings = sent_struct_embeddings
+            
+        elif self.args.para_only:
+            print('self.args.para_only and not self.args.without_sent_pos')
+            embeddings = (           
+                 position_embeddings          
+                + para_position_embeddings
+            )     
         else:
+            print('position_embeddings + sent_struct_embeddings')
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
@@ -310,15 +337,37 @@ class LPSentAddEmb(nn.Module):
             
         else:
             raise ValueError ("args.sent_se_comb_mode must be one of ['sum', 'mean']")
+            
         
-        
-        if self.args.without_sent_pos :
+        if self.args.without_sent_pos and self.args.para_only:
+            print('self.args.without_sent_pos and self.args.para_only')
+            embeddings = para_position_embeddings
+            
+        elif self.args.without_sent_pos:
+            print('self.args.without_sent_pos and not self.args.para_only')
             embeddings = sent_struct_embeddings
+            
+        elif self.args.para_only:
+            print('self.args.para_only and not self.args.without_sent_pos')
+            embeddings = (           
+                 position_embeddings          
+                + para_position_embeddings
+            )     
         else:
+            print('position_embeddings + sent_struct_embeddings')
             embeddings = (           
                  position_embeddings          
                 + sent_struct_embeddings
             )
+        
+        
+#        if self.args.without_sent_pos :
+#            embeddings = sent_struct_embeddings
+#        else:
+#            embeddings = (           
+#                 position_embeddings          
+#                + sent_struct_embeddings
+#            )
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         
