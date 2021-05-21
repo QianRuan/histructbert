@@ -5,7 +5,7 @@ import argparse
 import time
 import os
 from others.logging import init_logger
-from prepro import cnndm_data_builder,arxiv_data_builder
+from prepro import cnndm_data_builder, pubmed_data_builder
 
 
 #def do_format_to_lines(args):
@@ -42,7 +42,7 @@ def str2bool(v):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-pretrained_model", default='bert', type=str)
+    parser.add_argument("-base_LM", default='bert', type=str)
    # parser.add_argument("-corenlp_path", default='', type=str)#
     parser.add_argument("-vocab_file", default='', type=str)#
     
@@ -65,20 +65,20 @@ if __name__ == '__main__':
 
     parser.add_argument("-shard_size", default=2000, type=int)
     parser.add_argument('-min_src_nsents', default=3, type=int)#0,3
-    parser.add_argument('-max_src_nsents', default=100, type=int)#1000
+    parser.add_argument('-max_src_nsents', default=0, type=int)#1000
     parser.add_argument('-min_src_ntokens_per_sent', default=5, type=int)#0,5
-    parser.add_argument('-max_src_ntokens_per_sent', default=200, type=int)#2000
+    parser.add_argument('-max_src_ntokens_per_sent', default=0, type=int)#2000
     parser.add_argument('-min_tgt_ntokens', default=5, type=int)#0,5
-    parser.add_argument('-max_tgt_ntokens', default=500, type=int)#5000
+    parser.add_argument('-max_tgt_ntokens', default=5000, type=int)#5000
 
-    parser.add_argument("-lower", type=str2bool, nargs='?',const=True,default=True)
-    parser.add_argument("-use_bert_basic_tokenizer", type=str2bool, nargs='?',const=True,default=False)
+    parser.add_argument("-lower", type=str2bool, nargs='?',const=True,default=True)#
+    parser.add_argument("-use_bert_basic_tokenizer", type=str2bool, nargs='?',const=True,default=False)#
 
     parser.add_argument('-log_file', default='')
 
     parser.add_argument('-dataset', default='')
 
-    parser.add_argument('-n_cpus', default=2, type=int)
+    parser.add_argument('-n_cpus', default=1, type=int)
 
 
     args = parser.parse_args()
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     if args.mode=='clean_up_logs':
         print('Log file %s removed.'% (args.log_file))
         os.remove(args.log_file)
-    if args.dataset=='arxiv':
-        eval('arxiv_data_builder.'+args.mode + '(args)')       
+    if args.dataset=='arxiv' or args.dataset=='pubmed':
+        eval('pubmed_data_builder.'+args.mode + '(args)')       
     elif args.dataset=='cnndm':
         eval('cnndm_data_builder.'+args.mode + '(args)')

@@ -38,6 +38,8 @@ if __name__ == '__main__':
     parser.add_argument("-tok_pos_emb_type", default='sinusoidal', type=str, choices=['learned_pos', 'learned_all', 'sinusoidal'])
     parser.add_argument("-sent_pos_emb_type", default='sinusoidal', type=str, choices=['learned_pos', 'learned_all', 'sinusoidal'])
     parser.add_argument("-max_nsent", default=512, type=int)
+    parser.add_argument("-max_npara", default=0, type=int)
+    parser.add_argument("-max_nsent_in_para", default=0, type=int)
     parser.add_argument('-eval_folder', default='eval')
     parser.add_argument('-eval_path', default='')
     parser.add_argument('-log_file', default='')

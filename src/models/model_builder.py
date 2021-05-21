@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
-#from pytorch_transformers import LongformerModel
+from pytorch_transformers import LongformerModel
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -148,27 +148,29 @@ class Roberta(nn.Module):
 
     def forward(self, x, segs, mask):
         if(self.finetune):
+            top_vec, _ = self.model(x,  attention_mask=mask)
+#            top_vec, _ = self.model(x, segs, attention_mask=mask)
+        else:
+            self.eval()
+            with torch.no_grad():
+                top_vec, _ = self.model(x, attention_mask=mask)
+#                top_vec, _ = self.model(x, segs, attention_mask=mask)
+        return top_vec
+    
+class Longformer(nn.Module):
+    def __init__(self, base_LM, temp_dir, finetune):
+        super(Longformer, self).__init__()
+        self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
+        self.finetune = finetune
+
+    def forward(self, x, segs, mask):
+        if(self.finetune):
             top_vec, _ = self.model(x, segs, attention_mask=mask)
         else:
             self.eval()
             with torch.no_grad():
                 top_vec, _ = self.model(x, segs, attention_mask=mask)
         return top_vec
-    
-#class Longformer(nn.Module):
-#    def __init__(self, base_LM, temp_dir, finetune):
-#        super(Longformer, self).__init__()
-#        self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
-#        self.finetune = finetune
-#
-#    def forward(self, x, segs, mask):
-#        if(self.finetune):
-#            top_vec, _ = self.model(x, segs, attention_mask=mask)
-#        else:
-#            self.eval()
-#            with torch.no_grad():
-#                top_vec, _ = self.model(x, segs, attention_mask=mask)
-#        return top_vec
 
 class ExtSummarizer(nn.Module):
     def __init__(self, args, device, checkpoint):

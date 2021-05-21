@@ -66,11 +66,27 @@ class LASentAddEmb(nn.Module):
         self.position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
         
         if(self.args.sent_se_comb_mode == 'concat'):
-            self.a_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/2))
-            self.b_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/2))
+            if args.max_npara==0:
+                self.a_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/2))
+            else:
+                self.a_position_embeddings = nn.Embedding(args.max_npara, int(config.hidden_size/2))
+            if args.max_nsent_in_para==0:
+                self.b_position_embeddings = nn.Embedding(args.max_nsent, int(config.hidden_size/2))
+            else:
+                self.b_position_embeddings = nn.Embedding(args.max_nsent_in_para, int(config.hidden_size/2))
+                
         else:
-            self.a_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
-            self.b_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+            if args.max_npara==0:
+                self.a_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+            else:
+                self.a_position_embeddings = nn.Embedding(args.max_npara, config.hidden_size)
+            if args.max_nsent_in_para==0:
+                self.b_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+            else:
+                self.b_position_embeddings = nn.Embedding(args.max_nsent_in_para, config.hidden_size)
+                
+#            self.a_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+#            self.b_position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
        
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file

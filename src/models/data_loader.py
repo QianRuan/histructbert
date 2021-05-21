@@ -60,6 +60,7 @@ class Batch(object):
             clss[clss == -1] = 0
             
 #            print("#####-------clss",clss.shape,clss)
+#            print("#####-------pre_src",pre_src)
 #            print("#####-------src",src.shape,src)
 #            print("#####-------pre_sent_struct_vec",len(pre_sent_struct_vec),pre_sent_struct_vec)
 #            print("#####-------pre_tok_struct_vec",len(pre_tok_struct_vec),pre_tok_struct_vec)
