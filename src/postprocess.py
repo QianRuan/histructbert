@@ -425,11 +425,13 @@ def remove_step_models(args,nrm):
     logger.info("Removing step models...")
     models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
-    histruct_models = [model for model in models if model.split('_')[1]=='hs']
-    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
+#    histruct_models = [model for model in models if model.split('_')[1]=='hs']
+#    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
     
-    remove_models(histruct_models,nrm)
-    remove_models(bert_baseline_models,nrm)
+    remove_models(models,nrm)
+    
+#    remove_models(histruct_models,nrm)
+#    remove_models(bert_baseline_models,nrm)
     
     logger.info("Remove step models...DONE")
             
@@ -558,6 +560,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-generate_eval_results_overview", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=True,default=True)
+    parser.add_argument("-remove_step_models_also_best", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_val_xent", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_best_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
@@ -580,15 +583,17 @@ if __name__ == '__main__':
     if (args.remove_step_models):
 
         not_removed = []
-        flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
-        flat2 = [item[0] for sublist in list(bert_step_best_models.values()) for item in sublist]
-        flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
-        flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
-        not_removed.extend(flat1+flat2+flat3+flat4)
-        not_removed=set(not_removed)
-        logger.info('Best models are not removed: '+ ','.join(not_removed))
-    
-        remove_step_models(args,not_removed)
+        if(args.remove_step_models_also_best):
+            flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
+            flat2 = [item[0] for sublist in list(bert_step_best_models.values()) for item in sublist]
+            flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
+            flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
+            not_removed.extend(flat1+flat2+flat3+flat4)
+            not_removed=set(not_removed)
+            logger.info('Step models of best settings are not removed: '+ ','.join(not_removed))
+        else:
+            logger.info('Step models of best settings are removed to save space.')
+        remove_step_models(args, not_removed)
     
     if (args.plot_val_xent):
         plot_val_xent(args)
