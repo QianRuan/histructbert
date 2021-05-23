@@ -121,6 +121,7 @@ def obtain_histruct_info(doc, args, tokenizer):
     #remove repeated extra sentences in 'sections' (list of paragraphs containing lists of sentences in the paragraph)
     src_sent_cp = src_sent.copy()
     src_para_sent_cp =deepcopy(src_para_sent)#copy nested list
+#    src_para_sent_cp2 =deepcopy(src_para_sent)
     sent_in_para_kept = []         
     for h in range(len(src_sent)):
         for i in range(len(src_para_sent)):#nr.of para
@@ -143,10 +144,17 @@ def obtain_histruct_info(doc, args, tokenizer):
     for i in range(len(src_para_sent)):#nr.of para
             for j in range(len(src_para_sent[i])):
                 if (i,j) not in sent_in_para_kept:
-                    del src_para_sent[i][j]
+                    src_para_sent[i][j]=None
+    src_para_sent=[[sent for sent in para if sent!=None] for para in src_para_sent]
                     
     assert len(src_sent)==len(sum(src_para_sent,[]))
     assert src_sent==sum(src_para_sent,[])
+#    if src_sent!=sum(src_para_sent,[]):
+#        print(len(src_sent),src_sent)
+#        print('AFTER',len(src_para_sent), len(sum(src_para_sent,[])), src_para_sent)
+#        print('BEFORE',len(src_para_sent_cp2), len(sum(src_para_sent_cp2,[])), src_para_sent_cp2)
+#        print(sent_in_para_kept)
+#        assert src_sent==sum(src_para_sent,[])
     
 
 
@@ -908,8 +916,9 @@ def _format_to_histruct(params):
             for n in skip_reasons:
                 if n==r:
                     count+=1
-            skip_reasons_dic.update({r:(count,round(count/len(jobs),4))})      
-    file_path = ''.join(json_file.split('\\')[:-1])+'/skip_reasons'
+            skip_reasons_dic.update({r:(count,round(count/len(jobs),4))})    
+            
+    file_path = args.save_path+'/skip_reasons'
     file_name = file_path+'/'+ '.'.join(json_file.split('\\')[-1].split('.')[:-1])+'.skip_reasons.txt'
     if not os.path.exists(file_path):
         os.mkdir(file_path)

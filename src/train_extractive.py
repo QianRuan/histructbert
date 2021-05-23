@@ -352,11 +352,21 @@ def baseline_ext(args, cal_lead=False, cal_oracle=False):
 
 def train_ext(args, device_id):
     #check if the model already exists
-    if os.path.exists(args.model_path):
-        raise ValueError('Model folder already exists, do you wan to remove the folder and retrain?')
-
-    else:
+    #create save folder if not exisits
+    if not os.path.exists(args.model_path):
         os.mkdir(args.model_path)
+        logger.info('Model folder created.')
+    else:
+        if len(os.listdir(args.model_path))!= 0:
+            text = input('Model folder already exisits and is not empty. Do you want to remove it and redo training (yes or no) ?')
+            if text.lower()=='yes':
+                shutil.rmtree(args.model_path)
+                os.mkdir(args.model_path)
+                logger.info('YES: Model folder removed and recreated.')
+            else:
+                logger.info('NO: Program stopped.')
+                exit()
+                
     
     if args.log_file=='':
         args.log_file=args.model_path+'/train.log'
