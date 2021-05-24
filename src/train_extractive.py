@@ -287,6 +287,9 @@ def test_steps(args, device_id):
 #        json.dump(xents,f)
      if args.eval_path=='':
         args.eval_path=args.model_path+'/'+args.eval_folder
+     if args.result_path=='':
+        args.result_path=args.eval_path+'/eval.results'
+        
      with open(args.eval_path+'/test_rouges.json', 'w+') as f:
          json.dump(test_rouge_lst,f)
      with open(args.eval_path+'/test_avg_rouges.json', 'w+') as f:
