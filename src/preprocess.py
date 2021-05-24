@@ -65,9 +65,9 @@ if __name__ == '__main__':
 
     parser.add_argument("-shard_size", default=2000, type=int)
     parser.add_argument('-min_src_nsents', default=3, type=int)#0,3
-    parser.add_argument('-max_src_nsents', default=0, type=int)#1000
+    parser.add_argument('-max_src_nsents', default=0, type=int)#1000,0 means no limit of max
     parser.add_argument('-min_src_ntokens_per_sent', default=5, type=int)#0,5
-    parser.add_argument('-max_src_ntokens_per_sent', default=0, type=int)#2000
+    parser.add_argument('-max_src_ntokens_per_sent', default=0, type=int)#2000, 0 means no limit of max
     parser.add_argument('-min_tgt_ntokens', default=5, type=int)#0,5
     parser.add_argument('-max_tgt_ntokens', default=5000, type=int)#5000
 

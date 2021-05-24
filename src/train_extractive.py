@@ -257,6 +257,53 @@ def validate(args, device_id, pt, step):
     stats = trainer.validate(valid_iter, step)
     return stats.xent()
 
+def test_steps(args, device_id):
+     logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, args.test_steps))
+     steps = args.test_steps.split(',')
+     test_rouge_lst=[]
+     for step in steps:
+         cp = args.model_path+'/model_step_'+step+'.pt'
+         step=int(step)
+         xent, rouges = test_ext(args, device_id, cp, step)
+         test_rouge_lst.append((cp,rouges))
+         
+     
+#     xent_lst = sorted(xent_lst, key=lambda x: x[0])[:3]
+#     logger.info('PPL %s' % str(xent_lst))
+#        
+#       
+#     test_xent_lst=[]
+#     test_rouge_lst=[]
+#     for xent, cp in xent_lst:
+#            step = int(cp.split('.')[-2].split('_')[-1])
+#            xent, rouges = test_ext(args, device_id, cp, step)
+#            test_xent_lst.append((xent,cp))
+#            test_rouge_lst.append((cp,rouges))
+            
+        
+    #save info for post analysis
+#    with open(args.eval_path+'/test_xent.json', 'w+') as f:
+#        xents = sorted(test_xent_lst, key=lambda x: x[0])
+#        json.dump(xents,f)
+     if args.eval_path=='':
+        args.eval_path=args.model_path+'/'+args.eval_folder
+     with open(args.eval_path+'/test_rouges.json', 'w+') as f:
+         json.dump(test_rouge_lst,f)
+     with open(args.eval_path+'/test_avg_rouges.json', 'w+') as f:
+         metrics=['rouge_1_f_score','rouge_2_f_score','rouge_l_f_score',
+                     'rouge_1_recall','rouge_2_recall','rouge_l_recall',
+                     'rouge_1_precision','rouge_2_precision','rouge_l_precision']
+         dic={}    
+         for m in metrics:
+            li=[]
+            for item in test_rouge_lst:
+                li.append(item[1][m])
+            avg=statistics.mean(li)
+            dic.update({m:avg})
+        
+         json.dump(dic,f) 
+         logger.info('Avg. rouges of the model______%s \n%s' % (args.model_path.split('/')[1], rouge_results_to_str(dic)))
+    
 
 def test_ext(args, device_id, pt, step):
     device = "cpu" if args.visible_gpus == '-1' else "cuda"

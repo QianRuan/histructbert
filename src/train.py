@@ -7,7 +7,7 @@ from __future__ import division
 import argparse
 import os
 
-from train_extractive import train_ext, validate_ext, test_ext, baseline_ext
+from train_extractive import train_ext, validate_ext, test_ext,test_steps, baseline_ext
 
 
 #model_flags = ['hidden_size', 'ff_size', 'heads', 'emb_size', 'enc_layers', 'enc_hidden_size', 'enc_ff_size',
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument("-accum_count", default=1, type=int)
     parser.add_argument("-report_every", default=1, type=int)
     parser.add_argument("-train_steps", default=1000, type=int)
-    parser.add_argument("-recall_eval", type=str2bool, nargs='?',const=True,default=False)
+    parser.add_argument("-recall_eval", type=str2bool, nargs='?',const=True,default=False)#
 
 
     parser.add_argument('-visible_gpus', default='-1', type=str)
@@ -157,7 +157,7 @@ if __name__ == '__main__':
             baseline_ext(args, cal_oracle=True)
             os.mkdir(args.model_path+'/DONE')
             os.mkdir(args.model_path+'/eval/DONE')
-        if (args.mode == 'test'):
+        if (args.mode == 'test'):#test one checkpoint
             cp = args.test_from
             try:
                 step = int(cp.split('.')[-2].split('_')[-1])
@@ -165,6 +165,15 @@ if __name__ == '__main__':
                 step = 0
             test_ext(args, device_id, cp, step)
             os.mkdir(args.model_path+'/eval/DONE')
+        elif (args.mode == 'test_steps'):#test many steps
+#            cp = args.test_from
+#            try:
+#                step = int(cp.split('.')[-2].split('_')[-1])
+#            except:
+#                step = 0
+            test_steps(args, device_id)#, cp, step)
+            os.mkdir(args.model_path+'/eval/DONE')
+            
         elif (args.mode == 'test_text'):
             cp = args.test_from
             try:

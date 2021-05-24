@@ -18,7 +18,7 @@ from multiprocess import Pool
 
 from others.logging import logger,init_logger
 from others.tokenization import BertTokenizer
-from pytorch_transformers import RobertaTokenizer
+from pytorch_transformers import RobertaTokenizer,RobertaModel
 
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
@@ -96,11 +96,11 @@ def obtain_histruct_info(doc, args, tokenizer):
     #read and clean data 
     #get list of sentences in article (without gold summary)
     src_sent = doc['article_text'] 
-    src_sent=[sent.strip() for sent in src_sent]
+    src_sent=[sent.strip().lower() for sent in src_sent]
     
     #get list of sections which contain lists of sentences in the section
     src_para_sent = doc['sections']
-    src_para_sent = [[sent.strip() for sent in para] for para in src_para_sent]
+    src_para_sent = [[sent.strip().lower() for sent in para] for para in src_para_sent]
 
     #get list of section names
     section_names = doc['section_names']
@@ -404,7 +404,7 @@ def obtain_histruct_info(doc, args, tokenizer):
             assert (len(src_sent_tokens_retokenized[i])+2 == len(token_struct_vec[i]))
     
         
-        #turncate long sentences
+#        #turncate long sentences
 #        if args.max_src_ntokens_per_sent!=0:
 #            
 #            for i in range(len(token_struct_vec)):        
@@ -509,10 +509,10 @@ class BertData():
         if args.base_LM.startswith('roberta'):
             self.sep_token = '</s>'
             self.cls_token = '<s>'
-            self.pad_token = '<pad>'
-            self.tgt_bos = ' <unused0> '
-            self.tgt_eos = ' <unused1> '
-            self.tgt_sent_split = ' <unused2> '
+            self.pad_token = '<pad>'  
+            self.tgt_bos = ' madeupword0000 '
+            self.tgt_eos = ' madeupword0001 '
+            self.tgt_sent_split = ' madeupword0002 '
             self.sep_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.sep_token))[0]
             self.cls_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.cls_token))[0]
             self.pad_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.pad_token))[0]
@@ -535,7 +535,7 @@ class BertData():
         
         #skip empty document
         skip_reason=''
-        #if ((not is_test) and len(src) == 0):
+#        if ((not is_test) and len(src) == 0):
         if (len([sent for sent in src if sent!=''])==0):
             logger.info('Empty document is skipped.')
             logger.info(src)
@@ -547,7 +547,6 @@ class BertData():
         
 #        if ((not is_test) and skip):
         if skip:
-            #logger.info('Skipped---------------------------------------------.')
             return None, skip_reason
         
         #list of sentences
@@ -557,14 +556,8 @@ class BertData():
         _sent_labels = [0] * len(src)
         for l in sent_labels:
             _sent_labels[l] = 1
-            
-        #remove short and long sentences from src
-#        if self.args.max_src_ntokens_per_sent!=0:     
-#            src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
-#        else:
-#            src = [src[i] for i in idxs]
         
-        #list of indices of enough long sentences, use it to remove short sentences later
+        #get a list of indices of enough long sentences, use it to remove short sentences later
         idxs = [i for i, s in enumerate(src) if (len(s) > self.args.min_src_ntokens_per_sent)]
         
         #remove short sentences 
@@ -574,30 +567,28 @@ class BertData():
         sent_struct_vec = [_sent_struct_vec[i] for i in idxs]
         overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
         
-        #shorten long documents
+        #shorten long documents (remove last sentences), default: do not short, args.max_src_nsents=0
         if (self.args.max_src_nsents!=0):
             src = src[:self.args.max_src_nsents]
             token_struct_vec = token_struct_vec[:self.args.max_src_nsents]
             sent_labels = sent_labels[:self.args.max_src_nsents]
-            sent_struct_vec = sent_struct_vec[:self.args.max_src_nsents]######
+            sent_struct_vec = sent_struct_vec[:self.args.max_src_nsents]
             overall_sent_pos = overall_sent_pos[:self.args.max_src_nsents]
         
         #flat list
         token_struct_vec = sum(token_struct_vec,[]) 
        
-        #skip too short documents
+        #skip too short documents if it is not test data
         if ((not is_test) and len(src) < self.args.min_src_nsents):
             logger.info('Too short document (less than %d sentences) is skipped.'%(self.args.min_src_nsents))
             logger.info('length of original text %d'%len(original_src_txt))
-            logger.info(original_src_txt)
             logger.info('length of text after removing short sentences %d'%len(src))
-            logger.info(src)
             skip_reason='too short document (less than %d sentences)'%self.args.min_src_nsents
             return None, skip_reason
         
 
-        #preprocessed src, join tokens into sentences
-        src_txt = src#[' '.join(sent) for sent in src]#
+        #preprocessed article_text, a list of sentences in the article
+        src_txt = src
         #join sentences into text, add cls_token and sep_token between sentences
         text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
         #tokenize using the tokenizer
@@ -613,8 +604,7 @@ class BertData():
 #        print("#################src_subtokens_idxs",len( src_subtoken_idxs),  src_subtoken_idxs)
 #        print("#################sent_labels",len(sent_labels), sent_labels)
        
-        
-        
+       
         #segments_ids
         _segs = [-1] + [i for i, t in enumerate(src_subtoken_idxs) if t == self.sep_vid]    
         segs = [_segs[i] - _segs[i - 1] for i in range(1, len(_segs))]
@@ -637,7 +627,10 @@ class BertData():
            
         
         #preprocessing of gold summaries
-        tgt_subtokens_str =  self.tgt_bos + self.tgt_sent_split.join([' '.join(self.tokenizer.tokenize(' '.join(tt))) for tt in tgt]) + self.tgt_eos
+        
+        #tgt_subtokens_str =  self.tgt_bos + self.tgt_sent_split.join([' '.join(self.tokenizer.tokenize(' '.join(tt))) for tt in tgt]) + self.tgt_eos
+        tgt_subtokens_str =  self.tgt_bos + self.tgt_sent_split.join([' '.join(self.tokenizer.tokenize(tt)) for tt in tgt]) + self.tgt_eos
+        
         
         #shorten long summaries      
         if self.args.max_tgt_ntokens!=0:
@@ -655,136 +648,210 @@ class BertData():
 #        print("#################tgt_subtoken",len(tgt_subtoken), tgt_subtoken)
 #        print("#################tgt_subtoken_idxs",len(tgt_subtoken_idxs), tgt_subtoken_idxs)
         
-        #--------------------------------------------------------------------------------------------------------src_txt, tgt_txt
-        tgt_txt = '<q>'.join([' '.join(tt) for tt in tgt])
-        src_txt = [original_src_txt[i] for i in idxs]
-#        print("#################tgt_txt",len(tgt_txt), tgt_txt)
-#        print("#################src_txt",len(src_txt), src_txt)
-        
-        
+        #src_txt, tgt_txt
+        tgt_txt = '<q>'.join(tgt) #plain text of gold summary, sentences joined by <q>
+        src_txt = [original_src_txt[i] for i in idxs] #a list of sentences in the article
+       
+        #check
+        assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
+        assert len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec) #nr. of tokens
+        check_data(self.args, src_subtoken_idxs,token_struct_vec, segments_ids)
         
         #check length
-        flag=False
-        if not (len(sent_labels)==len(cls_ids)==len(sent_struct_vec)): 
-            print('1----Length should be the same')
-            print(len(sent_labels))
-            print(len(cls_ids))
-            print(len(sent_struct_vec))
-            
-            
-           
-        if not (len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec)):
-            flag=True
-            print('2----Length should be the same')
-            print(len(segments_ids))#,segments_ids)
-            print(len(src_subtoken_idxs))#,src_subtoken_idxs)
-#            print(len(src_txt),src_txt)#
-            print(len(token_struct_vec))#,token_struct_vec)
+#        flag=False
+#        if not (len(sent_labels)==len(cls_ids)==len(sent_struct_vec)): 
+#            print('1----Length should be the same')
+#            print(len(sent_labels))
+#            print(len(cls_ids))
+#            print(len(sent_struct_vec))
+#            
+#            
+#           
+#        if not (len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec)):
+#            flag=True
+#            print('2----Length should be the same')
+#            print(len(segments_ids))#,segments_ids)
+#            print(len(src_subtoken_idxs))#,src_subtoken_idxs)
+##            print(len(src_txt),src_txt)#
+#            print(len(token_struct_vec))#,token_struct_vec)
        
-        #subtokens to sentences 
-        li=[]
-        lists=[]
-        if (self.args.base_LM.startswith('bert')):
-            for idx in src_subtoken_idxs:
-            
-                if not idx==102:
-                    li.append(idx)
-                else:
-                    li.append(idx)
-                    lists.append(li)
-                    li=[]
-                    continue
-        else:
-            for idx in src_subtoken_idxs:
-                if not idx==2:
-                    li.append(idx)
-                else:
-                    li.append(idx)
-                    lists.append(li)
-                    li=[]
-                    continue
-                
-       
-        
-        #token_struct_vec to sentences
-        li2=[]
-        lists2=[]
-        count=0
-        t=token_struct_vec
-        for i in range(len(t)):
-           
-            if t[i][2]==0:                
-                count+=1
-                if count==1 :
-                    li2.append(t[i])
-                elif count>1:
-                    lists2.append(li2)
-                    li2=[]
-                    li2.append(t[i])
-                    count=1 
-            else:
-                li2.append(t[i])
-                if i == len(t)-1:
-                    lists2.append(li2)
-                    
-        #segment_ids_vec to sentences
-        li3=[]
-        lists3=[]
-        for i in range(len(segments_ids)):
-            if i==0:
-                li3.append(segments_ids[i])            
-            elif segments_ids[i-1]!=segments_ids[i]:
-                lists3.append(li3)
-                li3=[]
-                li3.append(segments_ids[i])
-            else:
-                li3.append(segments_ids[i])
-                if i==len(segments_ids)-1:
-                    lists3.append(li3)
-                    
-                    
-        
-                    
-        #both contains same number of sentences 
-        
-        if (len(lists)!=len(lists2)!=len(lists3)):
-            flag=True
-            print('3----Nr. of sentences should be the same')
-            
-            
-        #sentences at same index contain same number of items (sutokens and its structure vector)          
-        l=[len(x) for x in lists]
-        l2=[len(x) for x in lists2]
-        l3=[len(x) for x in lists3]
-
-        for i in range(len(l)):
-            if l[i]!=l2[i]:
-                flag=True
-                print("4----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. token_struct_vec")
-                print(i, l[i], l2[i])
-                print (lists[i])
-                print (lists2[i])
-#                    print(src_txt[i])   
-            if l[i]!=l3[i]:
-                flag=True
-                print("5----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. segment_ids")
-                print(i, l[i], l3[i])
-                print (lists[i])
-                print (lists3[i])
-#                    print(src_txt[i])   
-            if l2[i]!=l3[i]:
-                flag=True
-                print("6----Nr. of items in the same sentence should be the same: token_struct_vec vs. segment_ids")
-                print(i, l2[i], l3[i])
-                print (lists2[i])
-                print (lists3[i])
-        
-        if (flag) :
-            raise ValueError("7----length check failed")
+#        #subtokens to sentences 
+#        li=[]
+#        lists=[]
+#        if (self.args.base_LM.startswith('bert')):
+#            for idx in src_subtoken_idxs:
+#            
+#                if not idx==102:
+#                    li.append(idx)
+#                else:
+#                    li.append(idx)
+#                    lists.append(li)
+#                    li=[]
+#                    continue
+#        else:
+#            for idx in src_subtoken_idxs:
+#                if not idx==2:
+#                    li.append(idx)
+#                else:
+#                    li.append(idx)
+#                    lists.append(li)
+#                    li=[]
+#                    continue
+#                
+#       
+#        
+#        #token_struct_vec to sentences
+#        li2=[]
+#        lists2=[]
+#        count=0
+#        t=token_struct_vec
+#        for i in range(len(t)):
+#           
+#            if t[i][2]==0:                
+#                count+=1
+#                if count==1 :
+#                    li2.append(t[i])
+#                elif count>1:
+#                    lists2.append(li2)
+#                    li2=[]
+#                    li2.append(t[i])
+#                    count=1 
+#            else:
+#                li2.append(t[i])
+#                if i == len(t)-1:
+#                    lists2.append(li2)
+#                    
+#        #segment_ids_vec to sentences
+#        li3=[]
+#        lists3=[]
+#        for i in range(len(segments_ids)):
+#            if i==0:
+#                li3.append(segments_ids[i])            
+#            elif segments_ids[i-1]!=segments_ids[i]:
+#                lists3.append(li3)
+#                li3=[]
+#                li3.append(segments_ids[i])
+#            else:
+#                li3.append(segments_ids[i])
+#                if i==len(segments_ids)-1:
+#                    lists3.append(li3)
+#                    
+#                    
+#        
+#                    
+#        #they contain same number of sentences 
+#        assert len(lists)==len(lists2)==len(lists3)
+#        
+##        if (len(lists)!=len(lists2)!=len(lists3)):
+##            flag=True
+##            print('3----Nr. of sentences should be the same')
+#            
+#            
+#        #sentences at same index contain same number of items (sutokens and its structure vector)          
+#        l=[len(x) for x in lists]
+#        l2=[len(x) for x in lists2]
+#        l3=[len(x) for x in lists3]
+#
+#        for i in range(len(l)):
+#            assert l[i]==l2[i]==l3[i]
+#            if l[i]!=l2[i]:
+#                flag=True
+#                print("4----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. token_struct_vec")
+#                print(i, l[i], l2[i])
+#                print (lists[i])
+#                print (lists2[i])
+##                    print(src_txt[i])   
+#            if l[i]!=l3[i]:
+#                flag=True
+#                print("5----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. segment_ids")
+#                print(i, l[i], l3[i])
+#                print (lists[i])
+#                print (lists3[i])
+##                    print(src_txt[i])   
+#            if l2[i]!=l3[i]:
+#                flag=True
+#                print("6----Nr. of items in the same sentence should be the same: token_struct_vec vs. segment_ids")
+#                print(i, l2[i], l3[i])
+#                print (lists2[i])
+#                print (lists3[i])
+#        
+#        if (flag) :
+#            raise ValueError("7----length check failed")
             
 
         return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos,section_names
 
+def check_data(args, src_subtoken_idxs,token_struct_vec, segments_ids):
+    #subtokens to sentences 
+    li=[]
+    lists=[]
+    if (args.base_LM.startswith('bert')):
+        for idx in src_subtoken_idxs:
+        
+            if not idx==102:
+                li.append(idx)
+            else:
+                li.append(idx)
+                lists.append(li)
+                li=[]
+                continue
+    else:
+        for idx in src_subtoken_idxs:
+            if not idx==2:
+                li.append(idx)
+            else:
+                li.append(idx)
+                lists.append(li)
+                li=[]
+                continue
+            
+    #token_struct_vec to sentences
+    li2=[]
+    lists2=[]
+    count=0
+    t=token_struct_vec
+    for i in range(len(t)):
+       
+        if t[i][2]==0:                
+            count+=1
+            if count==1 :
+                li2.append(t[i])
+            elif count>1:
+                lists2.append(li2)
+                li2=[]
+                li2.append(t[i])
+                count=1 
+        else:
+            li2.append(t[i])
+            if i == len(t)-1:
+                lists2.append(li2)
+                
+    #segment_ids_vec to sentences
+    li3=[]
+    lists3=[]
+    for i in range(len(segments_ids)):
+        if i==0:
+            li3.append(segments_ids[i])            
+        elif segments_ids[i-1]!=segments_ids[i]:
+            lists3.append(li3)
+            li3=[]
+            li3.append(segments_ids[i])
+        else:
+            li3.append(segments_ids[i])
+            if i==len(segments_ids)-1:
+                lists3.append(li3)
+                
+    #they contain same number of sentences 
+    assert len(lists)==len(lists2)==len(lists3)
+        
+    #sentences at same index contain same number of items (sutokens and its structure vector)          
+    l=[len(x) for x in lists]
+    l2=[len(x) for x in lists2]
+    l3=[len(x) for x in lists3]
+
+    for i in range(len(l)):
+        assert l[i]==l2[i]==l3[i]
+    
 
 def format_to_histruct(args):
     init_logger(args.log_file)
@@ -852,10 +919,10 @@ def _format_to_histruct(params):
     skip_reasons=[]  
     
     for d in jobs:
-        #get list of source sentences and gold summary sentences and do cleanising
+        #get list of source sentences and gold summary sentences (lowercase) and clean
         source, tgt = d['article_text'], d['abstract_text']
-        source = [sent.strip() for sent in source]
-        tgt = [s.replace('<S>','').replace('</S>','').strip() for s in tgt]
+        source = [sent.strip().lower() for sent in source]
+        tgt = [s.replace('<S>','').replace('</S>','').strip().lower() for s in tgt]
        
         #get index of selected sentences (in oracle summary)
         if (args.summ_size!=0):
@@ -870,14 +937,6 @@ def _format_to_histruct(params):
                 sent_labels = greedy_selection(source, tgt, len(source))
          
         tgt_sent_idx = sent_labels
-        #print("####################sent_labels",len(sent_labels),sent_labels)#可能有2
-        
-        #do lowercase
-#        if (args.lower):
-#            source = [' '.join(s).lower().split() for s in source]
-#            tgt = [' '.join(s).lower().split() for s in tgt]
-            #print("####################sourcelower",len(source),source)
-            #print("####################tgtlower",len(tgt),tgt)
                   
         b_data = bert.preprocess(d, source, tgt, sent_labels, is_test=is_test)
 
@@ -886,8 +945,7 @@ def _format_to_histruct(params):
             continue
         
         src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos,section_names = b_data
-        
-              
+                 
         b_data_dict = {"src": src_subtoken_idxs, ##!!
                        "tgt": tgt_subtoken_idxs, #!!
                        "src_sent_labels": sent_labels, ##!!
@@ -895,20 +953,15 @@ def _format_to_histruct(params):
                        'clss': cls_ids, ##!!
                        'src_txt': src_txt, ##!!
                        "tgt_txt": tgt_txt, ##!!
-#                       "tgt_sent": tgt, #-- 
                        "tgt_sent_idx":tgt_sent_idx,#--
                        "overall_sent_pos":overall_sent_pos,#--
                        "sent_struct_vec":sent_struct_vec, ##!!
                        "token_struct_vec":token_struct_vec,
                        "section_names":section_names}##!!
-        
-        
-
-
         datasets.append(b_data_dict)
 
               
-    #save skip reasons for later use           
+    #save and print skip reasons for later check           
     skip_reasons_dic ={}   
     if skip_reasons!=[]:   
         for r in set(skip_reasons):
@@ -926,17 +979,16 @@ def _format_to_histruct(params):
           'nr. of skipped instances':len(skip_reasons), 'skip percentage':round(len(skip_reasons)/len(jobs)*100,2),
           'skip_reasons':skip_reasons_dic}      
     with open(file_name, 'w+') as save:
-            save.write(json.dumps(dic)) 
-            
+            save.write(json.dumps(dic))        
     logger.info('File %s'%json_file)        
     logger.info('There are %d instances.'%len(jobs))
     logger.info('Processed instances %d' % len(datasets))
     logger.info('Skipped instances %d, %f percentage of the %d instances' % (len(skip_reasons), round(len(skip_reasons)/len(jobs)*100,2), len(jobs)))
     logger.info('Skip reasons: %s'%(skip_reasons_dic))
     
-    logger.info('Saving to %s' % save_file)
     
-    
+    #save preprocessed dataset
+    logger.info('Saving to %s' % save_file)   
     save_path = args.save_path
     if not os.path.exists(save_path):
         os.makedirs(save_path)
