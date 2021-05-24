@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-task", default='ext', type=str, choices=['ext', 'abs'])
     parser.add_argument("-encoder", default='bert', type=str, choices=['bert', 'baseline'])
-    parser.add_argument("-mode", default='train', type=str, choices=['train', 'validate', 'test','lead','oracle'])
+    parser.add_argument("-mode", default='train', type=str, choices=['train', 'validate', 'test','test_steps','lead','oracle'])
     parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base'])
     parser.add_argument("-add_tok_struct_emb", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-add_sent_struct_emb", type=str2bool, nargs='?',const=True,default=True)
@@ -166,12 +166,7 @@ if __name__ == '__main__':
             test_ext(args, device_id, cp, step)
             os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'test_steps'):#test many steps
-#            cp = args.test_from
-#            try:
-#                step = int(cp.split('.')[-2].split('_')[-1])
-#            except:
-#                step = 0
-            test_steps(args, device_id)#, cp, step)
+            test_steps(args, device_id)
             os.mkdir(args.model_path+'/eval/DONE')
             
         elif (args.mode == 'test_text'):
