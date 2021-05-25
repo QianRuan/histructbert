@@ -168,18 +168,22 @@ class Longformer(nn.Module):
         seq_length = x.size(1)
         position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
         position_ids = position_ids.unsqueeze(0).expand_as(x)
+        
+        attention_mask = torch.ones(x.shape, dtype=torch.long, device=x.device)# initialize to local attention (0)
+        
 
         #global_attention_mask
+        
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
         global_attention_mask[:, clss] = 1
         
         if(self.finetune):
-            outputs = self.model(x, attention_mask=mask.long(), position_ids=position_ids)#, global_attention_mask=global_attention_mask)
+            outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids)#, global_attention_mask=global_attention_mask)
             top_vec = outputs.last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=mask.long(), position_ids=position_ids)#,global_attention_mask=global_attention_mask)
+                outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids)#,global_attention_mask=global_attention_mask)
                 top_vec = outputs.last_hidden_state
         return top_vec
 
