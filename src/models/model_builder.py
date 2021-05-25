@@ -164,13 +164,25 @@ class Longformer(nn.Module):
         self.finetune = finetune
 
     def forward(self, x, segs, mask):
+        #position_ids
+        seq_length = x.size(1)
+        print('seq_length',seq_length)
+        
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)
+        print('position_ids',position_ids)
+            
+        position_ids = position_ids.unsqueeze(0).expand_as(x)
+        print('position_ids',position_ids)
+        #global_attention_mask
+        global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
+        #global_attention_mask[:, [1, 4, 21,]] = 1
         if(self.finetune):
-            outputs = self.model(x, attention_mask=mask)
+            outputs = self.model(x, attention_mask=mask)#,position_ids=position_ids)
             top_vec = outputs.last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=mask)
+                outputs = self.model(x, attention_mask=mask)#,position_ids=position_ids)
                 top_vec = outputs.last_hidden_state
         return top_vec
 
@@ -235,15 +247,20 @@ class ExtSummarizer(nn.Module):
             self.ext_layer = Classifier(self.bert.model.config.hidden_size)
 
         if(args.base_LM.startswith('bert') and args.max_pos>512):
+            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
             my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
             my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
+        
         if(args.base_LM.startswith('longformer') and args.max_pos>4098):
+            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
             my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:4098] = self.bert.model.embeddings.position_embeddings.weight.data
             my_pos_embeddings.weight.data[4098:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-4098,1)
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
         
         
 
