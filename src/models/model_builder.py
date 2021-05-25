@@ -169,7 +169,7 @@ class Longformer(nn.Module):
         position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
         position_ids = position_ids.unsqueeze(0).expand_as(x)
         
-        attention_mask = torch.ones(x.shape, dtype=torch.long, device=x.device)# initialize to local attention (0)
+        attention_mask = None#torch.ones(x.shape, dtype=torch.long, device=x.device)# initialize to local attention (0)
         
 
         #global_attention_mask
