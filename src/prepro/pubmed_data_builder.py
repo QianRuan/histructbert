@@ -590,11 +590,19 @@ class BertData():
         #preprocessed article_text, a list of sentences in the article
         src_txt = src
         #join sentences into text, add cls_token and sep_token between sentences
-        text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
+        if self.args.base_LM.startswith('roberta'):
+            text = '{} {}'.format(self.sep_token, self.cls_token).join(src_txt)
+        else:
+            text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
+            
+        
+        
         #tokenize using the tokenizer
         src_subtokens = self.tokenizer.tokenize(text)
         #add cls_token and sep_token at the beginning and the end of the text
         src_subtokens = [self.cls_token] + src_subtokens + [self.sep_token]
+        
+        
         #convert tokens to ids
         src_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(src_subtokens)
         
@@ -617,6 +625,7 @@ class BertData():
                 
         #cls_ids, indices of cls_tokens      
         cls_ids = [i for i, t in enumerate(src_subtoken_idxs) if t == self.cls_vid] 
+        
        
         #sent_labels
         sent_labels = sent_labels[:len(cls_ids)]

@@ -53,13 +53,13 @@ def process(params):
 
 def test_rouge(temp_dir, cand, ref):
     #print("###############################test_rouge1")#
-#    print(cand)
-#    print(ref)
+    print(cand)
+    print(ref)
     candidates = [line.strip() for line in open(cand, encoding='utf-8')]
     references = [line.strip() for line in open(ref, encoding='utf-8')]
     #print("###############################test_rouge2,length")#
-#    print(len(candidates))
-#    print(len(references))
+    print(len(candidates),candidates[:10])
+    print(len(references),references[:10])
     assert len(candidates) == len(references)
 
     cnt = len(candidates)
