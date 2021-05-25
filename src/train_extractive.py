@@ -258,6 +258,10 @@ def validate(args, device_id, pt, step):
     return stats.xent()
 
 def test_steps(args, device_id):
+     if args.eval_path=='':
+        args.eval_path=args.model_path+'/'+args.eval_folder
+     if args.result_path=='':
+        args.result_path=args.eval_path+'/eval.results'
      logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, args.test_steps))
      steps = args.test_steps.split(',')
      test_rouge_lst=[]
@@ -285,10 +289,7 @@ def test_steps(args, device_id):
 #    with open(args.eval_path+'/test_xent.json', 'w+') as f:
 #        xents = sorted(test_xent_lst, key=lambda x: x[0])
 #        json.dump(xents,f)
-     if args.eval_path=='':
-        args.eval_path=args.model_path+'/'+args.eval_folder
-     if args.result_path=='':
-        args.result_path=args.eval_path+'/eval.results'
+    
         
      with open(args.eval_path+'/test_rouges.json', 'w+') as f:
          json.dump(test_rouge_lst,f)
