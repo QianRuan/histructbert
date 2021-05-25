@@ -165,6 +165,7 @@ class Longformer(nn.Module):
 
     def forward(self, x, segs, mask):
         #position_ids
+        print('###self.model.config.max_position_embeddings',self.model.config.max_position_embeddings)
         seq_length = x.size(1)
         print('seq_length',seq_length)
         
@@ -177,12 +178,12 @@ class Longformer(nn.Module):
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
         #global_attention_mask[:, [1, 4, 21,]] = 1
         if(self.finetune):
-            outputs = self.model(x, attention_mask=mask)#,position_ids=position_ids)
+            outputs = self.model(x, attention_mask=mask, position_ids=position_ids)
             top_vec = outputs.last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=mask)#,position_ids=position_ids)
+                outputs = self.model(x, attention_mask=mask,position_ids=position_ids)
                 top_vec = outputs.last_hidden_state
         return top_vec
 
