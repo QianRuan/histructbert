@@ -146,7 +146,7 @@ class Roberta(nn.Module):
         
         self.finetune = finetune
 
-    def forward(self, x, segs, mask):
+    def forward(self, x, mask, clss):
         if(self.finetune):
             top_vec, _ = self.model(x,  attention_mask=mask)
 #            top_vec, _ = self.model(x, segs, attention_mask=mask)
@@ -163,27 +163,23 @@ class Longformer(nn.Module):
         self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
         self.finetune = finetune
 
-    def forward(self, x, segs, mask):
+    def forward(self, x, mask, clss):
         #position_ids
-        print('###self.model.config.max_position_embeddings',self.model.config.max_position_embeddings)
         seq_length = x.size(1)
-        print('seq_length',seq_length)
-        
-        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)
-        print('position_ids',position_ids)
-            
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
         position_ids = position_ids.unsqueeze(0).expand_as(x)
-        print('position_ids',position_ids)
+
         #global_attention_mask
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
-        #global_attention_mask[:, [1, 4, 21,]] = 1
+        global_attention_mask[:, clss] = 1
+        
         if(self.finetune):
-            outputs = self.model(x, attention_mask=mask, position_ids=position_ids)
+            outputs = self.model(x, attention_mask=mask.long(), position_ids=position_ids, global_attention_mask=global_attention_mask)
             top_vec = outputs.last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=mask,position_ids=position_ids)
+                outputs = self.model(x, attention_mask=mask.long(), position_ids=position_ids,global_attention_mask=global_attention_mask)
                 top_vec = outputs.last_hidden_state
         return top_vec
 
@@ -280,10 +276,18 @@ class ExtSummarizer(nn.Module):
         self.to(device)
 
     def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec):#
-        if (self.args.add_tok_struct_emb):
-            top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
-        else: 
-            top_vec = self.bert(src, segs, mask_src)
+        if (self.args.base_LM.startswith('bert')):
+            if (self.args.add_tok_struct_emb):
+                top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
+            else: 
+                top_vec = self.bert(src, segs, mask_src)
+        else:
+            if (self.args.add_tok_struct_emb):
+                logger.info('add_tok_struct_emb is not implemented for the base model %s, please set -add_tok_struct_emb false'%self.args.base_LM)
+                exit()
+            else: 
+                top_vec = self.bert(src, mask_src, clss)
+            
                 
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
         sents_vec = sents_vec * mask_cls[:, :, None].float()
