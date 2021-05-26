@@ -276,7 +276,7 @@ class Trainer(object):
                             loss = (loss * mask.float()).sum()
                             batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
                             stats.update(batch_stats)
-                            
+                            print('#######0 batch size',batch.batch_size)
                             print('#######0 mask.float()',mask.float())
                             print('#######1 sent_scores',sent_scores)
                             sent_scores = sent_scores + mask.float()
