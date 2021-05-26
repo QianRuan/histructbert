@@ -276,50 +276,50 @@ class Trainer(object):
                             loss = (loss * mask.float()).sum()
                             batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
                             stats.update(batch_stats)
-
+                            
+                            print('#######0 mask.float()',mask.float())
+                            print('#######1 sent_scores',sent_scores)
                             sent_scores = sent_scores + mask.float()
+                            print('#######2 sent_scores',sent_scores)
                             sent_scores = sent_scores.cpu().data.numpy()
                             selected_ids = np.argsort(-sent_scores, 1)
-#                            print(selected_ids)
-                            
-                        # selected_ids = np.sort(selected_ids,1)
-                        
-                        
-                        
+                            print('#######3 selected_ids',selected_ids)
+
+                     
                         #selected=[]
                         for i, idx in enumerate(selected_ids):
-#                            
+                            
                             _pred = []
                             _selected=[]
-#                           
-                            if (len(batch.src_str[i]) == 0):
+                          
+                            if (len(batch.src_str[i]) == 0):#skip empty test data (i-th document in the batch)
+                                print('###### skip empty test data')
                                 continue
-                            for j in selected_ids[i][:len(batch.src_str[i])]:
-#                                print("####-----j",j)
+                            
+                            for j in selected_ids[i][:len(batch.src_str[i])]: #candidate summary sentences for the i-th doc
+
                                 if (j >= len(batch.src_str[i])):
                                     continue
+                                
                                 candidate = batch.src_str[i][j].strip()
-                                if (self.args.block_trigram):
+                                
+                                if (self.args.block_trigram):#apply block_trigram
                                     if (not _block_tri(candidate, _pred)):
                                         _pred.append(candidate)
-#                                        _selected.append(int(j))
-#                                        print("####j",j)
-#                                        print("####pos",overall_sent_pos[i][j].item())
+#                                        print("####4 j",j)
+#                                        print("####5 overall pos",overall_sent_pos[i][j].item())
                                         if (cal_lead or cal_oracle):
                                             _selected.append(int(j))
                                         else:
                                             _selected.append(overall_sent_pos[i][j].item())
-                                            
-                                        #_selected.append(overall_sent_pos[i][j].item())
-#                                        
+                                       
                                 else:
                                     _pred.append(candidate)
-                                    #_selected.append(int(j))
                                     if (cal_lead or cal_oracle):
                                             _selected.append(int(j))
                                     else:
                                             _selected.append(overall_sent_pos[i][j].item())
-                                   # _selected.append(overall_sent_pos[i][j].item())
+                                  
 
                                 if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == self.args.select_top_n_sent):#!!!!select top 3
                                     break
@@ -349,11 +349,14 @@ class Trainer(object):
 #                            print(type(s),s)
 #                            print(type(s[0]),s[0])
 #                            print(type(s[0][0]),s[0][0])
+                        print('#######4 pred',len(pred),pred[:2])
+                        print('#######5 gold',len(gold),gold[:2])
                             
                         for i in range(len(gold)):
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             save_pred.write(pred[i].strip() + '\n')
+                            
         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
         with open(se_path, 'w') as f:
             json.dump(selected,f)
