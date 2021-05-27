@@ -260,8 +260,24 @@ def validate(args, device_id, pt, step):
 def test_steps(args, device_id):
      if args.eval_path=='':
         args.eval_path=args.model_path+'/'+args.eval_folder
+        print('args.eval_path',args.eval_path)
+        
      if args.result_path=='':
         args.result_path=args.eval_path+'/eval.results'
+        print('args.result_path',args.result_path)
+        
+     if os.path.exists(args.eval_path):
+        logger.info('Eval folder already exists, remove it!')
+        shutil.rmtree(args.eval_path)
+        os.mkdir(args.eval_path)
+     else:
+        os.mkdir(args.eval_path)
+        
+     if args.log_file=='':
+        args.log_file=args.eval_path+'/eval.log'
+        
+     init_logger(args.log_file)
+        
      logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, args.test_steps))
      steps = args.test_steps.split(',')
      test_rouge_lst=[]
