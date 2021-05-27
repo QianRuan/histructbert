@@ -244,7 +244,7 @@ class Trainer(object):
         with open(can_path, 'w', encoding="utf-8") as save_pred:
             with open(gold_path, 'w', encoding="utf-8") as save_gold:
                 with torch.no_grad():
-                    
+                    batch_sizes=[]
                     for batch in test_iter:
                         src = batch.src
                         labels = batch.src_sent_labels
@@ -353,13 +353,17 @@ class Trainer(object):
                         print('#######4 pred',len(pred),pred[:2])
                         print('#######5 gold',len(gold),gold[:2])
                         print('#######0 batch size',batch.batch_size)
-                        assert len(pred)==len(gold)
+                        assert len(pred)==len(gold)==batch.batch_size
+                        
+                        batch_sizes.append(batch.batch_size)
                             
                         for i in range(len(gold)):
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             save_pred.write(pred[i].strip() + '\n')
                             
+        print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
+               
         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
         with open(se_path, 'w') as f:
             json.dump(selected,f)

@@ -58,8 +58,17 @@ def test_rouge(temp_dir, cand, ref):
     candidates = [line.strip() for line in open(cand, encoding='utf-8')]
     references = [line.strip() for line in open(ref, encoding='utf-8')]
     #print("###############################test_rouge2,length")#
+    print('#####len1')
     print(len(candidates),candidates[:10])
     print(len(references),references[:10])
+    
+    
+    candidates2 = [line.strip() for line in open(cand, encoding='utf-8') if line!='']
+    references2 = [line.strip() for line in open(ref, encoding='utf-8') if line!='']
+    print('#####len2')
+    print(len(candidates2),candidates2[:10])
+    print(len(references2),references2[:10])
+    
     assert len(candidates) == len(references)
 
     cnt = len(candidates)
