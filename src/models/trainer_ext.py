@@ -294,6 +294,7 @@ class Trainer(object):
                           
                             if (len(batch.src_str[i]) == 0):#skip empty test data (i-th document in the batch)
                                 print('###### skip empty test data')
+                                assert 1==2
                                 continue
                             
                             for j in selected_ids[i][:len(batch.src_str[i])]: #candidate summary sentences for the i-th doc
@@ -351,6 +352,8 @@ class Trainer(object):
 #                            print(type(s[0][0]),s[0][0])
                         print('#######4 pred',len(pred),pred[:2])
                         print('#######5 gold',len(gold),gold[:2])
+                        print('#######0 batch size',batch.batch_size)
+                        assert len(pred)==len(gold)
                             
                         for i in range(len(gold)):
                             save_gold.write(gold[i].strip() + '\n')
