@@ -350,8 +350,8 @@ class Trainer(object):
 #                            print(type(s),s)
 #                            print(type(s[0]),s[0])
 #                            print(type(s[0][0]),s[0][0])
-                        print('#######4 pred',len(pred),pred[:2])
-                        print('#######5 gold',len(gold),gold[:2])
+                        print('#######4 pred',len(pred),pred)
+                        print('#######5 gold',len(gold),gold)
                         print('#######0 batch size',batch.batch_size)
                         assert len(pred)==len(gold)==batch.batch_size
                         
@@ -360,21 +360,27 @@ class Trainer(object):
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######6 len before adding')
-                        print(len(candidates),candidates[:2])
-                        print(len(references),references[:2])
+                        print('can',len(candidates),candidates)
+                        print('ref',len(references),references)
                         old_len=len(candidates)
                         assert len(candidates)==len(references)
                             
-                        for i in range(len(gold)):                    
+                        for i in range(len(gold)):
+                            print('########gold',i)
+                            print(gold[i].strip())
+                            print(gold[i].strip()+ '\n')
                             save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
+                            print('#######pred',i)
+                            print(pred[i].strip())
+                            print(pred[i].strip()+ '\n')
                             save_pred.write(pred[i].strip() + '\n')
                             
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######7 len after adding')
-                        print(len(candidates),candidates[:2])
-                        print(len(references),references[:2])
+                        print('can',len(candidates),candidates)
+                        print('ref',len(references),references)
                         print('old_len+batch.batch_size',old_len+batch.batch_size)
                         assert len(candidates)==len(references)==old_len+batch.batch_size
                             
