@@ -360,8 +360,10 @@ class Trainer(object):
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######6 len before adding')
-                        print(len(candidates),candidates[:-2])
-                        print(len(references),references[:-2])
+                        print(len(candidates),candidates[:2])
+                        print(len(references),references[:2])
+                        old_len=len(candidates)
+                        assert len(candidates)==len(references)
                             
                         for i in range(len(gold)):                    
                             save_gold.write(gold[i].strip() + '\n')
@@ -371,8 +373,10 @@ class Trainer(object):
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######7 len after adding')
-                        print(len(candidates),candidates[:-2])
-                        print(len(references),references[:-2])
+                        print(len(candidates),candidates[:2])
+                        print(len(references),references[:2])
+                        print('old_len+batch.batch_size',old_len+batch.batch_size)
+                        assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
                
