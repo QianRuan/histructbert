@@ -375,6 +375,9 @@ class Trainer(object):
                             print(pred[i].strip())
                             print(pred[i].strip()+ '\n')
                             save_pred.write(pred[i].strip() + '\n')
+                        
+                        import time    
+                        time.sleep(60)
                             
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
@@ -396,9 +399,9 @@ class Trainer(object):
                                 print(i)
                                 print('saved', pred[i])
                                 print('read', candidates[i])
-                            
-                            print("last 2 in saved")   
-                            print(pred[-2:])
+                            print("!!!!!!!!!")
+                            print("last % in saved"%(len(references)-len(candidates)))   
+                            print(pred[-len(references)-len(candidates):])
                         assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
