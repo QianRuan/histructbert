@@ -383,7 +383,7 @@ class Trainer(object):
                         print('ref',len(references),references)
                         print('old_len+batch.batch_size',old_len+batch.batch_size)
                         
-                        for i in len(candidates):
+                        for i in range(len(candidates)):
                             print("Check pred")
                             if candidates[i]!=pred[i]:
                                 print("#################################################")
@@ -396,8 +396,9 @@ class Trainer(object):
                                 print(i)
                                 print('saved', pred[i])
                                 print('read', candidates[i])
-                                
                             
+                            print("last 2 in saved")   
+                            print(pred[-2:])
                         assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
