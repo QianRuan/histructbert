@@ -162,10 +162,10 @@ class Longformer(nn.Module):
         super(Longformer, self).__init__()
         
         config = LongformerConfig.from_pretrained('allenai/'+args.base_LM) 
-        print('#########config.attention_mode ')
-        print(config.attention_mode) 
-        print('#########config.attention_window')
-        print(config.attention_window) 
+#        print('#########config.attention_mode ')
+#        print(config.attention_mode) 
+#        print('#########config.attention_window')
+#        print(config.attention_window) 
         self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)      
         self.finetune = args.finetune_bert
 
@@ -184,6 +184,8 @@ class Longformer(nn.Module):
         #global_attention_mask    
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
         global_attention_mask[:, clss] = 1
+        print('#########global_attention_mask ')
+        print(global_attention_mask)
         
         if(self.finetune):
             outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
