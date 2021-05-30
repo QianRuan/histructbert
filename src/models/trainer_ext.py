@@ -395,13 +395,13 @@ class Trainer(object):
                                 print('saved', pred[i])
                                 print('read', candidates[i])
                             else:
-                                print("!!!!!!!!!")
+                                print("xxxxxxxxxxxx")
                                 print(i)
-                                print('saved', pred[i])
-                                print('read', candidates[i])
-                            print("!!!!!!!!!")
-                            print("last % in saved"%(len(references)-len(candidates)))   
-                            print(pred[-len(references)-len(candidates):])
+#                                print('saved', pred[i])
+#                                print('read', candidates[i])
+                        print("!!!!!!!!!")
+                        print("last % in saved"%(len(references)-len(candidates)))   
+                        print(pred[-len(references)-len(candidates):])
                         assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
