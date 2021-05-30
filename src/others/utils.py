@@ -52,30 +52,16 @@ def process(params):
 
 
 def test_rouge(temp_dir, cand, ref):
-    #print("###############################test_rouge1")#
-    print(cand)
-    print(ref)
+    
     candidates = [line.strip() for line in open(cand, encoding='utf-8')]
     references = [line.strip() for line in open(ref, encoding='utf-8')]
-    #print("###############################test_rouge2,length")#
-    print('#####len1')
-    print(len(candidates),candidates[:10])
-    print(len(references),references[:10])
-    
-    
-    candidates2 = [line.strip() for line in open(cand, encoding='utf-8') if line!='']
-    references2 = [line.strip() for line in open(ref, encoding='utf-8') if line!='']
-    print('#####len2')
-    print(len(candidates2),candidates2[:10])
-    print(len(references2),references2[:10])
     
     assert len(candidates) == len(references)
 
     cnt = len(candidates)
     current_time = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime())
     tmp_dir = os.path.join(temp_dir, "rouge-tmp-{}".format(current_time))
-    #tmp_dir = os.path.join(temp_dir, "rouge-tmp-2021-02-16-02-58-48")
-    #print("###############################test_rouge21,tmp_dir",tmp_dir)#
+   
     if not os.path.isdir(tmp_dir):
         os.mkdir(tmp_dir)
         os.mkdir(tmp_dir + "/candidate")
@@ -91,20 +77,18 @@ def test_rouge(temp_dir, cand, ref):
             with open(tmp_dir + "/reference/ref.{}.txt".format(i), "w",
                       encoding="utf-8") as f:
                 f.write(references[i])
-        #print("###############################test_rouge22")#
+        
         r = pyrouge.Rouge155(temp_dir=temp_dir)
-        #print("###############################test_rouge23")#
+        
         r.model_dir = tmp_dir + "/reference/"
         r.system_dir = tmp_dir + "/candidate/"
         r.model_filename_pattern = 'ref.#ID#.txt'
         r.system_filename_pattern = r'cand.(\d+).txt'
-        #print("###############################test_rouge24")#
+        
         rouge_results = r.convert_and_evaluate()
-        #print("###############################test_rouge3,rouge_results")#
-        #print(rouge_results)
+        
         results_dict = r.output_to_dict(rouge_results)
-        #print("###############################test_rouge4,results_dict")#
-#        print(results_dict)
+       
     finally:
         pass
         if os.path.isdir(tmp_dir):

@@ -234,17 +234,13 @@ class Trainer(object):
 
         can_path = '%s_step%d.candidate' % (self.args.result_path, step)
         gold_path = '%s_step%d.gold' % (self.args.result_path, step)
-        #print("###############################trainer_ext.test1",can_path,gold_path)#
-        
-#        result_dir='/'.join(self.args.result_path.split('/')[:-1])
-#        if not os.path.exists(result_dir):
-#            os.mkdir(result_dir)
+
         
         selected=[]
         with open(can_path, 'w', encoding="utf-8") as save_pred:
             with open(gold_path, 'w', encoding="utf-8") as save_gold:
                 with torch.no_grad():
-                    batch_sizes=[]
+                   
                     for batch in test_iter:
                         src = batch.src
                         labels = batch.src_sent_labels
@@ -260,15 +256,14 @@ class Trainer(object):
 
                         gold = []
                         pred = []
-                        #selected=[]
+
                         
                         if (cal_lead):
                             selected_ids = [list(range(batch.clss.size(1)))] * batch.batch_size
                         elif (cal_oracle):
                             selected_ids = [[j for j in range(batch.clss.size(1)) if labels[i][j] == 1] for i in
                                             range(batch.batch_size)]
-#                            print("###1tgt_sent_idx",tgt_sent_idx.shape,tgt_sent_idx)
-#                            print("###2selected_ids",len(selected_ids),selected_ids)
+
                         else:
                             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
 
@@ -276,25 +271,16 @@ class Trainer(object):
                             loss = (loss * mask.float()).sum()
                             batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
                             stats.update(batch_stats)
-#                            print('#######0 batch size',batch.batch_size)
-#                            print('#######0 mask.float()',mask.float())
-#                            print('#######1 sent_scores',sent_scores)
                             sent_scores = sent_scores + mask.float()
-#                            print('#######2 sent_scores',sent_scores)
                             sent_scores = sent_scores.cpu().data.numpy()
                             selected_ids = np.argsort(-sent_scores, 1)
-#                            print('#######3 selected_ids',selected_ids)
 
-                     
-                        #selected=[]
                         for i, idx in enumerate(selected_ids):
                             
                             _pred = []
                             _selected=[]
                           
                             if (len(batch.src_str[i]) == 0):#skip empty test data (i-th document in the batch)
-#                                print('###### skip empty test data')
-#                                assert 1==2
                                 continue
                             
                             for j in selected_ids[i][:len(batch.src_str[i])]: #candidate summary sentences for the i-th doc
@@ -307,8 +293,6 @@ class Trainer(object):
                                 if (self.args.block_trigram):#apply block_trigram
                                     if (not _block_tri(candidate, _pred)):
                                         _pred.append(candidate)
-#                                        print("####4 j",j)
-#                                        print("####5 overall pos",overall_sent_pos[i][j].item())
                                         if (cal_lead or cal_oracle):
                                             _selected.append(int(j))
                                         else:
@@ -332,105 +316,28 @@ class Trainer(object):
 
                             pred.append(_pred)
                             gold.append(batch.tgt_str[i])
-                            #print("###_selected",len(_selected),_selected)
-                            selected.append(_selected)#
-                        
-#                        print(len(gold),len(pred),len(selected),type(selected))
-#                        print(selected)
-#                        print("###selected",len(selected),selected)
-#                        se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
-#                        with open(se_path, 'w') as f:
-#                            json.dump(selected,f)
-#                            print("###3selected",len(selected),selected)
-#                            json.dump(selected,f)
-#                            for s in selected:
-#                                json.dump(s, f)
-#                        with open(se_path, 'r') as f:
-#                            s=json.load(f)
-#                            print(type(s),s)
-#                            print(type(s[0]),s[0])
-#                            print(type(s[0][0]),s[0][0])
-#                        print('#######4 pred',len(pred))
-#                        print('#######5 gold',len(gold))
-#                        print('#######0 batch size',batch.batch_size)
+                            selected.append(_selected)
+
                         assert len(pred)==len(gold)==batch.batch_size
                         
-                        batch_sizes.append(batch.batch_size)
-                        
-#                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
-#                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
-#                        print('######6 len before adding')
-#                        print('can',len(candidates))
-#                        print('ref',len(references))
-#                        old_len=len(candidates)
-#                        assert len(candidates)==len(references)
                             
                         for i in range(len(gold)):
-#                            print('########gold',i)
-#                            print(gold[i].strip())
-#                            print(gold[i].strip().replace('\n',' \ n ') + '\n')
                             save_gold.write(gold[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
-#                            print('#######pred',i)
-#                            print(pred[i].strip())
-#                            print(pred[i].strip().replace('\n',' \ n ') + '\n')
                             save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
-                        
-                       
-#                        save_gold.close()    
-#                        save_pred.close()    
-#                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
-#                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
-#                        print('######7 len after adding')
-#                        print('can',len(candidates))
-#                        print('ref',len(references))
-#                        print('old_len+batch.batch_size',old_len+batch.batch_size)
-#                        
-#                        for i in range(len(references)):
-#                            print('########ref',i)
-#                            print(references[i])
-#                          
-#                            #save_gold.write(gold[i].strip() + '\n')
-#                        for i in range(len(candidates)):
-#                            print('#######cand',i)
-#                            print(candidates[i])
-                            
-                        
-#                        for i in range(len(candidates)):
-#                            print("Check pred")
-#                            if candidates[i]!=pred[i]:
-#                                print("#################################################")
-#                                print("!!!!!!!!!")
-#                                print(i)
-#                                print('saved', pred[i])
-#                                print('read', candidates[i])
-#                            else:
-#                                print("xxxxxxxxxxxx")
-#                                print(i)
-#                                print('saved', pred[i])
-#                                print('read', candidates[i])
-#                        print("!!!!!!!!!")
-#                        print("last % in saved"%(len(references)-len(candidates)))   
-#                        print(pred[-len(references)-len(candidates):])
-#                        print(len(candidates),len(references),old_len+batch.batch_size)
-#                        assert len(candidates)==len(references)==old_len+batch.batch_size
-                            
-        print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
-#        assert 1==2
                
         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
         with open(se_path, 'w') as f:
             json.dump(selected,f)
             
         if (step != -1 and self.args.report_rouge):
-            #print("###############################trainer_ext.test2")#
             rouges = test_rouge(self.args.temp_dir, can_path, gold_path)
             print(rouges)
             logger.info('Rouges at step %d \n%s' % (step, rouge_results_to_str(rouges)))
         self._report_step(0, step, valid_stats=stats)
-        #print("###############################trainer_ext.test3, stats",stats)#
+    
 
         return stats, rouges
 
