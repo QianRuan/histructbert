@@ -379,7 +379,8 @@ class Trainer(object):
                             #save_gold.write(gold[i].strip() + '\n')
                         
                        
-                            
+                        save_gold.close()    
+                        save_pred.close()    
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######7 len after adding')
