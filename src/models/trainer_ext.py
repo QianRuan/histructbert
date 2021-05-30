@@ -350,8 +350,8 @@ class Trainer(object):
 #                            print(type(s),s)
 #                            print(type(s[0]),s[0])
 #                            print(type(s[0][0]),s[0][0])
-                        print('#######4 pred',len(pred),pred)
-                        print('#######5 gold',len(gold),gold)
+                        print('#######4 pred',len(pred))
+                        print('#######5 gold',len(gold))
                         print('#######0 batch size',batch.batch_size)
                         assert len(pred)==len(gold)==batch.batch_size
                         
@@ -360,8 +360,8 @@ class Trainer(object):
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######6 len before adding')
-                        print('can',len(candidates),candidates)
-                        print('ref',len(references),references)
+                        print('can',len(candidates))
+                        print('ref',len(references))
                         old_len=len(candidates)
                         assert len(candidates)==len(references)
                             
@@ -382,8 +382,8 @@ class Trainer(object):
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
                         print('######7 len after adding')
-                        print('can',len(candidates),candidates)
-                        print('ref',len(references),references)
+                        print('can',len(candidates))
+                        print('ref',len(references))
                         print('old_len+batch.batch_size',old_len+batch.batch_size)
                         
                         for i in range(len(candidates)):
@@ -402,9 +402,11 @@ class Trainer(object):
                         print("!!!!!!!!!")
                         print("last % in saved"%(len(references)-len(candidates)))   
                         print(pred[-len(references)-len(candidates):])
-                        assert len(candidates)==len(references)==old_len+batch.batch_size
+                        print(len(candidates),len(references),old_len+batch.batch_size)
+                        #assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
+        assert 1==2
                
         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
         with open(se_path, 'w') as f:
