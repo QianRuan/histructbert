@@ -49,9 +49,7 @@ class Batch(object):
         
 
             segs = torch.tensor(self._pad(pre_segs, 0))
-            mask_src = ~(src == 0)
-#            mask_src = 1 - (src == 0)
-            
+            mask_src = 1 - (src == 0)
 ##            mask_tgt = 1 - (tgt == 0)
 
 
