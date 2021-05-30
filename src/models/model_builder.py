@@ -167,7 +167,7 @@ class Longformer(nn.Module):
         print('#########config.attention_window')
         print(config.attention_window) 
         self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)      
-        self.finetune = args.finetune
+        self.finetune = args.finetune_bert
 
     def forward(self, x, mask, clss):
         #position_ids
