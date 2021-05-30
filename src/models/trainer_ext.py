@@ -367,14 +367,14 @@ class Trainer(object):
                             
                         for i in range(len(gold)):
                             print('########gold',i)
-                            print(gold[i].strip())
-                            print(gold[i].strip()+ '\n')
+#                            print(gold[i].strip())
+                            print(gold[i].strip().replace('\n',' \ n ') + '\n')
                             save_gold.write(gold[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             print('#######pred',i)
-                            print(pred[i].strip())
-                            print(pred[i].strip()+ '\n')
+#                            print(pred[i].strip())
+                            print(pred[i].strip().replace('\n',' \ n ') + '\n')
                             save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
                         
@@ -387,24 +387,34 @@ class Trainer(object):
                         print('ref',len(references))
                         print('old_len+batch.batch_size',old_len+batch.batch_size)
                         
+                        for i in range(len(references)):
+                            print('########ref',i)
+                            print(references[i])
+                          
+                            #save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(candidates)):
-                            print("Check pred")
-                            if candidates[i]!=pred[i]:
-                                print("#################################################")
-                                print("!!!!!!!!!")
-                                print(i)
-                                print('saved', pred[i])
-                                print('read', candidates[i])
-                            else:
-                                print("xxxxxxxxxxxx")
-                                print(i)
+                            print('#######cand',i)
+                            print(candidates[i])
+                            
+                        
+#                        for i in range(len(candidates)):
+#                            print("Check pred")
+#                            if candidates[i]!=pred[i]:
+#                                print("#################################################")
+#                                print("!!!!!!!!!")
+#                                print(i)
 #                                print('saved', pred[i])
 #                                print('read', candidates[i])
-                        print("!!!!!!!!!")
-                        print("last % in saved"%(len(references)-len(candidates)))   
-                        print(pred[-len(references)-len(candidates):])
+#                            else:
+#                                print("xxxxxxxxxxxx")
+#                                print(i)
+#                                print('saved', pred[i])
+#                                print('read', candidates[i])
+#                        print("!!!!!!!!!")
+#                        print("last % in saved"%(len(references)-len(candidates)))   
+#                        print(pred[-len(references)-len(candidates):])
                         print(len(candidates),len(references),old_len+batch.batch_size)
-                        #assert len(candidates)==len(references)==old_len+batch.batch_size
+                        assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
         assert 1==2
