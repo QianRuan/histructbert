@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
-from transformers import LongformerModel
+from transformers import LongformerModel,LongformerConfig
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -158,33 +158,40 @@ class Roberta(nn.Module):
         return top_vec
     
 class Longformer(nn.Module):
-    def __init__(self, base_LM, temp_dir, finetune):
+    def __init__(self, args):
         super(Longformer, self).__init__()
-        self.model = LongformerModel.from_pretrained('allenai/longformer-base-4096', cache_dir=temp_dir)      
-        self.finetune = finetune
+        
+        config = LongformerConfig.from_pretrained('allenai/'+args.base_LM) 
+        print('#########config.attention_mode ')
+        print(config.attention_mode) 
+        print('#########config.attention_window')
+        print(config.attention_window) 
+        self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)      
+        self.finetune = args.finetune
 
     def forward(self, x, mask, clss):
         #position_ids
         seq_length = x.size(1)
         position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
         position_ids = position_ids.unsqueeze(0).expand_as(x)
+        print('#########position_ids')
+        print(position_ids)
         
         #attention_mask
         attention_mask = mask.long()#torch.ones(x.shape, dtype=torch.long, device=x.device)# initialize to local attention (0)
         
 
-        #global_attention_mask
-        
+        #global_attention_mask    
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
         global_attention_mask[:, clss] = 1
         
         if(self.finetune):
-            outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids)#, global_attention_mask=global_attention_mask)
+            outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids, global_attention_mask=global_attention_mask)
             top_vec = outputs.last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids)#,global_attention_mask=global_attention_mask)
+                outputs = self.model(x, attention_mask=attention_mask, position_ids=position_ids, global_attention_mask=global_attention_mask)
                 top_vec = outputs.last_hidden_state
         return top_vec
 
@@ -232,7 +239,7 @@ class ExtSummarizer(nn.Module):
             elif (args.base_LM.startswith('roberta')):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('longformer')):
-                self.bert = Longformer(args.base_LM, args.temp_dir, args.finetune_bert)
+                self.bert = Longformer(args)
                 
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)

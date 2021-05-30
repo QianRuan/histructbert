@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument("-task", default='ext', type=str, choices=['ext', 'abs'])
     parser.add_argument("-encoder", default='bert', type=str, choices=['bert', 'baseline'])
     parser.add_argument("-mode", default='train', type=str, choices=['train', 'validate', 'test','test_steps','lead','oracle'])
-    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','longformer'])
+    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','longformer-base-4096','longformer-large-4096'])
     parser.add_argument("-add_tok_struct_emb", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-add_sent_struct_emb", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-tok_se_comb_mode", default='concat', type=str, choices=['sum', 'mean', 'concat'])
