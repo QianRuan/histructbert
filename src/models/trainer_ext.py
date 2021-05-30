@@ -369,15 +369,16 @@ class Trainer(object):
                             print('########gold',i)
                             print(gold[i].strip())
                             print(gold[i].strip()+ '\n')
-                            save_gold.write(gold[i].strip() + '\n')
+                            save_gold.write(gold[i].strip().replace('\n',' \ n ') + '\n')
+                            #save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
                             print('#######pred',i)
                             print(pred[i].strip())
                             print(pred[i].strip()+ '\n')
-                            save_pred.write(pred[i].strip() + '\n')
+                            save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
+                            #save_gold.write(gold[i].strip() + '\n')
                         
-                        import time    
-                        time.sleep(60)
+                       
                             
                         candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
                         references = [line.strip() for line in open(gold_path, encoding='utf-8')]
