@@ -276,14 +276,14 @@ class Trainer(object):
                             loss = (loss * mask.float()).sum()
                             batch_stats = Statistics(float(loss.cpu().data.numpy()), len(labels))
                             stats.update(batch_stats)
-                            print('#######0 batch size',batch.batch_size)
-                            print('#######0 mask.float()',mask.float())
-                            print('#######1 sent_scores',sent_scores)
+#                            print('#######0 batch size',batch.batch_size)
+#                            print('#######0 mask.float()',mask.float())
+#                            print('#######1 sent_scores',sent_scores)
                             sent_scores = sent_scores + mask.float()
-                            print('#######2 sent_scores',sent_scores)
+#                            print('#######2 sent_scores',sent_scores)
                             sent_scores = sent_scores.cpu().data.numpy()
                             selected_ids = np.argsort(-sent_scores, 1)
-                            print('#######3 selected_ids',selected_ids)
+#                            print('#######3 selected_ids',selected_ids)
 
                      
                         #selected=[]
@@ -293,8 +293,8 @@ class Trainer(object):
                             _selected=[]
                           
                             if (len(batch.src_str[i]) == 0):#skip empty test data (i-th document in the batch)
-                                print('###### skip empty test data')
-                                assert 1==2
+#                                print('###### skip empty test data')
+#                                assert 1==2
                                 continue
                             
                             for j in selected_ids[i][:len(batch.src_str[i])]: #candidate summary sentences for the i-th doc
@@ -350,52 +350,52 @@ class Trainer(object):
 #                            print(type(s),s)
 #                            print(type(s[0]),s[0])
 #                            print(type(s[0][0]),s[0][0])
-                        print('#######4 pred',len(pred))
-                        print('#######5 gold',len(gold))
-                        print('#######0 batch size',batch.batch_size)
+#                        print('#######4 pred',len(pred))
+#                        print('#######5 gold',len(gold))
+#                        print('#######0 batch size',batch.batch_size)
                         assert len(pred)==len(gold)==batch.batch_size
                         
                         batch_sizes.append(batch.batch_size)
                         
-                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
-                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
-                        print('######6 len before adding')
-                        print('can',len(candidates))
-                        print('ref',len(references))
-                        old_len=len(candidates)
-                        assert len(candidates)==len(references)
+#                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
+#                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
+#                        print('######6 len before adding')
+#                        print('can',len(candidates))
+#                        print('ref',len(references))
+#                        old_len=len(candidates)
+#                        assert len(candidates)==len(references)
                             
                         for i in range(len(gold)):
-                            print('########gold',i)
+#                            print('########gold',i)
 #                            print(gold[i].strip())
-                            print(gold[i].strip().replace('\n',' \ n ') + '\n')
+#                            print(gold[i].strip().replace('\n',' \ n ') + '\n')
                             save_gold.write(gold[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
                         for i in range(len(pred)):
-                            print('#######pred',i)
+#                            print('#######pred',i)
 #                            print(pred[i].strip())
-                            print(pred[i].strip().replace('\n',' \ n ') + '\n')
+#                            print(pred[i].strip().replace('\n',' \ n ') + '\n')
                             save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
                             #save_gold.write(gold[i].strip() + '\n')
                         
                        
-                        save_gold.close()    
-                        save_pred.close()    
-                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
-                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
-                        print('######7 len after adding')
-                        print('can',len(candidates))
-                        print('ref',len(references))
-                        print('old_len+batch.batch_size',old_len+batch.batch_size)
-                        
-                        for i in range(len(references)):
-                            print('########ref',i)
-                            print(references[i])
-                          
-                            #save_gold.write(gold[i].strip() + '\n')
-                        for i in range(len(candidates)):
-                            print('#######cand',i)
-                            print(candidates[i])
+#                        save_gold.close()    
+#                        save_pred.close()    
+#                        candidates = [line.strip() for line in open(can_path, encoding='utf-8')]
+#                        references = [line.strip() for line in open(gold_path, encoding='utf-8')]
+#                        print('######7 len after adding')
+#                        print('can',len(candidates))
+#                        print('ref',len(references))
+#                        print('old_len+batch.batch_size',old_len+batch.batch_size)
+#                        
+#                        for i in range(len(references)):
+#                            print('########ref',i)
+#                            print(references[i])
+#                          
+#                            #save_gold.write(gold[i].strip() + '\n')
+#                        for i in range(len(candidates)):
+#                            print('#######cand',i)
+#                            print(candidates[i])
                             
                         
 #                        for i in range(len(candidates)):
@@ -414,11 +414,11 @@ class Trainer(object):
 #                        print("!!!!!!!!!")
 #                        print("last % in saved"%(len(references)-len(candidates)))   
 #                        print(pred[-len(references)-len(candidates):])
-                        print(len(candidates),len(references),old_len+batch.batch_size)
-                        assert len(candidates)==len(references)==old_len+batch.batch_size
+#                        print(len(candidates),len(references),old_len+batch.batch_size)
+#                        assert len(candidates)==len(references)==old_len+batch.batch_size
                             
         print('!!!!!!#######0 batch sizes',sum(batch_sizes),batch_sizes) 
-        assert 1==2
+#        assert 1==2
                
         se_path = '%s_step%d.selectedIdx' % (self.args.result_path, step)
         with open(se_path, 'w') as f:
