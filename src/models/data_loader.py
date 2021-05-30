@@ -59,7 +59,7 @@ class Batch(object):
             #print(self._pad(pre_clss, -1).shape)
             src_sent_labels = torch.tensor(self._pad(pre_src_sent_labels, 0))
             mask_cls = ~(clss == -1)
-            mask_cls = 1 - (clss == -1)
+            #mask_cls = 1 - (clss == -1)
             clss[clss == -1] = 0
             
 #            print("#####-------clss",clss.shape,clss)
