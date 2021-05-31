@@ -184,17 +184,20 @@ class Longformer(nn.Module):
         #global_attention_mask    
         global_attention_mask = torch.zeros(x.shape, dtype=torch.long, device=x.device)
         global_attention_mask[:, clss] = 1
-        print('#########global_attention_mask ')
-        print(global_attention_mask)
+#        print('#########global_attention_mask ')
+#        print(global_attention_mask)
         
         if(self.finetune):
-            outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
-            top_vec = outputs.last_hidden_state
+#            outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+#            top_vec = outputs.last_hidden_state
+             top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+            
         else:
             self.eval()
             with torch.no_grad():
-                outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
-                top_vec = outputs.last_hidden_state
+#                outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+#                top_vec = outputs.last_hidden_state
+                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
         return top_vec
 
 class ExtSummarizer(nn.Module):
