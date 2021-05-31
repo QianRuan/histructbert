@@ -48,6 +48,9 @@ if __name__ == '__main__':
     parser.add_argument("-without_sent_pos", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-para_only", type=str2bool, nargs='?',const=False,default=False)
     
+    #longformer
+    parser.add_argument("-use_global_attention", type=str2bool, nargs='?',const=False,default=False)
+    
     
     
     parser.add_argument("-bert_data_path", default='')

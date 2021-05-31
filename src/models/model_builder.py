@@ -168,6 +168,7 @@ class Longformer(nn.Module):
 #        print(config.attention_window) 
         self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)      
         self.finetune = args.finetune_bert
+        self.use_global_attention = args.use_global_attention
 
     def forward(self, x, mask, clss):
         #position_ids
@@ -190,14 +191,22 @@ class Longformer(nn.Module):
         if(self.finetune):
 #            outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
 #            top_vec = outputs.last_hidden_state
-             top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+            print('######## Finetune')
+            if (self.use_global_attention):
+                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+            else:
+                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
             
         else:
+            print('######## Not Finetune')
             self.eval()
             with torch.no_grad():
 #                outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
 #                top_vec = outputs.last_hidden_state
-                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+                if (self.use_global_attention):
+                    top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+                else:
+                    top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
         return top_vec
 
 class ExtSummarizer(nn.Module):
