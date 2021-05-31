@@ -191,14 +191,14 @@ class Longformer(nn.Module):
         if(self.finetune):
 #            outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
 #            top_vec = outputs.last_hidden_state
-            print('######## Finetune')
+            #print('######## Finetune')
             if (self.use_global_attention):
                 top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
             else:
                 top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
             
         else:
-            print('######## Not Finetune')
+            #print('######## Not Finetune')
             self.eval()
             with torch.no_grad():
 #                outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
