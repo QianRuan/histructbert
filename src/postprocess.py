@@ -33,6 +33,24 @@ cnndm_reported_baselines.append({'model':'BERTSUMEXT (large)', 'rouge_1_f_score'
 cnndm_reported_baselines.append({'model':'BERTSUM-lead3', 'rouge_1_f_score':40.42, 'rouge_2_f_score':17.62, 'rouge_l_f_score':36.67})
 cnndm_reported_baselines.append({'model':'BERTSUM-oracle', 'rouge_1_f_score':52.59, 'rouge_2_f_score':31.24, 'rouge_l_f_score':48.87})
 
+pubmed_reported_baselines = []
+pubmed_reported_baselines.append({'model':'HAT-BART', 'rouge_1_f_score':48.25, 'rouge_2_f_score':21.35, 'rouge_l_f_score':36.69})
+pubmed_reported_baselines.append({'model':'DANCER PEAGASUS', 'rouge_1_f_score':46.34, 'rouge_2_f_score':19.97, 'rouge_l_f_score':42.42})
+pubmed_reported_baselines.append({'model':'BigBird-Pegasus', 'rouge_1_f_score':46.32, 'rouge_2_f_score':20.65, 'rouge_l_f_score':42.33})
+pubmed_reported_baselines.append({'model':'ExtSum-LG+MMR-Select+', 'rouge_1_f_score':45.39, 'rouge_2_f_score':20.37, 'rouge_l_f_score':40.99})
+pubmed_reported_baselines.append({'model':'ExtSum-LG+RdLoss', 'rouge_1_f_score':45.3, 'rouge_2_f_score':20.42, 'rouge_l_f_score':40.95})
+pubmed_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':45.09, 'rouge_2_f_score':None, 'rouge_l_f_score':None})
+
+arxiv_reported_baselines = []
+arxiv_reported_baselines.append({'model':'HAT-BART', 'rouge_1_f_score':46.74, 'rouge_2_f_score':19.19, 'rouge_l_f_score':42.2})
+arxiv_reported_baselines.append({'model':'BigBird-Pegasus', 'rouge_1_f_score':46.63, 'rouge_2_f_score':19.02, 'rouge_l_f_score':41.77})
+arxiv_reported_baselines.append({'model':'DANCER PEAGASUS', 'rouge_1_f_score':45.01, 'rouge_2_f_score':17.6, 'rouge_l_f_score':40.56})
+arxiv_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':44.67, 'rouge_2_f_score':None, 'rouge_l_f_score':None})
+arxiv_reported_baselines.append({'model':'ExtSum-LG+RdLoss', 'rouge_1_f_score':44.01, 'rouge_2_f_score':17.79, 'rouge_l_f_score':39.09})
+arxiv_reported_baselines.append({'model':'ExtSum-LG+MMR-Select+', 'rouge_1_f_score':43.87, 'rouge_2_f_score':17.5, 'rouge_l_f_score':38.97})
+
+
+
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
@@ -288,10 +306,14 @@ def generate_eval_results_overview(args):
     baseline_models2 = [model for model in baseline_models if model.split('_')[1]!='oracle' and not model.split('_')[1].startswith('lead')]
     baseline_bert_base_models = [model for model in baseline_models if model.split('_')[1]=='bert']
     baseline_bert_large_models = [model for model in baseline_models if model.split('_')[1]=='bertL']
+    baseline_longformer_base_models = [model for model in baseline_models if model.split('_')[1]=='longformerB']
+    baseline_longformer_large_models = [model for model in baseline_models if model.split('_')[1]=='longformerL']
     
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
     histruct_bert_base_models = [model for model in histruct_models if model.split('_')[2]=='bert']
     histruct_bert_large_models = [model for model in histruct_models if model.split('_')[2]=='bertL']
+    histruct_longformer_base_models = [model for model in histruct_models if model.split('_')[2]=='longformerB']
+    histruct_longformer_large_models = [model for model in histruct_models if model.split('_')[2]=='longformerL']
     
     logger.info("DATASET: %s"%(args.dataset))
     logger.info("There are %i baseline models"%(len(baseline_models)))
@@ -305,25 +327,39 @@ def generate_eval_results_overview(args):
     df3, df4 = get_rouges_df(histruct_models)
     df3_1, df4_1 = get_rouges_df(histruct_bert_base_models)
     df3_2, df4_2 = get_rouges_df(histruct_bert_large_models)
+    df3_3, df4_3 = get_rouges_df(histruct_longformer_base_models)
+    df3_4, df4_4 = get_rouges_df(histruct_longformer_large_models)
+    
   
     df_cols = ['model'] + metrics
     df_cols1 = ['model','step'] + metrics
-    df5 = pd.DataFrame(cnndm_reported_baselines, columns = df_cols) 
-    df6 = pd.DataFrame(cnndm_reported_baselines, columns = df_cols1) 
+    
+    if args.dataset=='cnndm':
+        reported_baselines=cnndm_reported_baselines
+    elif args.dataset=='pubmed':
+        reported_baselines=pubmed_reported_baselines
+    elif args.dataset=='arxiv':
+        reported_baselines=arxiv_reported_baselines
+    df5 = pd.DataFrame(reported_baselines, columns = df_cols) 
+    df6 = pd.DataFrame(reported_baselines, columns = df_cols1) 
     
     df7 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols) 
     df8 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols) 
     df9 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols) 
     df9_1 = pd.DataFrame([{'model':'------------bert_base models------------'}], columns = df_cols) 
     df9_2 = pd.DataFrame([{'model':'------------bert_large models------------'}], columns = df_cols) 
+    df9_3 = pd.DataFrame([{'model':'------------longformer_base models------------'}], columns = df_cols) 
+    df9_4 = pd.DataFrame([{'model':'------------longformer_large models------------'}], columns = df_cols) 
     df10 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols1) 
     df11 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols1) 
     df12 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols1) 
     df12_1 = pd.DataFrame([{'model':'------------bert_base models------------'}], columns = df_cols1) 
     df12_2 = pd.DataFrame([{'model':'------------bert_large models------------'}], columns = df_cols1) 
+    df12_3 = pd.DataFrame([{'model':'------------longformer_base models------------'}], columns = df_cols1) 
+    df12_4 = pd.DataFrame([{'model':'------------longformer_large models------------'}], columns = df_cols1) 
     
-    avg_dfs = [df7, df5, df8, df1, df9, df9_1, df3_1,df9_2, df3_2]
-    step_dfs = [df10, df6, df11, df2, df12, df12_1, df4_1,df12_2, df4_2]
+    avg_dfs = [df7, df5, df8, df1, df9, df9_1, df3_1,df9_2, df3_2,df9_3, df3_3,df9_4, df3_4]
+    step_dfs = [df10, df6, df11, df2, df12, df12_1, df4_1,df12_2, df4_2,df12_3, df4_3,df12_4, df4_4]
     
     avg_df = pd.concat(avg_dfs)  
     step_df = pd.concat(step_dfs) 
@@ -343,17 +379,26 @@ def generate_eval_results_overview(args):
     hs_step_best_bert_base_models = check_best_models(df4_1)
     hs_avg_best_bert_large_models = check_best_models(df3_2)
     hs_step_best_bert_large_models = check_best_models(df4_2)
+    hs_avg_best_longformer_base_models = check_best_models(df3_3)
+    hs_step_best_longformer_base_models = check_best_models(df4_3)
+    hs_avg_best_longformer_large_models = check_best_models(df3_4)
+    hs_step_best_longformer_large_models = check_best_models(df4_4)
     
     BERT_BASE_COLOR='F5F5F5'#grey
     BERT_LARGE_COLOR='FFFFE0'#yellow
     ROBERTA_COLOR='90EE90'#green
-    LONGFORMER_COLOR='ADD8E6'#blue
+    LONGFORMER_BASE_COLOR='ADD8E6'#blue
+    LONGFORMER_LARGE_COLOR='FF0000'#red
     BORDER_COLOR="696969"
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_base_models, color=BERT_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_bert_base_models,color=BERT_BASE_COLOR, font=True)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bert_large_models,color=BERT_LARGE_COLOR, font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_bert_large_models,color=BERT_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_longformer_large_models,color=LONGFORMER_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_longformer_large_models,color=LONGFORMER_LARGE_COLOR, font=True)
     color_the_best_metric_border(result_file, avg_sheet, hs_avg_best_models, color=BORDER_COLOR)
     color_the_best_metric_border(result_file, step_sheet, hs_step_best_models, color=BORDER_COLOR)
 #    color_the_best_metric(cp_result_file, avg_sheet, hs_avg_best_models, color="f0e40a", font=True)
@@ -363,18 +408,28 @@ def generate_eval_results_overview(args):
     df13,df14 = get_rouges_df(baseline_models2)
     df13_1,df14_1 = get_rouges_df(baseline_bert_base_models)
     df13_2,df14_2 = get_rouges_df(baseline_bert_large_models)
+    df13_3,df14_3 = get_rouges_df(baseline_longformer_base_models)
+    df13_4,df14_4 = get_rouges_df(baseline_longformer_large_models)
     baseline_avg_best_models = check_best_models(df13)
     baseline_step_best_models = check_best_models(df14)
     baseline_avg_best_bert_base_models = check_best_models(df13_1)
     baseline_step_best_bert_base_models = check_best_models(df14_1)
     baseline_avg_best_bert_large_models = check_best_models(df13_2)
     baseline_step_best_bert_large_models = check_best_models(df14_2)
+    baseline_avg_best_longformer_base_models = check_best_models(df13_3)
+    baseline_step_best_longformer_base_models = check_best_models(df14_3)
+    baseline_avg_best_longformer_large_models = check_best_models(df13_4)
+    baseline_step_best_longformer_large_models = check_best_models(df14_4)
     
     
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_base_models, color=BERT_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_base_models,color=BERT_BASE_COLOR, font=True)
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bert_large_models,color=BERT_LARGE_COLOR, font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_bert_large_models,color=BERT_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_longformer_large_models,color=LONGFORMER_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_longformer_large_models,color=LONGFORMER_LARGE_COLOR, font=True)
     color_the_best_metric_border(result_file, avg_sheet, baseline_avg_best_models, color=BORDER_COLOR)
     color_the_best_metric_border(result_file, step_sheet, baseline_step_best_models, color=BORDER_COLOR)
 #    color_the_best_metric(cp_result_file, avg_sheet, bert_avg_best_models, color="DDDDDD", font=True)
@@ -384,6 +439,7 @@ def generate_eval_results_overview(args):
     mark_best_models(hs_avg_best_models,avg_df)
     mark_best_models(baseline_step_best_models,step_df)
     mark_best_models(hs_step_best_models,step_df)
+
     logger.info('avg rouges-------------')
     logger.info(avg_df)
     logger.info('step model rouges------')
