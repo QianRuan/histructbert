@@ -567,7 +567,7 @@ if __name__ == '__main__':
 
     
     parser.add_argument("-models_path", default='')
-    parser.add_argument("-dataset", default='cnndm', type=str, choices=['cnndm', 'arxiv'])
+    parser.add_argument("-dataset", default='cnndm', type=str, choices=['cnndm', 'pubmed','arxiv'])
 
 
     args = parser.parse_args()
