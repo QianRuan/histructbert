@@ -204,9 +204,9 @@ class Longformer(nn.Module):
 #                outputs = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
 #                top_vec = outputs.last_hidden_state
                 if (self.use_global_attention):
-                    top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+                    top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
                 else:
-                    top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
+                    top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
         return top_vec
 
 class ExtSummarizer(nn.Module):
