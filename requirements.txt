@@ -7,4 +7,4 @@ tensorboardX==1.9
 pandas==1.1.5
 openpyxl==3.0.7
 matplotlib==2.0.0
-#torch==1.1.0
+#torch==1.2.0
