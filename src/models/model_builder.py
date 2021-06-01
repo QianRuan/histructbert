@@ -172,11 +172,11 @@ class Longformer(nn.Module):
 
     def forward(self, x, mask, clss):
         #position_ids
-#        seq_length = x.size(1)
-#        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
-#        position_ids = position_ids.unsqueeze(0).expand_as(x)
-#        print('#########position_ids')
-#        print(position_ids)
+        seq_length = x.size(1)
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
+        position_ids = position_ids.unsqueeze(0).expand_as(x)
+        print('3#########position_ids',position_ids.size())
+        print(position_ids)
         
         #attention_mask
         attention_mask = mask.long()#torch.ones(x.shape, dtype=torch.long, device=x.device)# initialize to local attention (0)
@@ -193,9 +193,9 @@ class Longformer(nn.Module):
 #            top_vec = outputs.last_hidden_state
             #print('######## Finetune')
             if (self.use_global_attention):
-                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+                top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
             else:
-                top_vec  = self.model(x, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
+                top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
             
         else:
             #print('######## Not Finetune')
