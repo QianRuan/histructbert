@@ -1130,26 +1130,31 @@ def encode_section_names(args):
         for section_name in section_names[:5]:
             print('###########section_name',section_name)
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
-            print('input_ids',input_ids)
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
             embed1 = outputs.last_hidden_state
             embed = torch.sum(outputs.last_hidden_state,dim=1)
-            print('embed1',embed1.size(),embed1)
-            print('embed',embed.size(),embed)
+#            print('embed1',embed1.size(),embed1)
+#            print('embed',embed.size(),embed)
             section_names_embed.update({section_name:embed})
-        print('!!!!!!!!!!!!!section_names_embed',section_names_embed)
+        
+        #print('!!!!!!!!!!!!!section_names_embed',section_names_embed)
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
-        with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json', 'w+') as save:
-            save.write(json.dumps(section_names_embed))
+        path = args.save_path+'/section_names_embed_'+base_lm_name+'.pt'
+        torch.save(section_names_embed,path)
+        
+        data=torch.load(path)
+        print('#######################')
+        print(data)
+        print(data['a'])
             
-        with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json',  encoding='utf-8') as save:
-            data=json.load(save)
-            print('################# data')
-            print(data)
-            print('################# data[a]')
-            print(data['a'])
+#        with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json',  encoding='utf-8') as save:
+#            data=json.load(save)
+#            print('################# data')
+#            print(data)
+#            print('################# data[a]')
+#            print(data['a'])
         
     
 
