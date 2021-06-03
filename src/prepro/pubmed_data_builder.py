@@ -1116,16 +1116,38 @@ def obtain_section_names(args):
     logger.info("DONE")
     
 
-#from transformers import LongformerModel, LongformerTokenizer
+from transformers import LongformerModel, LongformerTokenizer
 def encode_section_names(args):
-#    section_names=json.loads(args.raw_path+'/unique_section_names.json', encoding='utf-8') 
     with open(args.raw_path+'/unique_section_names.json', encoding='utf-8') as file:
         section_names = json.load(file)
-    print(section_names)
-#    if args.base_LM.startswith('longformer'):
-#        model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
-#        tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
     
+    if args.base_LM.startswith('longformer'):
+        model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
+        tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
+    
+        section_names_embed={}
+        for section_name in section_names[:5]:
+            print('section_name',section_name)
+            input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
+            print('input_ids',input_ids)
+            attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
+            global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)
+            outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+            embed = outputs.last_hidden_state
+            print('embed',embed.size(),embed)
+            section_names_embed.update({section_name:embed})
+        print('section_names_embed',section_names_embed)
+        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
+        with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json', 'w+') as save:
+            save.write(json.dumps(section_names_embed))
+            
+        with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json',  encoding='utf-8') as save:
+            data=json.load(save)
+            print('################# data')
+            print(data)
+            print('################# data[a]')
+            print(data['a'])
+        
     
 
 def compute_statistics(args):
