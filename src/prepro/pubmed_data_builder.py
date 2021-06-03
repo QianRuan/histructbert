@@ -1136,7 +1136,8 @@ def encode_section_names(args):
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
             embed = torch.sum(outputs.last_hidden_state,dim=1)
             section_names_embed.update({section_name:embed})
-            logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+            if(len(section_names_embed)%1000==0):
+                logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
         
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
         path = args.save_path+'/section_names_embed_'+base_lm_name+'.pt'
