@@ -1118,7 +1118,9 @@ def obtain_section_names(args):
 
 #from transformers import LongformerModel, LongformerTokenizer
 def encode_section_names(args):
-    section_names=json.loads(args.raw_path+'/unique_section_names.json', encoding='utf-8') 
+#    section_names=json.loads(args.raw_path+'/unique_section_names.json', encoding='utf-8') 
+    with open(args.raw_path+'/unique_section_names.json', encoding='utf-8') as file:
+        section_names = json.load(file)
     print(section_names)
 #    if args.base_LM.startswith('longformer'):
 #        model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
