@@ -162,6 +162,7 @@ class Longformer(nn.Module):
         super(Longformer, self).__init__()
         
         config = LongformerConfig.from_pretrained('allenai/'+args.base_LM) 
+        config.attention_window=args.local_attention_window
 #        print('#########config.attention_mode ')
 #        print(config.attention_mode) 
 #        print('#########config.attention_window')
