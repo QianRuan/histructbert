@@ -1135,7 +1135,7 @@ def encode_section_names(args):
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
             embed1 = outputs.last_hidden_state
-            embed = torch.sum(outputs.last_hidden_state)
+            embed = torch.sum(outputs.last_hidden_state,dim=1)
             print('embed1',embed1.size(),embed1)
             print('embed',embed.size(),embed)
             section_names_embed.update({section_name:embed})
