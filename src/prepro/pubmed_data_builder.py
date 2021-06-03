@@ -1117,6 +1117,7 @@ def obtain_section_names(args):
     
 
 from transformers import LongformerModel, LongformerTokenizer
+
 def encode_section_names(args):
     with open(args.raw_path+'/unique_section_names.json', encoding='utf-8') as file:
         section_names = json.load(file)
@@ -1127,7 +1128,7 @@ def encode_section_names(args):
     
         section_names_embed={}
         for section_name in section_names[:5]:
-            print('section_name',section_name)
+            print('###########section_name',section_name)
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             print('input_ids',input_ids)
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
@@ -1136,7 +1137,7 @@ def encode_section_names(args):
             embed = outputs.last_hidden_state
             print('embed',embed.size(),embed)
             section_names_embed.update({section_name:embed})
-        print('section_names_embed',section_names_embed)
+        print('!!!!!!!!!!!!!section_names_embed',section_names_embed)
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
         with open(args.save_path+'/section_names_embed_'+base_lm_name+'.json', 'w+') as save:
             save.write(json.dumps(section_names_embed))
