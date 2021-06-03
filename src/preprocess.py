@@ -42,7 +42,7 @@ def str2bool(v):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-base_LM", default='bert', type=str)
+    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','longformer-base-4096','longformer-large-4096'])
    # parser.add_argument("-corenlp_path", default='', type=str)#
     parser.add_argument("-vocab_file", default='', type=str)#
     

@@ -167,7 +167,7 @@ class Longformer(nn.Module):
 #        print(config.attention_mode) 
 #        print('#########config.attention_window')
 #        print(config.attention_window) 
-        self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)      
+        self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir,config=config)      
         self.finetune = args.finetune_bert
         self.use_global_attention = args.use_global_attention
 

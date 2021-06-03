@@ -1114,6 +1114,17 @@ def obtain_section_names(args):
         save.write(json.dumps(sorted_dic))
         
     logger.info("DONE")
+    
+
+#from transformers import LongformerModel, LongformerTokenizer
+def encode_section_names(args):
+    section_names=json.load(args.raw_path+'/unique_section_names.json')
+    print(section_names)
+#    if args.base_LM.startswith('longformer'):
+#        model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
+#        tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
+    
+    
 
 def compute_statistics(args):
     
@@ -1189,6 +1200,9 @@ def get_novel_ngrams_percentage(flat_src, flat_summ, ngrams):
     novel = len(summ_ngrams)-same
    
     return round((novel/len(summ_ngrams))*100,2)
+
+
+        
 
 #def extract_histruct_items(args):
 #    #tok_sent_dir = os.path.abspath(args.tok_sent_path)
