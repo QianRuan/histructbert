@@ -138,9 +138,6 @@ if __name__ == '__main__':
     args.gpu_ranks = [int(i) for i in range(len(args.visible_gpus.split(',')))]
     args.world_size = len(args.gpu_ranks)
     os.environ["CUDA_VISIBLE_DEVICES"] = args.visible_gpus
-    
-    
-        
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
     device_id = 0 if device == "cuda" else -1
     

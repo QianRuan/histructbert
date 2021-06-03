@@ -1117,7 +1117,7 @@ def obtain_section_names(args):
     
 
 from transformers import LongformerModel, LongformerTokenizer
-
+###############################################################################
 def encode_section_names(args):
     init_logger(args.log_file)
     with open(args.raw_path+'/unique_section_names.json', encoding='utf-8') as file:
@@ -1136,13 +1136,14 @@ def encode_section_names(args):
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
             embed = torch.sum(outputs.last_hidden_state,dim=1)
             section_names_embed.update({section_name:embed})
-            if(len(section_names_embed)%1000==0):
+            if(len(section_names_embed)%100==0):
                 logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
         
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
         path = args.save_path+'/section_names_embed_'+base_lm_name+'.pt'
         torch.save(section_names_embed,path)
         logger.info('DONE! Section names embeddings are save in '+path)
+###############################################################################
         
     
 
