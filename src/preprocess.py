@@ -91,6 +91,6 @@ if __name__ == '__main__':
         print('Log file %s removed.'% (args.log_file))
         os.remove(args.log_file)
     if args.dataset=='arxiv' or args.dataset=='pubmed':
-        eval('pubmed_data_builder.'+args.mode + '(args, device_id)')       
+        eval('pubmed_data_builder.'+args.mode + '(args)')       
     elif args.dataset=='cnndm':
         eval('cnndm_data_builder.'+args.mode + '(args)')
