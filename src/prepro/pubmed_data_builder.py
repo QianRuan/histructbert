@@ -1137,8 +1137,8 @@ def encode_section_names(args):
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
-            embed = torch.sum(outputs.last_hidden_state,dim=1)
-            section_names_embed.update({section_name:embed}).squeeze().tolist()
+            embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
+            section_names_embed.update({section_name:embed})
 #            if(len(section_names_embed)%100==0):
             logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
 #            if(len(section_names_embed)%500==0):
