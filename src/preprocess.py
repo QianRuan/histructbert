@@ -80,16 +80,11 @@ if __name__ == '__main__':
     parser.add_argument('-dataset', default='')
 
     parser.add_argument('-n_cpus', default=1, type=int)
-     parser.add_argument('-visible_gpus', default='-1', type=str)
+  
 
 
     args = parser.parse_args()
     
-    args.gpu_ranks = [int(i) for i in range(len(args.visible_gpus.split(',')))]
-    args.world_size = len(args.gpu_ranks)
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.visible_gpus
-    device = "cpu" if args.visible_gpus == '-1' else "cuda"
-    device_id = 0 if device == "cuda" else -1
     
     #init_logger(args.log_file)
     if args.mode=='clean_up_logs':
