@@ -1126,18 +1126,25 @@ def encode_section_names(args):
     logger.info('There are %d unique section names in the dataset %s'%(len(section_names),args.dataset))
     if args.base_LM.startswith('longformer'):
         model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
+        model.eval()
         tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
+        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
     
         section_names_embed={}
+        
         for section_name in section_names:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
             embed = torch.sum(outputs.last_hidden_state,dim=1)
-            section_names_embed.update({section_name:embed})
-            if(len(section_names_embed)%100==0):
-                logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+            section_names_embed.update({section_name:embed}).squeeze().tolist()
+#            if(len(section_names_embed)%100==0):
+            logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+#            if(len(section_names_embed)%500==0):
+#                i=int(len(section_names_embed)/500)
+#                path=args.save_path+'/section_names_embed_'+base_lm_name+'.pt'
+                
         
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
         path = args.save_path+'/section_names_embed_'+base_lm_name+'.pt'
