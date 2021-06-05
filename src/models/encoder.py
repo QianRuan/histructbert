@@ -117,7 +117,7 @@ class ExtTransformerEncoder(nn.Module):
             
         #section_names    
         if self.args.section_names_embed_path!='':
-                self.sn_emb_dict = torch.cuda.Tensor(list(torch.load(self.args.section_names_embed_path).values())) 
+                self.sn_emb_dict = torch.cuda.FloatTensor(list(torch.load(self.args.section_names_embed_path).values())) 
                 #print('self.sn_emb_dict',self.sn_emb_dict.shape,self.sn_emb_dict[1,:].shape,self.sn_emb_dict[1,:])        
         else:
                 self.sn_emb_dict=None
