@@ -53,7 +53,7 @@ class Batch(object):
                 #section_names=torch.tensor(pre_section_names)
                 section_names=torch.tensor(self._pad(pre_section_names, 0))
             print('section_names',len(section_names),section_names)
-            assert 1==2
+            
         
                 
 
