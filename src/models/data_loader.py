@@ -234,6 +234,13 @@ class DataIterator(object):
             self.batch_size_fn = abs_batch_size_fn
         else:
             self.batch_size_fn = ext_batch_size_fn
+        
+        #section_names    
+        if self.args.section_names_embed_path!='':
+                sn_emb = torch.load(self.args.section_names_embed_path)
+                self.sn = list(sn_emb.keys())
+        else:
+            self.sn=None
 
     def data(self):
         if self.shuffle:
@@ -265,19 +272,13 @@ class DataIterator(object):
             
         #convert section names into numeric (its index in the embeddings file)
         section_names=[]
-        print('pre_section_names',len(pre_section_names), pre_section_names)
         if pre_section_names is not None:
             if self.args.section_names_embed_path!='':
-                sn_emb = torch.load(self.args.section_names_embed_path)
-                sn = list(sn_emb.keys())
-                print('sn',len(sn))
+#                sn_emb = torch.load(self.args.section_names_embed_path)
+#                sn = list(sn_emb.keys())
                 for n in pre_section_names: 
-                    section_names.append(sn.index(n))
-        print('section_names',len(section_names),section_names)
-        
-        
-                
-
+                    section_names.append(self.sn.index(n))
+       
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
         segs = segs[:self.args.max_pos]
