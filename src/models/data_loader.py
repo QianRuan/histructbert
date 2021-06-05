@@ -252,17 +252,21 @@ class DataIterator(object):
         tok_struct_vec = ex['token_struct_vec']#
         overall_sent_pos = ex['overall_sent_pos']
         tgt_sent_idx = ex['tgt_sent_idx']
+        
         if 'section_names' in ex.keys():
             pre_section_names=ex['section_names']
         else:
             pre_section_names=None
         
         section_names=[]
+        print('pre_section_names',len(pre_section_names),pre_section_names)
         if pre_section_names is not None:
             if self.args.section_names_embed_path!='':
                 sn_emb=torch.load(self.args.section_names_embed_path)
                 for n in pre_section_names:
+                    
                     section_names.append(sn_emb[n])
+        print('section_names',len(section_names),section_names)
                 
 
         end_id = [src[-1]]
