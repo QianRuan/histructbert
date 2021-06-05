@@ -149,8 +149,6 @@ class ExtTransformerEncoder(nn.Module):
             section_pos = sent_struct_vec[:,:,0]
             sn_emb=section_names[:,section_pos[0,:],:]
         if sn_emb is not None:
-            print('add sn_emb',x.shape, x) 
-            print(sn_emb.shape,sn_emb)
             x = x + sn_emb
 
         for i in range(self.num_inter_layers):
