@@ -118,8 +118,7 @@ class ExtTransformerEncoder(nn.Module):
         #section_names    
         if self.args.section_names_embed_path!='':
                 self.sn_emb_dict = torch.Tensor(list(torch.load(self.args.section_names_embed_path).values())) 
-                print('self.sn_emb_dict',self.sn_emb_dict.shape)
-                assert 1==2
+                print('self.sn_emb_dict',self.sn_emb_dict.shape,self.sn_emb_dict[1,:].shape,self.sn_emb_dict[1,:])        
         else:
                 self.sn_emb_dict=None
  
@@ -152,10 +151,11 @@ class ExtTransformerEncoder(nn.Module):
         sn_emb=None
         if section_names is not None:
             section_pos = sent_struct_vec[:,:,0]
-            sn_emb=section_names[:,section_pos[0,:]]
-            print('sn_emb',sn_emb.shape,sn_emb)
-            sn_emb_dict_list=list(self.sn_emb_dict)
-            sn_emb.apply_(lambda i: (self.sn_emb_dict[sn_emb_dict_list[i]]))
+            sn_index=section_names[:,section_pos[0,:]]
+            print('sn_index',sn_index.shape,sn_index)
+            sn_emb=self.sn_emb_dict[sn_index,:]
+#            sn_emb_dict_list=list(self.sn_emb_dict)
+#            sn_emb.apply_(lambda i: (self.sn_emb_dict[sn_emb_dict_list[i]]))
             
             print('sn_emb',sn_emb.shape,sn_emb)
             print('x',x.shape)
