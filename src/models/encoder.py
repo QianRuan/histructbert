@@ -141,20 +141,16 @@ class ExtTransformerEncoder(nn.Module):
         #add sentence hierarchical structure embeddings
         x = top_vecs * mask[:, :, None].float()
         x = x + sent_pos_emb
-        print('000## ',x.shape)
+        
         
         #add section names embeddings
-        print('0## ',section_names.shape)
         sn_emb=None
         if section_names is not None:
             section_pos = sent_struct_vec[:,:,0]
-            print('1## ',section_names.shape,section_names)
-            print('2## ',section_pos.shape,section_pos)
-            print('3## ',section_pos[0,:].shape,section_pos[0,:])  
-            print('4## ',section_names[:,section_pos[0,:],:].shape,section_names[:,section_pos[0,:],:])  
             sn_emb=section_names[:,section_pos[0,:],:]
-            print('5## ',sn_emb.shape,sn_emb)   
         if sn_emb is not None:
+            print('add sn_emb',x.shape, x) 
+            print(sn_emb.shape,sn_emb)
             x = x + sn_emb
 
         for i in range(self.num_inter_layers):
