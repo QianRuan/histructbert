@@ -115,10 +115,11 @@ class ExtTransformerEncoder(nn.Module):
             logger.info("#####Sentence embeddings_add sentence hierarchical structure embeddings: FALSE") 
             logger.info("-----only add sentence sinusoidal positional embeddings") 
             
-#        if(args.section_names_embed_path!=''):
-#            self.section_name_emb=SectionNameEmb(args,model.config)
-#        else:
-#            self.section_name_emb=None
+        #section_names    
+        if self.args.section_names_embed_path!='':
+                self.sn_emb_dict = torch.load(self.args.section_names_embed_path)        
+        else:
+                self.sn_emb_dict=None
  
         
         self.transformer_inter = nn.ModuleList(
@@ -128,6 +129,8 @@ class ExtTransformerEncoder(nn.Module):
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
         self.wo = nn.Linear(d_model, 1, bias=True)
         self.sigmoid = nn.Sigmoid()
+        
+        
 
     def forward(self, top_vecs, mask, sent_struct_vec, section_names):#!#
         """ See :obj:`EncoderBase.forward()`"""
@@ -147,14 +150,19 @@ class ExtTransformerEncoder(nn.Module):
         sn_emb=None
         if section_names is not None:
             section_pos = sent_struct_vec[:,:,0]
-            print('section_pos',section_pos.shape,section_pos)
-            print('section_names',section_names.shape,section_names)
-            sn_index=section_names[:,section_pos[0,:]]
-            print('sn_index',sn_index.shape,sn_index)
-            assert 1==2
+            sn_emb=section_names[:,section_pos[0,:]]
+            print('sn_emb',sn_emb.shape,sn_emb)
+            sn_emb_dict_list=list(self.sn_emb_dict)
+            sn_emb.apply_(lambda i: (self.sn_emb_dict[sn_emb_dict_list[i]]))
+            print('sn_emb',sn_emb.shape,sn_emb)
+            print('x',x.shape)
+            
+                
+        
             
         if sn_emb is not None:
             x = x + sn_emb
+            assert 1==2
 
         for i in range(self.num_inter_layers):
 #            x = self.transformer_inter[i](i, x, x, 1 - mask)  # all_sents * max_tokens * dim

@@ -237,8 +237,8 @@ class DataIterator(object):
         
         #section_names    
         if self.args.section_names_embed_path!='':
-                sn_emb = torch.load(self.args.section_names_embed_path)
-                self.sn = list(sn_emb.keys())
+                sn_emb_dict = torch.load(self.args.section_names_embed_path)
+                self.sn = list(sn_emb_dict.keys())
         else:
             self.sn=None
 
