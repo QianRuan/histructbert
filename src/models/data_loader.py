@@ -45,11 +45,16 @@ class Batch(object):
             pre_tgt_sent_idx = [x[8] for x in data]#
             pre_section_names = [x[9] for x in data]
             
+            print('pre_section_names', len(pre_section_names),pre_section_names)
+            
             if len(pre_section_names)==0:
                 section_names=None
             else:
                 #section_names=torch.tensor(pre_section_names)
                 section_names=torch.tensor(self._pad(pre_section_names, 0))
+            print('section_names',len(section_names),section_names)
+            assert 1==2
+        
                 
 
             src = torch.tensor(self._pad(pre_src, 0))
@@ -257,7 +262,8 @@ class DataIterator(object):
             pre_section_names=ex['section_names']
         else:
             pre_section_names=None
-        
+            
+        #convert section names into numeric (its index in the embeddings file)
         section_names=[]
         print('pre_section_names',len(pre_section_names), pre_section_names)
         if pre_section_names is not None:
@@ -267,8 +273,8 @@ class DataIterator(object):
                 print('sn',len(sn))
                 for n in pre_section_names: 
                     section_names.append(sn.index(n))
-        print('section_names',len(section_names)),section_names
-        assert 1==2
+        print('section_names',len(section_names),section_names)
+        
         
                 
 
