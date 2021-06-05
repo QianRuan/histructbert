@@ -118,7 +118,7 @@ class ExtTransformerEncoder(nn.Module):
         #section_names    
         if self.args.section_names_embed_path!='':
                 self.sn_emb_dict = torch.Tensor(list(torch.load(self.args.section_names_embed_path).values())) 
-                print('self.sn_emb_dict',self.sn_emb_dict.shape,self.sn_emb_dict[:,1,:])
+                print('self.sn_emb_dict',self.sn_emb_dict.shape)
                 assert 1==2
         else:
                 self.sn_emb_dict=None
