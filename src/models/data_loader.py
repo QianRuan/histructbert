@@ -44,10 +44,15 @@ class Batch(object):
             pre_overall_sent_pos = [x[7] for x in data]#
             pre_tgt_sent_idx = [x[8] for x in data]#
             pre_section_names = [x[9] for x in data]
+            print('#######')
+            print('pre', pre_section_names)
             if len(pre_section_names)==0:
                 section_names=None
             else:
                 section_names=torch.tensor(pre_section_names)
+                print('sn', section_names)
+                section_names=torch.tensor(self._pad(pre_section_names, 0))
+                print('sn', section_names)
 
             src = torch.tensor(self._pad(pre_src, 0))
 ##            tgt = torch.tensor(self._pad(pre_tgt, 0))
