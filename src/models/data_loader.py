@@ -45,14 +45,14 @@ class Batch(object):
             pre_tgt_sent_idx = [x[8] for x in data]#
             pre_section_names = [x[9] for x in data]
             
-            print('pre_section_names', len(pre_section_names),pre_section_names)
+#            print('pre_section_names', len(pre_section_names),pre_section_names)
             
             if len(pre_section_names)==0:
                 section_names=None
             else:
                 #section_names=torch.tensor(pre_section_names)
                 section_names=torch.tensor(self._pad(pre_section_names, 0))
-            print('section_names',len(section_names),section_names)
+#            print('section_names',len(section_names),section_names)
             
         
                 
