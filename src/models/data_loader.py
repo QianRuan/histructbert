@@ -44,6 +44,7 @@ class Batch(object):
             pre_overall_sent_pos = [x[7] for x in data]#
             pre_tgt_sent_idx = [x[8] for x in data]#
             section_names = [x[9] for x in data]
+            print('sn',type(section_names),section_names.size())
         
 
             src = torch.tensor(self._pad(pre_src, 0))
