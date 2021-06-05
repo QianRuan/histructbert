@@ -259,14 +259,17 @@ class DataIterator(object):
             pre_section_names=None
         
         section_names=[]
-        print('pre_section_names',len(pre_section_names),pre_section_names)
+        print('pre_section_names',len(pre_section_names), pre_section_names)
         if pre_section_names is not None:
             if self.args.section_names_embed_path!='':
-                sn_emb=torch.load(self.args.section_names_embed_path)
-                for n in pre_section_names:
-                    
-                    section_names.append(sn_emb[n])
-        print('section_names',len(section_names),section_names)
+                sn_emb = torch.load(self.args.section_names_embed_path)
+                sn = list(sn_emb.keys())
+                print('sn',len(sn))
+                for n in pre_section_names: 
+                    section_names.append(sn.index(n))
+        print('section_names',len(section_names)),section_names
+        assert 1==2
+        
                 
 
         end_id = [src[-1]]
