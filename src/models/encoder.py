@@ -150,10 +150,10 @@ class ExtTransformerEncoder(nn.Module):
             section_pos = sent_struct_vec[:,:,0]
             print('1## ',section_names.shape,section_names)
             print('2## ',section_pos.shape,section_pos)
-            print('3## ',section_names[0])  
-            print('3## ',section_names[:,0,:])  
-            sn_emb=section_names[section_pos,:]
-            print('4## ',sn_emb.shape,sn_emb)   
+            print('3## ',section_pos[:,1].shape,section_pos[:,1])  
+            print('4## ',section_names[:,section_pos[:,1],:].shape,section_names[:,section_pos[:,1],:])  
+            sn_emb=section_names[:,section_pos[:,1],:]
+            print('5## ',sn_emb.shape,sn_emb)   
         if sn_emb is not None:
             x = x + sn_emb
 
