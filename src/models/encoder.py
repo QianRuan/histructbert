@@ -131,15 +131,19 @@ class ExtTransformerEncoder(nn.Module):
 
     def forward(self, top_vecs, mask, sent_struct_vec, section_names):#!#
         """ See :obj:`EncoderBase.forward()`"""
-
-#        batch_size, n_sents = top_vecs.size(0), top_vecs.size(1)
-#        print("#######batch_size",batch_size)
-#        print("#######n_sents",n_sents)
-#        print("########tok_struct_vec",tok_struct_vec.shape, tok_struct_vec)
-#        print("########sent_struct_vec",sent_struct_vec.shape, sent_struct_vec)
         
         sent_pos_emb = self.sent_pos_emb(top_vecs, sent_struct_vec)
+
         
+        #if not using hierarchical structure embeddings
+        if type(sent_pos_emb) == tuple:
+            sent_pos_emb = sent_pos_emb[1]
+        #add sentence hierarchical structure embeddings
+        x = top_vecs * mask[:, :, None].float()
+        x = x + sent_pos_emb
+        print('000## ',x.size())
+        
+        #add section names embeddings
         print('0## ',section_names.size())
         sn_emb=None
         if section_names is not None:
@@ -148,20 +152,7 @@ class ExtTransformerEncoder(nn.Module):
             print('2## ',len(section_pos))
             print('3## ',section_names[section_pos,:])     
             sn_emb=section_names[section_pos,:]
-            print('4## ',sn_emb.size(),sn_emb)     
-         
-#        add_emb = self.add_emb(top_vecs, tok_struct_vec=tok_struct_vec,sent_struct_vec=sent_struct_vec)
-         
-#        add_emb = self.add_emb.add_embeddings#pe[:, :n_sents]
-#        add_emb = self.add_emb.pe#[:, :n_sents]
-        
-        #not using hierarchical structure embeddings
-        if type(sent_pos_emb) == tuple:
-            sent_pos_emb = sent_pos_emb[1]
-#        print("#######add_emb",add_emb.shape,add_emb)
-        x = top_vecs * mask[:, :, None].float()
-        x = x + sent_pos_emb
-        
+            print('4## ',sn_emb.size(),sn_emb)   
         if sn_emb is not None:
             x = x + sn_emb
 
