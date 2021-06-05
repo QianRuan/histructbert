@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 from others.logging import logger,init_logger
 from models.neural import MultiHeadedAttention, PositionwiseFeedForward
-from models.histruct.sentStructEmb import SectionNameEmb, LASentAddEmb, SINSentAddEmb, LPSentAddEmb, SinPositionalEncoding
+from models.histruct.sentStructEmb import LASentAddEmb, SINSentAddEmb, LPSentAddEmb, SinPositionalEncoding
 
 
 class Classifier(nn.Module):
@@ -115,10 +115,10 @@ class ExtTransformerEncoder(nn.Module):
             logger.info("#####Sentence embeddings_add sentence hierarchical structure embeddings: FALSE") 
             logger.info("-----only add sentence sinusoidal positional embeddings") 
             
-        if(args.section_names_embed_path!=''):
-            self.section_name_emb=SectionNameEmb(args,model.config)
-        else:
-            self.section_name_emb=None
+#        if(args.section_names_embed_path!=''):
+#            self.section_name_emb=SectionNameEmb(args,model.config)
+#        else:
+#            self.section_name_emb=None
  
         
         self.transformer_inter = nn.ModuleList(
@@ -145,6 +145,8 @@ class ExtTransformerEncoder(nn.Module):
             print(section_names)
             if self.args.section_names_embed_path!='':
                 sn_emb=torch.load(self.args.section_names_embed_path)
+                print(sn_emb['a'])
+                assert 1==2
          
 #        add_emb = self.add_emb(top_vecs, tok_struct_vec=tok_struct_vec,sent_struct_vec=sent_struct_vec)
          
