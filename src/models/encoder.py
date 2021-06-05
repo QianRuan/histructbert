@@ -156,7 +156,6 @@ class ExtTransformerEncoder(nn.Module):
         
         if sn_emb is not None:
             x = x + sn_emb
-            assert 1==2
 
         for i in range(self.num_inter_layers):
 #            x = self.transformer_inter[i](i, x, x, 1 - mask)  # all_sents * max_tokens * dim
