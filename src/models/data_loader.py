@@ -43,11 +43,8 @@ class Batch(object):
             pre_src_sent_labels = [x[6] for x in data]#
             pre_overall_sent_pos = [x[7] for x in data]#
             pre_tgt_sent_idx = [x[8] for x in data]#
-            pre_section_names = [x[9] for x in data]
- 
-            section_names=torch.tensor(pre_section_names)
-            print(pre_section_names)
-            print(section_names)
+            section_names = [x[9] for x in data]
+        
 
             src = torch.tensor(self._pad(pre_src, 0))
 ##            tgt = torch.tensor(self._pad(pre_tgt, 0))
@@ -250,9 +247,19 @@ class DataIterator(object):
         overall_sent_pos = ex['overall_sent_pos']
         tgt_sent_idx = ex['tgt_sent_idx']
         if 'section_names' in ex.keys():
-            section_names=ex['section_names']
+            pre_section_names=ex['section_names']
         else:
-            section_names=None
+            pre_section_names=None
+        print('pre_section_names',pre_section_names)    
+        
+        section_names=None
+        if pre_section_names is not None:
+            if self.args.section_names_embed_path!='':
+                sn_emb=torch.load(self.args.section_names_embed_path)
+                print(sn_emb['a'])
+                assert 1==2
+            
+        
             
 
         end_id = [src[-1]]
