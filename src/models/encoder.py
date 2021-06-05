@@ -140,13 +140,13 @@ class ExtTransformerEncoder(nn.Module):
         
         sent_pos_emb = self.sent_pos_emb(top_vecs, sent_struct_vec)
         
-#        sn_emb=None
-#        if section_names is not None:
-#            print(section_names)
-#            if self.args.section_names_embed_path!='':
-#                sn_emb=torch.load(self.args.section_names_embed_path)
-#                print(sn_emb['a'])
-#                assert 1==2
+        sn_emb=None
+        if section_names is not None:
+            print('1## ',section_names.size())
+            print('2## ',sent_struct_vec)
+            print('3## ',sent_struct_vec[0])     
+            sn_emb=section_names[sent_struct_vec[0]]
+            print('4## ',sn_emb.size(),sn_emb)     
          
 #        add_emb = self.add_emb(top_vecs, tok_struct_vec=tok_struct_vec,sent_struct_vec=sent_struct_vec)
          

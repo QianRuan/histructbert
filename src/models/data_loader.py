@@ -258,16 +258,11 @@ class DataIterator(object):
                 sn_emb=torch.load(self.args.section_names_embed_path)
                 for n in pre_section_names:
                     section_names.append(sn_emb[n])
-                print('section_names',len(section_names),section_names)
+                
                 if len(section_names)==0:
                     section_names=None
                 else:
                     section_names=torch.tensor(section_names)
-                print('section_names',section_names.size(),section_names[1].size(),section_names[1])
-                assert 1==2
-            
-        
-            
 
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
