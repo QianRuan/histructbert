@@ -152,17 +152,8 @@ class ExtTransformerEncoder(nn.Module):
         if section_names is not None:
             section_pos = sent_struct_vec[:,:,0]
             sn_index=section_names[:,section_pos[0,:]]
-            print('sn_index',sn_index.shape,sn_index)
             sn_emb=self.sn_emb_dict[sn_index,:]
-#            sn_emb_dict_list=list(self.sn_emb_dict)
-#            sn_emb.apply_(lambda i: (self.sn_emb_dict[sn_emb_dict_list[i]]))
-            
-            print('sn_emb',sn_emb.shape,sn_emb)
-            print('x',x.shape)
-            
-                
         
-            
         if sn_emb is not None:
             x = x + sn_emb
             assert 1==2
