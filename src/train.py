@@ -52,6 +52,9 @@ if __name__ == '__main__':
     parser.add_argument("-use_global_attention", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-local_attention_window", default=512, type=int)
     
+    #section names embeddings
+    parser.add_argument("-section_names_embed_path", default='')
+    
     
     
     parser.add_argument("-bert_data_path", default='')

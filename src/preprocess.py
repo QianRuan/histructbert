@@ -80,6 +80,11 @@ if __name__ == '__main__':
     parser.add_argument('-dataset', default='')
 
     parser.add_argument('-n_cpus', default=1, type=int)
+    
+    #section names encoding (pubmed&arxiv)
+    parser.add_argument("-sn_embed_comb_mode", default='sum', type=str, choices=['sum', 'mean'])
+    
+    
   
 
 

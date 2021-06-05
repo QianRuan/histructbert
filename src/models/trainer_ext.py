@@ -193,9 +193,10 @@ class Trainer(object):
                 mask_cls = batch.mask_cls
                 sent_struct_vec = batch.sent_struct_vec
                 tok_struct_vec = batch.tok_struct_vec
+                section_names=batch.section_names
                 
 
-                sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)#
+                sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec,section_names)#
 
                 loss = self.loss(sent_scores, labels.float())
                 loss = (loss * mask.float()).sum()
@@ -251,6 +252,8 @@ class Trainer(object):
                         sent_struct_vec = batch.sent_struct_vec
                         tok_struct_vec = batch.tok_struct_vec
                         overall_sent_pos = batch.overall_sent_pos
+                        section_names=batch.section_names
+                        
 #                        tgt_sent_idx = batch.tgt_sent_idx
                         
 
@@ -265,7 +268,7 @@ class Trainer(object):
                                             range(batch.batch_size)]
 
                         else:
-                            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
+                            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec,section_names)
 
                             loss = self.loss(sent_scores, labels.float())
                             loss = (loss * mask.float()).sum()
@@ -358,13 +361,14 @@ class Trainer(object):
             mask_cls = batch.mask_cls
             sent_struct_vec = batch.sent_struct_vec
             tok_struct_vec = batch.tok_struct_vec
+            section_names = batch.section_names
             
 #            if (self.add_sent_struct_emb and not self.add_tok_struct_emb):
 #                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec)     
 #            else:
 #                      sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
         
-            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec)
+            sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec,section_names)
 #            
 #           
 #            del sent_struct_vec

@@ -43,6 +43,7 @@ class Batch(object):
             pre_src_sent_labels = [x[6] for x in data]#
             pre_overall_sent_pos = [x[7] for x in data]#
             pre_tgt_sent_idx = [x[8] for x in data]#
+            section_names = [x[9] for x in data]
 
             src = torch.tensor(self._pad(pre_src, 0))
 ##            tgt = torch.tensor(self._pad(pre_tgt, 0))
@@ -50,8 +51,7 @@ class Batch(object):
 
             segs = torch.tensor(self._pad(pre_segs, 0))
             mask_src = ~(src == 0)
-#            mask_src = 1 - (src == 0)
-            
+#            mask_src = 1 - (src == 0)          
 ##            mask_tgt = 1 - (tgt == 0)
 
 
@@ -80,6 +80,7 @@ class Batch(object):
             setattr(self, 'tok_struct_vec', tok_struct_vec.to(device))
             setattr(self, 'overall_sent_pos', overall_sent_pos.to(device))
             setattr(self, 'tgt_sent_idx', tgt_sent_idx.to(device))
+            setattr(self, 'section_names', section_names.to(device))
             
             setattr(self, 'clss', clss.to(device))
             setattr(self, 'mask_cls', mask_cls.to(device))
@@ -239,10 +240,16 @@ class DataIterator(object):
         src_txt = ex['src_txt']
         tgt_txt = ex['tgt_txt']
         
+        
         sent_struct_vec = ex['sent_struct_vec']#
         tok_struct_vec = ex['token_struct_vec']#
         overall_sent_pos = ex['overall_sent_pos']
         tgt_sent_idx = ex['tgt_sent_idx']
+        if 'section_names' in ex.keys():
+            section_names=ex['section_names']
+        else:
+            section_names=None
+            
 
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
@@ -255,9 +262,9 @@ class DataIterator(object):
         overall_sent_pos = overall_sent_pos[:max_sent_id]
         
         if(is_test):
-            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx, src_txt, tgt_txt
+            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx, section_names,src_txt, tgt_txt
         else:
-            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx
+            return sent_struct_vec, tok_struct_vec, src, tgt, segs, clss, src_sent_labels, overall_sent_pos, tgt_sent_idx, section_names
 
     def batch_buffer(self, data, batch_size):
         minibatch, size_so_far = [], 0

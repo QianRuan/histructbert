@@ -54,6 +54,94 @@ class SinPositionalEncoding(nn.Module):
 #        print("####pos",pos_embs.shape)
                
         return pe, pos_embs
+    
+class SectionNameEmb(nn.Module):
+    
+    def __init__(self, args):
+       
+        super(LASentAddEmb, self).__init__()
+        
+        self.args = args
+       
+
+    def forward(
+        self,
+        top_vecs,
+#        tok_struct_vec,
+        sent_struct_vec,
+        position_ids=None,
+        section_names
+    ):
+        
+        batch_size, n_sents = top_vecs.size(0), top_vecs.size(1)
+        #seq_length = top_vecs.size(1)
+        if position_ids is None:
+            position_ids = torch.arange(n_sents, dtype=torch.long, device=top_vecs.device)
+#            print("########position_ids",position_ids.shape, position_ids)
+            position_ids = position_ids.unsqueeze(0).expand(batch_size,-1)
+#            print("########position_ids",position_ids.shape, position_ids)
+        
+        position_embeddings = self.position_embeddings(position_ids)
+        
+#        print("########position_ids",position_ids.shape, position_ids)
+#        print("########input_ids",input_ids.shape, input_ids)
+#        print("########words_embeddings",words_embeddings.shape, words_embeddings)
+#        print("########position_embeddings",position_embeddings.shape, position_embeddings)
+#        print("########tok_struct_vec",tok_struct_vec.shape, tok_struct_vec)
+#        print("########sent_struct_vec",sent_struct_vec.shape, sent_struct_vec)
+              
+        para_pos = sent_struct_vec[:,:,0]
+        sent_pos = sent_struct_vec[:,:,1]
+        
+        
+        para_position_embeddings = self.a_position_embeddings(para_pos)
+        sent_position_embeddings = self.b_position_embeddings(sent_pos)
+        
+#        print("########para_pos",para_pos.shape,para_pos)
+#        print("########sent_pos",sent_pos.shape,sent_pos)
+#        print("########tok_pos",tok_pos.shape,tok_pos)
+#        print("########para_position_embeddings",para_position_embeddings.shape,para_position_embeddings)
+#        print("########sent_position_embeddings",sent_position_embeddings)
+#        print("########tok_position_embeddings",tok_position_embeddings)
+        
+        if(self.args.sent_se_comb_mode == 'sum'):
+            sent_struct_embeddings = para_position_embeddings+sent_position_embeddings
+            
+        elif(self.args.sent_se_comb_mode == 'mean'):
+            sent_struct_embeddings = (para_position_embeddings+sent_position_embeddings)/2
+            
+        elif(self.args.sent_se_comb_mode == 'concat'):
+            sent_struct_embeddings = torch.cat((para_position_embeddings,sent_position_embeddings,),2)
+            
+        else:
+            raise ValueError ("args.sent_se_comb_mode must be one of ['sum', 'mean', 'concat']")
+            
+       
+        
+        if self.args.without_sent_pos and self.args.para_only:
+            
+            embeddings = para_position_embeddings
+            
+        elif self.args.without_sent_pos:
+            
+            embeddings = sent_struct_embeddings
+            
+        elif self.args.para_only:
+            
+            embeddings = (           
+                 position_embeddings          
+                + para_position_embeddings
+            )     
+        else:
+            
+            embeddings = (           
+                 position_embeddings          
+                + sent_struct_embeddings
+            )
+        embeddings = self.LayerNorm(embeddings)
+        embeddings = self.dropout(embeddings)
+        
+        return embeddings
 
 
 class LASentAddEmb(nn.Module):
@@ -64,6 +152,8 @@ class LASentAddEmb(nn.Module):
         
         self.args = args
         self.position_embeddings = nn.Embedding(args.max_nsent, config.hidden_size)
+        
+        
         
         if(self.args.sent_se_comb_mode == 'concat'):
             if args.max_npara==0:
