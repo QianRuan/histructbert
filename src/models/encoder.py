@@ -155,7 +155,8 @@ class ExtTransformerEncoder(nn.Module):
             print('4-section_names',section_names.shape,section_names)
             print('5-section_pos',section_pos.shape,section_pos)  
             print('6-section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
-            sn_index=section_names[:,section_pos[0,:]]
+            #sn_index=section_names[:,section_pos[0,:]]
+            sn_index=section_names[:,section_pos]
             print('7-sn_index',sn_index.shape,sn_index)
             print('8-sn_emb',sn_emb.shape,sn_emb)
             sn_emb=self.sn_emb_dict[sn_index,:]
