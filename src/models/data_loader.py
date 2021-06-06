@@ -274,12 +274,16 @@ class DataIterator(object):
         #convert section names into numeric (its index in the embeddings file)
         section_names=[]
         if pre_section_names is not None:
+            print('pre_section_names is not None')
             if self.args.section_names_embed_path!='':
 #                sn_emb = torch.load(self.args.section_names_embed_path)
 #                sn = list(sn_emb.keys())
+                print('len(self.sn)',len(self.sn))
                 for n in pre_section_names: 
+                    print('sn and index',n,self.sn.index(n))
                     section_names.append(self.sn.index(n))
-        print('1-section_names (list)', len(section_names), section_names)
+                print('1.0-section_names (list)', len(section_names), section_names)
+        print('1.1-section_names (list)', len(section_names), section_names)
        
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
