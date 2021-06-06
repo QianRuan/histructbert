@@ -156,10 +156,11 @@ class ExtTransformerEncoder(nn.Module):
             print('5-section_pos',section_pos.shape,section_pos)  
             print('6-section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
             #sn_index=section_names[:,section_pos[0,:]]
-            sn_index=section_names[:,section_pos]
+            indices = torch.tensor(list(range(section_pos.shape[0])))
+            sn_index=section_names[:,section_pos][indices,indices,:]
             print('7-sn_index',sn_index.shape,sn_index)
-            print('8-sn_emb',sn_emb.shape,sn_emb)
             sn_emb=self.sn_emb_dict[sn_index,:]
+            print('8-sn_emb',sn_emb.shape,sn_emb)
         print('9-x',x.shape)
         if sn_emb is not None:
             x = x + sn_emb
