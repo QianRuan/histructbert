@@ -81,10 +81,10 @@ class Batch(object):
 #            print("#####-------pre_tok_struct_vec",len(pre_tok_struct_vec),pre_tok_struct_vec)
             
             #print(self._pad2(pre_sent_struct_vec, 0))
-            sent_struct_vec = torch.tensor(self._pad2(pre_sent_struct_vec, -1))#-1
-            tok_struct_vec = torch.tensor(self._pad3(pre_tok_struct_vec, -1))#-1
-            overall_sent_pos = torch.tensor(self._pad(pre_overall_sent_pos, -1))#-1
-            tgt_sent_idx = torch.tensor(self._pad(pre_tgt_sent_idx, -1))#-1
+            sent_struct_vec = torch.tensor(self._pad2(pre_sent_struct_vec, 0))#-1
+            tok_struct_vec = torch.tensor(self._pad3(pre_tok_struct_vec, 0))#-1
+            overall_sent_pos = torch.tensor(self._pad(pre_overall_sent_pos, 0))#-1
+            tgt_sent_idx = torch.tensor(self._pad(pre_tgt_sent_idx, 0))#-1
 #            print("#####-------sent_struct_vec",len(sent_struct_vec),sent_struct_vec.shape,sent_struct_vec)
 #            print("#####-------tok_struct_vec",len(tok_struct_vec),tok_struct_vec.shape,tok_struct_vec)
             

@@ -160,8 +160,8 @@ class ExtTransformerEncoder(nn.Module):
             sn_index=section_names[:,section_pos][indices,indices,:]
             print('7-sn_index',sn_index.shape,sn_index)
             sn_emb=self.sn_emb_dict[sn_index,:]
-            print('8-sn_emb',sn_emb.shape,sn_emb)
-        print('9-x',x.shape)
+            print('8-sn_emb',sn_emb.shape,sn_emb[0])
+        print('9-x',x.shape,x[0])
         if sn_emb is not None:
             x = x + sn_emb
 
