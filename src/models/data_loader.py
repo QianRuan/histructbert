@@ -45,14 +45,14 @@ class Batch(object):
             pre_tgt_sent_idx = [x[8] for x in data]#
             pre_section_names = [x[9] for x in data]
             
-            print('2-pre_section_names', len(pre_section_names),pre_section_names.shape,pre_section_names)
+            print('2-pre_section_names (list)', len(pre_section_names),pre_section_names)
             
             if len(pre_section_names)==0:
                 section_names=None
             else:
                 #section_names=torch.tensor(pre_section_names)
                 section_names=torch.tensor(self._pad(pre_section_names, 0))
-            print('3-section_names',section_names.shape,section_names)
+            print('3-section_names (tensor)',section_names.shape,section_names)
             
         
                 
@@ -269,7 +269,7 @@ class DataIterator(object):
             pre_section_names=ex['section_names']
         else:
             pre_section_names=None
-        print('0-pre_section_names', len(pre_section_names),pre_section_names.shape, pre_section_names)
+        print('0-pre_section_names (list)', len(pre_section_names), pre_section_names)
             
         #convert section names into numeric (its index in the embeddings file)
         section_names=[]
@@ -279,7 +279,7 @@ class DataIterator(object):
 #                sn = list(sn_emb.keys())
                 for n in pre_section_names: 
                     section_names.append(self.sn.index(n))
-        print('1-section_names', len(section_names),section_names.shape, section_names)
+        print('1-section_names (list)', len(section_names), section_names)
        
         end_id = [src[-1]]
         src = src[:-1][:self.args.max_pos - 1] + end_id
