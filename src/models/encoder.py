@@ -150,10 +150,11 @@ class ExtTransformerEncoder(nn.Module):
         #add section names embeddings
         sn_emb=None
         if section_names is not None:
+            
             section_pos = sent_struct_vec[:,:,0]
-            print('section_pos',section_pos.shape,section_pos)
-            print('section_names',section_names.shape,section_names)
-            print('section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
+            print('4-section_names',section_names.shape,section_names)
+            print('5-section_pos',section_pos.shape,section_pos)  
+            print('6-section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
             sn_index=section_names[:,section_pos[0,:]]
             sn_emb=self.sn_emb_dict[sn_index,:]
         
