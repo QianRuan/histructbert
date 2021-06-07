@@ -149,7 +149,7 @@ class ExtTransformerEncoder(nn.Module):
         
         #add section names embeddings
         sn_emb=None
-        if section_names is not None:
+        if section_names is not None and self.args.section_names_embed_path!='':
             
             section_pos = sent_struct_vec[:,:,0]
 #            print('4-section_names',section_names.shape,section_names)
