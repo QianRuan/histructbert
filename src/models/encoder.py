@@ -92,26 +92,26 @@ class ExtTransformerEncoder(nn.Module):
                 logger.info("-----Sequential position and hiarchical positions...different PosEmbs ")
                 logger.info("-----Sentence Structure Embeddings_combination mode ... "+args.sent_se_comb_mode)
                 
-                self.sent_pos_emb = LASentAddEmb(args,model.config)
+                self.add_emb = LASentAddEmb(args,model.config)
                
             elif (args.sent_pos_emb_type == 'learned_pos'):
                 logger.info("-----Type of positional embeddings...learnable")
                 logger.info("-----Sequential position and hiarchical positions...one same PosEmb")
                 logger.info("-----Sentence Structure Embeddings_combination mode ... "+args.sent_se_comb_mode)
                 
-                self.sent_pos_emb = LPSentAddEmb(args,model.config)
+                self.add_emb = LPSentAddEmb(args,model.config)
                
                     
             elif (args.sent_pos_emb_type == 'sinusoidal'):
                 logger.info("-----Type of positional embeddings...sinusoidal")
                 logger.info("-----Sentence Structure Embeddings_combination mode ... "+args.sent_se_comb_mode)
                 
-                self.sent_pos_emb = SINSentAddEmb(args,model.config)
+                self.add_emb = SINSentAddEmb(args,model.config)
                 
             else:
                 raise ValueError("args.sent_pos_emb_type must be one of ['learned_pos', 'learned_all', 'sinusoidal'] ")
         else:
-            self.sent_pos_emb = SinPositionalEncoding(d_model, max_len = args.max_nsent)#
+            self.add_emb = SinPositionalEncoding(d_model, max_len = args.max_nsent)#
             logger.info("#####Sentence embeddings_add sentence hierarchical structure embeddings: FALSE") 
             logger.info("-----only add sentence sinusoidal positional embeddings") 
             
@@ -136,7 +136,7 @@ class ExtTransformerEncoder(nn.Module):
     def forward(self, top_vecs, mask, sent_struct_vec, section_names):#!#
         """ See :obj:`EncoderBase.forward()`"""
         
-        sent_pos_emb = self.sent_pos_emb(top_vecs, sent_struct_vec)
+        sent_pos_emb = self.add_emb(top_vecs, sent_struct_vec)
 
         
         #if not using hierarchical structure embeddings
