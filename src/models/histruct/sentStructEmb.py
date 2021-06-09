@@ -91,12 +91,11 @@ class LASentAddEmb(nn.Module):
        
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
-        print(config)
-        print(config.hidden_size)
+        
         if args.base_LM.startswith('bigbird-pegasus'):
             self.LayerNorm = nn.LayerNorm(config.d_model)
             self.dropout = nn.Dropout(config.dropout)
-        elif args.base_LM.startswith('bert'):
+        else:
             self.LayerNorm = BertLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
             self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
@@ -193,8 +192,12 @@ class SINSentAddEmb(nn.Module):
             self.histruct_position_embeddings = None
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
-        self.LayerNorm = BertLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        if args.base_LM.startswith('bigbird-pegasus'):
+            self.LayerNorm = nn.LayerNorm(config.d_model)
+            self.dropout = nn.Dropout(config.dropout)
+        else:
+            self.LayerNorm = BertLayerNorm(config.hidden_size, eps=config.layer_norm_eps)
+            self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(
         self,

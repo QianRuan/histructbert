@@ -284,7 +284,8 @@ class DataIterator(object):
         max_sent_id = bisect.bisect_left(clss, self.args.max_pos)
         src_sent_labels = src_sent_labels[:max_sent_id]
         clss = clss[:max_sent_id]
-        tok_struct_vec = tok_struct_vec[:self.args.max_pos]
+        if tok_struct_vec is not None:
+            tok_struct_vec = tok_struct_vec[:self.args.max_pos]
         sent_struct_vec = sent_struct_vec[:max_sent_id]
         overall_sent_pos = overall_sent_pos[:max_sent_id]
         
