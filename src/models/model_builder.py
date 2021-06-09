@@ -211,7 +211,7 @@ class BigBirdPegasus(nn.Module):
     def __init__(self, args):
         super(BigBirdPegasus, self).__init__()
         
-        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir)
+        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir,force_download=True)
         self.finetune = args.finetune_bert
 
     def forward(self, x, mask):
