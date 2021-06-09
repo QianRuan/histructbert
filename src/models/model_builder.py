@@ -5,6 +5,7 @@ import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
 from transformers import LongformerModel,LongformerConfig
+from transformers import PegasusTokenizer, BigBirdPegasusModel
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -146,7 +147,7 @@ class Roberta(nn.Module):
         
         self.finetune = finetune
 
-    def forward(self, x, mask, clss):
+    def forward(self, x, mask):
         if(self.finetune):
             top_vec, _ = self.model(x,  attention_mask=mask)
 #            top_vec, _ = self.model(x, segs, attention_mask=mask)
@@ -163,10 +164,7 @@ class Longformer(nn.Module):
         
         config = LongformerConfig.from_pretrained('allenai/'+args.base_LM) 
         config.attention_window=args.local_attention_window
-#        print('#########config.attention_mode ')
-#        print(config.attention_mode) 
-#        print('#########config.attention_window')
-#        print(config.attention_window) 
+
         self.model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir,config=config)      
         self.finetune = args.finetune_bert
         self.use_global_attention = args.use_global_attention
@@ -207,6 +205,28 @@ class Longformer(nn.Module):
                     top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
                 else:
                     top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
+        return top_vec
+    
+class BigBirdPegasus(nn.Module):
+    def __init__(self, args):
+        super(BigBirdPegasus, self).__init__()
+        
+        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir)
+        self.finetune = args.finetune_bert
+
+    def forward(self, x, mask):
+        print('mask',mask.shape,mask)
+        
+        if(self.finetune):
+            print('######## Finetune')
+            top_vec  = self.model(x,  attention_mask=mask).last_hidden_state
+            
+        else:
+            print('######## Not Finetune')
+            self.eval()
+            with torch.no_grad():
+                top_vec  = self.model(x, attention_mask=mask).last_hidden_state
+        print('top_vec',top_vec.shape,top_vec)       
         return top_vec
 
 class ExtSummarizer(nn.Module):
@@ -254,6 +274,8 @@ class ExtSummarizer(nn.Module):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('longformer')):
                 self.bert = Longformer(args)
+            elif (args.base_LM.startswith('bigbird-pegasus')):
+                self.bert = BigBirdPegasus(args)
                 
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
@@ -313,11 +335,15 @@ class ExtSummarizer(nn.Module):
                 logger.info('add_tok_struct_emb is not implemented for the base model %s, please set -add_tok_struct_emb false'%self.args.base_LM)
                 exit()
             else: 
-                top_vec = self.bert(src, mask_src, clss)
-            
-                
+                if self.args.base_LM.startswith('longformer'):
+                    top_vec = self.bert(src, mask_src, clss)
+                else:
+                    top_vec = self.bert(src, mask_src)
+                    
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
+        print('sents_vec',sents_vec.shape,sents_vec)
         sents_vec = sents_vec * mask_cls[:, :, None].float()
+        print('sents_vec',sents_vec.shape,sents_vec)
 #        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
         sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec,section_names).squeeze(-1)
         return sent_scores, mask_cls

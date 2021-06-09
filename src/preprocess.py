@@ -42,11 +42,11 @@ def str2bool(v):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','longformer-base-4096','longformer-large-4096'])
+    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','longformer-base-4096','longformer-large-4096','bigbird-pegasus-large-arxiv','bigbird-pegasus-large-pubmed'])
     parser.add_argument("-temp_dir", default='temp')
     # parser.add_argument("-corenlp_path", default='', type=str)#
     parser.add_argument("-vocab_file", default='', type=str)#
-    
+    parser.add_argument("-obtain_tok_se", type=str2bool, nargs='?',const=True,default=True)#
     
     
     parser.add_argument("-mode", default='', type=str)
