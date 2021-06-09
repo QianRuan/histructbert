@@ -352,7 +352,7 @@ class Trainer(object):
         for batch in true_batchs:
             if self.grad_accum_count == 1:
                 self.model.zero_grad()
-            print(type(batch),batch)
+            
             src = batch.src
             labels = batch.src_sent_labels
             segs = batch.segs
@@ -360,7 +360,11 @@ class Trainer(object):
             mask = batch.mask_src
             mask_cls = batch.mask_cls
             sent_struct_vec = batch.sent_struct_vec
-            tok_struct_vec = batch.tok_struct_vec
+            if hasattr(batch, 'tok_struct_vec'):
+                tok_struct_vec = batch.tok_struct_vec
+            else:
+                tok_struct_vec = None
+                
             section_names = batch.section_names
             
 #            if (self.add_sent_struct_emb and not self.add_tok_struct_emb):
