@@ -352,7 +352,7 @@ class Trainer(object):
         for batch in true_batchs:
             if self.grad_accum_count == 1:
                 self.model.zero_grad()
-
+            print(type(batch),batch)
             src = batch.src
             labels = batch.src_sent_labels
             segs = batch.segs
@@ -370,13 +370,7 @@ class Trainer(object):
         
             sent_scores, mask = self.model(src, segs, clss, mask, mask_cls,sent_struct_vec,tok_struct_vec,section_names)
 #            
-#           
-#            del sent_struct_vec
-#            del tok_struct_vec
-#            del src
-#            del segs
-#            del clss
-#            del mask_cls
+
             loss = self.loss(sent_scores, labels.float())
             loss = (loss * mask.float()).sum()
             (loss / loss.numel()).backward()
