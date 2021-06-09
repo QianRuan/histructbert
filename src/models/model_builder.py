@@ -311,6 +311,7 @@ class ExtSummarizer(nn.Module):
             my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:4096] = self.bert.model.embeddings.position_embeddings.weight.data
             my_pos_embeddings.weight.data[4096:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
+            print(self.bert.model)
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
 #            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
         
