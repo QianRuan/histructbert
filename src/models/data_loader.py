@@ -82,7 +82,6 @@ class Batch(object):
             
             #print(self._pad2(pre_sent_struct_vec, 0))
             sent_struct_vec = torch.tensor(self._pad2(pre_sent_struct_vec, 0))#-1
-            print(pre_tok_struct_vec)
             if len([vec for vec in pre_tok_struct_vec if vec is not None])!=0:
                 tok_struct_vec = torch.tensor(self._pad3(pre_tok_struct_vec, 0))#-1
             else:
@@ -93,7 +92,8 @@ class Batch(object):
 #            print("#####-------tok_struct_vec",len(tok_struct_vec),tok_struct_vec.shape,tok_struct_vec)
             
             setattr(self, 'sent_struct_vec', sent_struct_vec.to(device))
-            setattr(self, 'tok_struct_vec', tok_struct_vec.to(device))
+            if tok_struct_vec is not None:
+                setattr(self, 'tok_struct_vec', tok_struct_vec.to(device))
             setattr(self, 'overall_sent_pos', overall_sent_pos.to(device))
             setattr(self, 'tgt_sent_idx', tgt_sent_idx.to(device))
             setattr(self, 'section_names', section_names.to(device))
