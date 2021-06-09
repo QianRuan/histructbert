@@ -225,7 +225,7 @@ class BigBirdPegasus(nn.Module):
             self.eval()
             with torch.no_grad():
                 top_vec  = self.model(x, attention_mask=mask).last_hidden_state
-        print('top_vec',top_vec.shape,top_vec)       
+#        print('top_vec',top_vec.shape,top_vec)       
         return top_vec
 
 class ExtSummarizer(nn.Module):
@@ -347,9 +347,9 @@ class ExtSummarizer(nn.Module):
                     top_vec = self.bert(src, mask_src)
                     
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
-        print('sents_vec',sents_vec.shape,sents_vec)
+#        print('sents_vec',sents_vec.shape,sents_vec)
         sents_vec = sents_vec * mask_cls[:, :, None].float()
-        print('sents_vec',sents_vec.shape,sents_vec)
+#        print('sents_vec',sents_vec.shape,sents_vec)
 #        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
         sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec,section_names).squeeze(-1)
         return sent_scores, mask_cls
