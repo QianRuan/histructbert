@@ -365,7 +365,8 @@ class ExtSummarizer(nn.Module):
                     top_vec = self.bert(src, mask_src, clss)
                 else:
                     top_vec = self.bert(src, mask_src)
-                    
+        print('top_vec',top_vec.shape,top_vec)
+        print('clss',clss.shape,clss)          
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
 #        print('sents_vec',sents_vec.shape,sents_vec)
         sents_vec = sents_vec * mask_cls[:, :, None].float()
