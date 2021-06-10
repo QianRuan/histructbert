@@ -5,7 +5,8 @@ import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
 from transformers import LongformerModel,LongformerConfig
-from transformers import PegasusTokenizer, BigBirdPegasusModel, BigBirdPegasusLearnedPositionalEmbedding
+from transformers import PegasusTokenizer, BigBirdPegasusModel
+from transformers.models.bigbird_pegasus.modeling_bigbird_pegasus import BigBirdPegasusLearnedPositionalEmbedding
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
