@@ -319,6 +319,7 @@ class ExtSummarizer(nn.Module):
             self.bert.model.encoder.embed_positions = my_pos_embeddings
             print('before',self.bert.model.config)
             self.bert.model.config.max_position_embeddings = args.max_pos
+            self.bert.model.config.encoder_ffn_dim = args.max_pos
             print('after',self.bert.model.config)
             print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
             print(self.bert.model.encoder.embed_positions.weight.data)
