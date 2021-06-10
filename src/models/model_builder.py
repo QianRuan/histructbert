@@ -217,7 +217,8 @@ class BigBirdPegasus(nn.Module):
 #        self.bert.model.config.max_position_embeddings = args.max_pos
         
         if not args.is_encoder_decoder:
-            config.is_encoder_decoder = False
+#            config.is_encoder_decoder = False
+            config.decoder_layers = 0
         
         self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
         
