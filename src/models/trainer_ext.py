@@ -192,7 +192,10 @@ class Trainer(object):
                 mask = batch.mask_src
                 mask_cls = batch.mask_cls
                 sent_struct_vec = batch.sent_struct_vec
-                tok_struct_vec = batch.tok_struct_vec
+                if hasattr(batch, 'tok_struct_vec'):
+                    tok_struct_vec = batch.tok_struct_vec
+                else:
+                    tok_struct_vec = None
                 section_names=batch.section_names
                 
 
@@ -250,7 +253,10 @@ class Trainer(object):
                         mask = batch.mask_src
                         mask_cls = batch.mask_cls
                         sent_struct_vec = batch.sent_struct_vec
-                        tok_struct_vec = batch.tok_struct_vec
+                        if hasattr(batch, 'tok_struct_vec'):
+                            tok_struct_vec = batch.tok_struct_vec
+                        else:
+                            tok_struct_vec = None
                         overall_sent_pos = batch.overall_sent_pos
                         section_names=batch.section_names
                         
