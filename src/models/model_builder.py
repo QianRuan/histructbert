@@ -5,8 +5,9 @@ import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 from pytorch_transformers import RobertaModel
 from transformers import LongformerModel,LongformerConfig
-from transformers import PegasusTokenizer, BigBirdPegasusModel
-from transformers.models.bigbird_pegasus.modeling_bigbird_pegasus import BigBirdPegasusLearnedPositionalEmbedding
+#from transformers import PegasusTokenizer, BigBirdPegasusModel
+from models.modeling_bigbird_pegasus import BigBirdPegasusModel
+from models.modeling_bigbird_pegasus import BigBirdPegasusLearnedPositionalEmbedding
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -309,12 +310,14 @@ class ExtSummarizer(nn.Module):
             
         if(args.base_LM.startswith('bigbird-pegasus') and args.max_pos>4096):
 #            print('2#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
-#            print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
+            print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
             my_pos_embeddings = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
             #my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:4096] = self.bert.model.encoder.embed_positions.weight.data
             my_pos_embeddings.weight.data[4096:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
             self.bert.model.encoder.embed_positions = my_pos_embeddings
+            print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
+            print(self.bert.model.encoder.embed_positions.weight.data)
 #            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
         
         
