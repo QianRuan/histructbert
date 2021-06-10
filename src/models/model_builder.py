@@ -212,7 +212,15 @@ class BigBirdPegasus(nn.Module):
     def __init__(self, args):
         super(BigBirdPegasus, self).__init__()
         
-        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir)
+        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+#        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+#        self.bert.model.config.max_position_embeddings = args.max_pos
+        
+        if not args.is_encoder_decoder:
+            config.is_encoder_decoder = False
+        
+        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        
         self.finetune = args.finetune_bert
 
     def forward(self, x, mask):

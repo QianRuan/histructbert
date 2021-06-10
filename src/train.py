@@ -52,6 +52,10 @@ if __name__ == '__main__':
     parser.add_argument("-use_global_attention", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-local_attention_window", default=512, type=int)
     
+    #bigbird_pegasus
+    parser.add_argument("-is_encoder_decoder", type=str2bool, nargs='?',const=False,default=False)
+    
+    
     #section names embeddings
     parser.add_argument("-section_names_embed_path", default='')
     
