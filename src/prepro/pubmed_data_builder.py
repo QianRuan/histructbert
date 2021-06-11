@@ -916,19 +916,19 @@ def compute_statistics(args):
             summ_len_sent.append(len(doc["abstract_text"]))
             
             src = doc["article_text"]
-            print('doc[abstract_text]',doc['abstract_text'])
+#            print('doc[abstract_text]',doc['abstract_text'])
             tgt = [s.replace('<S>','').replace('</S>','') for s in doc['abstract_text']]
             flat_src = ''.join(src) 
             flat_summ = ''.join(tgt) 
             doc_len_word.append(len(flat_src.split())) 
             summ_len_word.append(len(flat_summ.split()))
-            print('src',src)
-            print('tgt',src)
-            print('flat_src',flat_src)
-            print('flat_summ',flat_summ)
+#            print('src',src)
+#            print('tgt',src)
+#            print('flat_src',flat_src)
+#            print('flat_summ',flat_summ)
                   
-            novel_2grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 2))
-            novel_1grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 1))
+#            novel_2grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 2))
+#            novel_1grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 1))
 
         
     stat = {'avg. doc length(words)': round(statistics.mean(doc_len_word),2), 
@@ -945,9 +945,9 @@ def compute_statistics(args):
            'max. summary length(words)': max(summ_len_word), 
            'avg. summary length(sentences)': round(statistics.mean(summ_len_sent),2), 
            'min. summary length(sentences)': min(summ_len_sent),
-           'max. summary length(sentences)': max(summ_len_sent),
-           '% novel 1grams in gold summary': round(statistics.mean(novel_1grams),2),
-           '% novel 2grams in gold summary': round(statistics.mean(novel_2grams),2)}
+           'max. summary length(sentences)': max(summ_len_sent)}#,
+#           '% novel 1grams in gold summary': round(statistics.mean(novel_1grams),2),
+#           '% novel 2grams in gold summary': round(statistics.mean(novel_2grams),2)}
     
     logger.info(stat)
 
@@ -962,8 +962,11 @@ def get_novel_ngrams_percentage(flat_src, flat_summ, ngrams):
     
     flat_summ = _rouge_clean(' '.join(flat_summ)).split()
     flat_src = _rouge_clean(' '.join(flat_src)).split()
+    print('flat_src',flat_src)
+    print('flat_summ',flat_summ)
     summ_ngrams = _get_word_ngrams(ngrams, [flat_summ])
     src_ngrams = _get_word_ngrams(ngrams, [flat_src])
+    print('summ_ngrams',flat_summ)
     
     same = len(set(summ_ngrams).intersection(set(src_ngrams)))
     novel = len(summ_ngrams)-same
