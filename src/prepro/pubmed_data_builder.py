@@ -877,7 +877,7 @@ def encode_section_names(args):
             if args.sn_embed_comb_mode=='sum':
                 embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
-                embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
+                embed = torch.mean(outputs.last_hidden_state,dim=1).squeeze().tolist()
             
             section_names_embed.update({section_name:embed})
             logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
@@ -916,11 +916,16 @@ def compute_statistics(args):
             summ_len_sent.append(len(doc["abstract_text"]))
             
             src = doc["article_text"]
+            print('doc[abstract_text]',doc['abstract_text'])
             tgt = [s.replace('<S>','').replace('</S>','') for s in doc['abstract_text']]
             flat_src = ''.join(src) 
             flat_summ = ''.join(tgt) 
             doc_len_word.append(len(flat_src.split())) 
             summ_len_word.append(len(flat_summ.split()))
+            print('src',src)
+            print('tgt',src)
+            print('flat_src',flat_src)
+            print('flat_summ',flat_summ)
                   
             novel_2grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 2))
             novel_1grams.append(get_novel_ngrams_percentage(flat_src, flat_summ, 1))
