@@ -397,10 +397,6 @@ class BertData():
         else:
             token_struct_vec = [_token_struct_vec[i] for i in idxs]
             
-        print(len(_sent_labels))
-        print(len(sent_labels))
-        print(len(_sent_struct_vec))
-        print(len(sent_struct_vec))
         
         #shorten long documents (remove last sentences), default: do not short, args.max_src_nsents=0
         if (self.args.max_src_nsents!=0):
@@ -425,7 +421,11 @@ class BertData():
         
       
         #preprocessed article_text, a list of sentences in the article
-        src_txt = src#!!!
+        
+        src_txt = src
+        #replace cls & sep token
+        src_txt = [sent.replace(self.cls_token,' '.join([c for c in self.cls_token])).replace(self.sep_token,' '.join([c for c in self.sep_token])) for sent in src_txt]
+        
         #join sentences into text, add cls_token and sep_token between sentences
         if self.args.base_LM.startswith('roberta'):
             text = '{} {}'.format(self.sep_token, self.cls_token).join(src_txt)
@@ -501,16 +501,6 @@ class BertData():
         src_txt = [original_src_txt[i] for i in idxs] #a list of sentences in the article
        
         #check
-        if not len(sent_labels)==len(cls_ids)==len(sent_struct_vec):
-            print(len(sent_labels),len(cls_ids),len(sent_struct_vec))
-            print(sent_labels[:10],cls_ids[:10],sent_struct_vec[:10])
-            for sent in src:
-                if 0 in self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent)):
-                    print('!!!',sent)
-                    
-                    
-            #print('src_subtoken_idxs',src_subtoken_idxs)
-            #print('cls_ids',cls_ids)
             
         assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
         if token_struct_vec is not None:
