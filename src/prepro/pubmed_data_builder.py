@@ -396,6 +396,11 @@ class BertData():
             token_struct_vec = None
         else:
             token_struct_vec = [_token_struct_vec[i] for i in idxs]
+            
+        print(len(_sent_labels))
+        print(len(sent_labels))
+        print(len(_sent_struct_vec))
+        print(len(sent_struct_vec))
         
         #shorten long documents (remove last sentences), default: do not short, args.max_src_nsents=0
         if (self.args.max_src_nsents!=0):
@@ -455,8 +460,10 @@ class BertData():
             else:
                 segments_ids += s * [1] 
                 
-        #cls_ids, indices of cls_tokens      
+        #cls_ids, indices of cls_tokens  
+        print('src_subtoken_idxs',src_subtoken_idxs)
         cls_ids = [i for i, t in enumerate(src_subtoken_idxs) if t == self.cls_vid] 
+        print('cls_ids',cls_ids)
         
        
         #sent_labels

@@ -70,7 +70,7 @@ if __name__ == '__main__':
     parser.add_argument('-min_src_ntokens_per_sent', default=5, type=int)#0,5
     parser.add_argument('-max_src_ntokens_per_sent', default=0, type=int)#2000, 0 means no limit of max
     parser.add_argument('-min_tgt_ntokens', default=5, type=int)#0,5
-    parser.add_argument('-max_tgt_ntokens', default=5000, type=int)#5000
+    parser.add_argument('-max_tgt_ntokens', default=0, type=int)#5000
 
     parser.add_argument("-lower", type=str2bool, nargs='?',const=True,default=True)#
     parser.add_argument("-use_bert_basic_tokenizer", type=str2bool, nargs='?',const=True,default=False)#
