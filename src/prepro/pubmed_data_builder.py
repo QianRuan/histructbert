@@ -423,9 +423,9 @@ class BertData():
             skip_reason='too short document (less than %d sentences)'%self.args.min_src_nsents
             return None, skip_reason
         
-
+      
         #preprocessed article_text, a list of sentences in the article
-        src_txt = src
+        src_txt = src#!!!
         #join sentences into text, add cls_token and sep_token between sentences
         if self.args.base_LM.startswith('roberta'):
             text = '{} {}'.format(self.sep_token, self.cls_token).join(src_txt)
@@ -461,9 +461,9 @@ class BertData():
                 segments_ids += s * [1] 
                 
         #cls_ids, indices of cls_tokens  
-        print('src_subtoken_idxs',src_subtoken_idxs)
+        #print('src_subtoken_idxs',src_subtoken_idxs)
         cls_ids = [i for i, t in enumerate(src_subtoken_idxs) if t == self.cls_vid] 
-        print('cls_ids',cls_ids)
+        #print('cls_ids',cls_ids)
         
        
         #sent_labels
@@ -504,6 +504,13 @@ class BertData():
         if not len(sent_labels)==len(cls_ids)==len(sent_struct_vec):
             print(len(sent_labels),len(cls_ids),len(sent_struct_vec))
             print(sent_labels[:10],cls_ids[:10],sent_struct_vec[:10])
+            for sent in src:
+                if 0 in self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(sent)):
+                    print('!!!',sent)
+                    
+                    
+            #print('src_subtoken_idxs',src_subtoken_idxs)
+            #print('cls_ids',cls_ids)
             
         assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
         if token_struct_vec is not None:
