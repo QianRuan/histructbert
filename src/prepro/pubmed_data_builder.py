@@ -494,6 +494,10 @@ class BertData():
         src_txt = [original_src_txt[i] for i in idxs] #a list of sentences in the article
        
         #check
+        if not len(sent_labels)==len(cls_ids)==len(sent_struct_vec):
+            print(len(sent_labels),len(cls_ids),len(sent_struct_vec))
+            print(sent_labels[:10],cls_ids[:10],sent_struct_vec[:10])
+            
         assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
         if token_struct_vec is not None:
             assert len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec) #nr. of tokens
