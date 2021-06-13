@@ -489,7 +489,8 @@ class BertData():
         #skip if the summary is too short
         if ((not is_test) and len(tgt_subtoken) < self.args.min_tgt_ntokens):
             logger.info('Skipped since the gold summary is too short')
-            return None
+            skip_reason='too short gold summary (less than %d tokens)'%self.args.min_tgt_ntokens
+            return None, skip_reason
 
         tgt_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(tgt_subtoken) 
 #        print("#################tgt_subtokens_str",len(tgt_subtokens_str), tgt_subtokens_str)
@@ -509,9 +510,6 @@ class BertData():
             assert len(segments_ids)==len(src_subtoken_idxs)
             
         check_data(self.args, src_subtoken_idxs,token_struct_vec, segments_ids)
-        
-     
-            
 
         return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos,section_names
 
