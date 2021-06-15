@@ -836,13 +836,14 @@ def obtain_section_names(args):
     flat_sec_names = sum(section_names, [])
     unique_sec_names =sorted(set(flat_sec_names))
     nr = len(unique_sec_names)
-    dic ={}
-    for name in unique_sec_names:
-        count=0
-        for n in flat_sec_names:
-            if n==name:
-                count+=1
-        dic.update({name:count})
+    dic = {x:flat_sec_names.count(x) for x in unique_sec_names}
+#    dic ={}
+#    for name in unique_sec_names:
+#        count=0
+#        for n in flat_sec_names:
+#            if n==name:
+#                count+=1
+#        dic.update({name:count})
     
     sorted_dic = sorted(dic.items(), key=lambda x: x[1], reverse=True)
    
