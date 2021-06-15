@@ -611,7 +611,8 @@ def plot_best_summ_distribution(args, hs_step_best_models, baseline_step_best_mo
     
     prob_dics.update({oracle+'.step0': get_prob_dic(oracle, 0)})
     
-    if len(baseline_step_best_models)!=0:
+    print(baseline_step_best_models)
+    if bool(baseline_step_best_models):
         best_baseline_prob_dics = get_best_step_model_prob(baseline_step_best_models)
         prob_dics.update(best_baseline_prob_dics)
 
