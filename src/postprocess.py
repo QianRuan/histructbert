@@ -602,7 +602,7 @@ def get_best_step_model_prob(best_models):
     return prob_dics
     
        
-def plot_best_summ_distribution(args, hs_step_best_models, bert_step_best_models):
+def plot_best_summ_distribution(args, hs_step_best_models, baseline_step_best_models):
     logger.info("=================================================")
     logger.info("Plotting best summary distribution...")
     prob_dics = {}
@@ -611,9 +611,9 @@ def plot_best_summ_distribution(args, hs_step_best_models, bert_step_best_models
     
     prob_dics.update({oracle+'.step0': get_prob_dic(oracle, 0)})
     
- 
-    best_bert_prob_dics = get_best_step_model_prob(bert_step_best_models)
-    prob_dics.update(best_bert_prob_dics)
+    if len(baseline_step_best_models)!=0:
+        best_baseline_prob_dics = get_best_step_model_prob(baseline_step_best_models)
+        prob_dics.update(best_baseline_prob_dics)
 
     best_hs_prob_dics = get_best_step_model_prob(hs_step_best_models)
     prob_dics.update(best_hs_prob_dics)
@@ -661,16 +661,16 @@ if __name__ == '__main__':
     os.environ['KMP_DUPLICATE_LIB_OK']='True'
   
     if (args.generate_eval_results_overview):
-        hs_step_best_models, bert_step_best_models,hs_avg_best_models, bert_avg_best_models = generate_eval_results_overview(args)
+        hs_step_best_models, baseline_step_best_models,hs_avg_best_models, baseline_avg_best_models = generate_eval_results_overview(args)
         
     if (args.remove_step_models):
 
         not_removed = []
         if(args.remove_step_models_also_best):
             flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
-            flat2 = [item[0] for sublist in list(bert_step_best_models.values()) for item in sublist]
+            flat2 = [item[0] for sublist in list(baseline_step_best_models.values()) for item in sublist]
             flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
-            flat4 = [item[0] for sublist in list(bert_avg_best_models.values()) for item in sublist]
+            flat4 = [item[0] for sublist in list(baseline_avg_best_models.values()) for item in sublist]
             not_removed.extend(flat1+flat2+flat3+flat4)
             not_removed=set(not_removed)
             logger.info('Step models of best settings are not removed: '+ ','.join(not_removed))
@@ -682,7 +682,7 @@ if __name__ == '__main__':
         plot_val_xent(args)
         
     if (args.plot_summ_distribution):
-        plot_best_summ_distribution(args, hs_step_best_models, bert_step_best_models)
+        plot_best_summ_distribution(args, hs_step_best_models, baseline_step_best_models)
         
     
         
