@@ -21,7 +21,8 @@ def build_optim(args, model, checkpoint):
     """ Build optimizer """
 
     if checkpoint is not None:
-        print(checkpoint)
+        print(checkpoint['optim'])
+        print(checkpoint.keys())
         optim = checkpoint['optim'][0]
         saved_optimizer_state_dict = optim.optimizer.state_dict()
         optim.optimizer.load_state_dict(saved_optimizer_state_dict)
