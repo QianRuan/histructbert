@@ -906,6 +906,9 @@ def extract_histruct_items(args):
        
         real_name = f.split('/')[-1].split('\\')[-1]
         histruct_story_path = histruct_dir+'\\'+real_name
+        print (real_name)
+        print (histruct_story_path)
+        assert 1==2
         
         
         source, tgt = obtain_source_summ(f, args.lower)
