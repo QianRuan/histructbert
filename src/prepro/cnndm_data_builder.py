@@ -1023,12 +1023,12 @@ def tokenize(args):
 #               'json', '-outputDirectory', tok_para_dir]#
     
     #split sentences 
-    command_sent = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+    command_sent = ['java', '-classpath',args.corenlp_path,'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
                '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
                'json', '-outputDirectory', tok_sent_dir]
     
     #split paragraphs
-    command_para = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+    command_para = ['java', '-classpath',args.corenlp_path,'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
                '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
                'json', '-outputDirectory', tok_para_dir]#
     
