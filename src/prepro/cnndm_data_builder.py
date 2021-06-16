@@ -713,6 +713,8 @@ def _format_to_histruct(params):
             
     file_path = args.save_path+'/skip_reasons'
     file_name = file_path+'/'+ '.'.join(json_file.split('/')[-1].split('.')[:-1])+'.skip_reasons.txt'
+    if not os.path.exists(args.save_path):
+        os.mkdir(args.save_path)
     if not os.path.exists(file_path):
         os.mkdir(file_path)
     dic ={'file_name':json_file, 'nr. of total doc':len(jobs),'nr. of processed doc':len(datasets),
@@ -729,9 +731,7 @@ def _format_to_histruct(params):
     
     #save preprocessed dataset
     logger.info('Saving to %s' % save_file)   
-    save_path = args.save_path
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    
     
     torch.save(datasets, save_file)
     datasets = []
