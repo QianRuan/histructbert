@@ -757,9 +757,12 @@ def merge_data_splits(args):
     logger.info('Mapping documents to train/valid/test datasets')    
     train_files, valid_files, test_files = [], [], []
     for f in glob.glob(pjoin(args.raw_path, '*.json')):
-        real_name = f.split('/')[-1].split('\\')[1].split('.')[0]#
-        #print('##########################')
-        #print(real_name)
+        #real_name = f.split('/')[-1].split('\\')[1].split('.')[0]#
+        
+        real_name = f.split('/')[-1].split('.')[0]#
+        print('##########################')
+        print(f)
+        print(real_name)
         #print(corpus_mapping['valid'])
         if (real_name in corpus_mapping['valid']):
             #logger.info(real_name,'in valid')
