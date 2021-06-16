@@ -580,8 +580,8 @@ def format_to_histruct(args):
     for corpus_type in datasets:
         a_lst = []
         for json_f in glob.glob(pjoin(args.raw_path, '*' + corpus_type + '.*.json')):       
-            #real_name = json_f.split('/')[-1]
-            real_name = json_f.split('/')[-1].split('\\')[-1]
+            real_name = json_f.split('/')[-1]
+            #real_name = json_f.split('/')[-1].split('\\')[-1]
             #print("##########################real_name",real_name)
             a_lst.append((corpus_type, json_f, args, pjoin(args.save_path, real_name.replace('json', 'bert.pt'))))
         #print(a_lst)
@@ -758,11 +758,8 @@ def merge_data_splits(args):
     train_files, valid_files, test_files = [], [], []
     for f in glob.glob(pjoin(args.raw_path, '*.json')):
         #real_name = f.split('/')[-1].split('\\')[1].split('.')[0]#
-        
         real_name = f.split('/')[-1].split('.')[0]#
-        print('##########################')
-        print(f)
-        print(real_name)
+
         #print(corpus_mapping['valid'])
         if (real_name in corpus_mapping['valid']):
             #logger.info(real_name,'in valid')
@@ -773,8 +770,8 @@ def merge_data_splits(args):
         elif (real_name in corpus_mapping['train']):
             #logger.info(real_name,'in train')
             train_files.append(f)
-        # else:
-        #     train_files.append(f)
+        else:
+            train_files.append(f)
     logger.info('There are %s / %s / %s documents in train/valid/test datasets.'% (len(train_files),len(valid_files),len(test_files))) 
     
     ##################################################################################save_statistics
