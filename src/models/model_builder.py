@@ -21,11 +21,14 @@ def build_optim(args, model, checkpoint):
     """ Build optimizer """
 
     if checkpoint is not None:
-        print(checkpoint['optim'])
-        print(checkpoint.keys())
-        optim = checkpoint['optim'][0]
-        saved_optimizer_state_dict = optim.optimizer.state_dict()
-        optim.optimizer.load_state_dict(saved_optimizer_state_dict)
+        if args.base_LM.startswith('longformer'):
+            optim = checkpoint['optim']
+            saved_optimizer_state_dict = optim.optimizer.state_dict()
+            optim.optimizer.load_state_dict(saved_optimizer_state_dict)
+        else:
+            optim = checkpoint['optim'][0]
+            saved_optimizer_state_dict = optim.optimizer.state_dict()
+            optim.optimizer.load_state_dict(saved_optimizer_state_dict)
         if args.visible_gpus != '-1':
             for state in optim.optimizer.state.values():
                 for k, v in state.items():
