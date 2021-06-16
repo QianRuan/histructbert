@@ -923,7 +923,7 @@ def extract_histruct_items(args):
 #the results are kept to obtain hierarchical positions
 def obtain_para(f,lower,tok_para_dir,real_name):
     
-    para_story_path = tok_para_dir+'\\'+real_name #same name
+    para_story_path = tok_para_dir+'/'+real_name #same name
     #print("###############sent_story_path",sent_story_path)
     #print("###############para_story_path",para_story_path)
     
@@ -1036,6 +1036,7 @@ def tokenize(args):
     logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_sent_dir))
     #windows system
     #subprocess.call(command_sent,shell=True)
+    #linux system
     subprocess.call(command_sent)
     logger.info("SENT - Stanford CoreNLP Tokenizer has finished.")
     #os.remove("mapping_for_corenlp.txt")
@@ -1043,6 +1044,7 @@ def tokenize(args):
     logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_para_dir))
     #windows system
     #subprocess.call(command_para,shell=True)
+    #linux system
     subprocess.call(command_para)#
     logger.info("PARA - Stanford CoreNLP Tokenizer has finished.")
     os.remove("mapping_for_corenlp.txt")
