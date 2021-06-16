@@ -18,6 +18,7 @@ from multiprocess import Pool
 from others.logging import logger,init_logger
 from others.tokenization import BertTokenizer
 from pytorch_transformers import RobertaTokenizer
+from transformers import PegasusTokenizer
 
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
@@ -136,49 +137,66 @@ def obtain_histruct_info(doc, args, tokenizer):
     #check that the lists are now empty
     para_list=sum(src_para_tokens_retokenized,[])
     sent_list=sum(src_sent_tokens_retokenized,[])
+    
     skip=False
+    skip_reason=''
+    
+    #check
+    #the remaining list should be empty
     if not sent_list==para_list==[]:
         skip=True
+    assert sent_list==para_list==[]
+    
+    #the SE should not be empty
+    if sent_struct_vec==[]:
+        logger.info('Skipped since the sentence structure vector is empty')
+        skip=True
+        skip_reason='empty sentence structure vector '
     #print("####################sent_struct_vec",len(sent_struct_vec),sent_struct_vec)
     #obtain token structure info
-    token_struct_vec=[]
     
-    if not skip:
+    if not args.obtain_tok_se:
+        token_struct_vec=None
+    else:
+        token_struct_vec=[]
         
-        for i in range(len(src_sent_tokens_bert_cp)):
-            #current sentence
-            sent = src_sent_tokens_bert_cp[i]
-            #paragraph & sentence positions are same
-            a = sent_struct_vec[i][0]
-            b = sent_struct_vec[i][1]
-            #token structure vectors for current sentence
-            sent_tok_struct_vec=[]
-            #append struct_vec for [CLS] at begining
-            sent_tok_struct_vec.append((a,b,0))
-            for j in range(len(sent)):
-                sent_tok_struct_vec.append((a,b,j+1))
-            #append struct_vec for [SEP] at end
-            sent_tok_struct_vec.append((a,b,j+2))
+        if not skip:
             
-            token_struct_vec.append(sent_tok_struct_vec)
-        
-   
-    
-        #check
-        assert (len(token_struct_vec)==len(src_sent_tokens_bert_cp))
-        for i in range(len(token_struct_vec)):
-            assert (len(src_sent_tokens_bert_cp[i])+2 == len(token_struct_vec[i]))
+            for i in range(len(src_sent_tokens_bert_cp)):
+                #current sentence
+                sent = src_sent_tokens_bert_cp[i]
+                #paragraph & sentence positions are same
+                a = sent_struct_vec[i][0]
+                b = sent_struct_vec[i][1]
+                #token structure vectors for current sentence
+                sent_tok_struct_vec=[]
+                #append struct_vec for [CLS] at begining
+                sent_tok_struct_vec.append((a,b,0))
+                for j in range(len(sent)):
+                    sent_tok_struct_vec.append((a,b,j+1))
+                #append struct_vec for [SEP] at end
+                sent_tok_struct_vec.append((a,b,j+2))
+                
+                token_struct_vec.append(sent_tok_struct_vec)
+            
+            #check
+            assert (len(token_struct_vec)==len(src_sent_tokens_bert_cp))
+            for i in range(len(token_struct_vec)):
+                assert (len(src_sent_tokens_bert_cp[i])+2 == len(token_struct_vec[i]))
         
         #turncate long sentences
-        if args.max_src_ntokens_per_sent!=0:
-            
-            for i in range(len(token_struct_vec)):        
-                src_sent_list = src_sent_tokens[i][:args.max_src_ntokens_per_sent]        
-                src_sent_str = ' '.join(src_sent_list) 
-                length = len(tokenizer.tokenize(src_sent_str))+2
-                token_struct_vec[i] = token_struct_vec[i][:length]
+#        if args.max_src_ntokens_per_sent!=0:
+#            
+#            for i in range(len(token_struct_vec)):        
+#                src_sent_list = src_sent_tokens[i][:args.max_src_ntokens_per_sent]        
+#                src_sent_str = ' '.join(src_sent_list) 
+#                length = len(tokenizer.tokenize(src_sent_str))+2
+#                token_struct_vec[i] = token_struct_vec[i][:length]
+        
+    #there is no section name in cnndm dataset
+    section_names=None
                                  
-    return skip, overall_sent_pos, sent_struct_vec, token_struct_vec
+    return skip, skip_reason, section_names, overall_sent_pos, sent_struct_vec, token_struct_vec
 
 
 def cal_rouge(evaluated_ngrams, reference_ngrams):
@@ -262,23 +280,34 @@ class BertData():
         self.args = args
 
         if args.base_LM.startswith('roberta'):
-            logger.info('Using roberta tokenizer')
             self.tokenizer = RobertaTokenizer.from_pretrained(args.base_LM)
+        elif args.base_LM.startswith('bigbird-pegasus'):
+            
+            self.tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM, additional_special_tokens=['<unk_2>','<unk_3>','<unk_4>'])
         else:
             self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower_case=True)
-            #self.tokenizer = BertTokenizer.from_pretrained(args.vocab_file, do_lower_case=True)
 
         if args.base_LM.startswith('roberta'):
-            self.sep_token = '</s>'
-            self.cls_token = '<s>'
-            self.pad_token = '<pad>'
-            self.tgt_bos = ' <unused0> '
-            self.tgt_eos = ' <unused1> '
-            self.tgt_sent_split = ' <unused2> '
+            self.sep_token = '</s>'#2
+            self.cls_token = '<s>'#0
+            self.pad_token = '<pad>'#1  
+            self.tgt_bos = ' madeupword0000 '
+            self.tgt_eos = ' madeupword0001 '
+            self.tgt_sent_split = ' madeupword0002 '
             self.sep_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.sep_token))[0]
             self.cls_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.cls_token))[0]
             self.pad_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.pad_token))[0]
             
+        elif args.base_LM.startswith('bigbird-pegasus'):
+            self.sep_token = '</s>'#1
+            self.cls_token = '<s>'#2
+            self.pad_token = '<pad>'#0  
+            self.tgt_bos = '<unk_2>'
+            self.tgt_eos = '<unk_3>'
+            self.tgt_sent_split = '<unk_4>'
+            self.sep_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.sep_token))[0]
+            self.cls_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.cls_token))[0]
+            self.pad_vid = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(self.pad_token))[0]
             
         else:  
             self.sep_token = '[SEP]'
@@ -291,45 +320,65 @@ class BertData():
             self.cls_vid = self.tokenizer.vocab[self.cls_token]
             self.pad_vid = self.tokenizer.vocab[self.pad_token]
 
-    def preprocess(self, doc, src, tgt, sent_labels, use_bert_basic_tokenizer=False, is_test=False):
+    def preprocess(self, doc, src, tgt, sent_labels, is_test=False):
         
         init_logger(self.args.log_file)
         
+        skip_reason=''
         #skip empty document
-        if ((not is_test) and len(src) == 0):
+        if (len([sent for sent in src if sent!=''])==0):
             logger.info('Empty document is skipped.')
-            return None
+            logger.info(src)
+            skip_reason='empty document'
+            return None, skip_reason
+        
+#        if ((not is_test) and len(src) == 0):
+#            logger.info('Empty document is skipped.')
+#            return None
         
         #get hiarchical structural information 
-        skip, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
-        if ((not is_test) and skip):
-            logger.info('Skipped since sent_strut_vec was not correctly generated.')
-            return None
+        skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
+#        skip, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
+        
+        if skip:
+            return None, skip_reason
+#        if ((not is_test) and skip):
+#            logger.info('Skipped since sent_strut_vec was not correctly generated.')
+#            return None
         #list of sentences
         original_src_txt = [' '.join(s) for s in src]
-        
-    
-        #list of indices of enough long sentences, use it to remove short sentences later
-        idxs = [i for i, s in enumerate(src) if (len(s) > self.args.min_src_ntokens_per_sent)]
         
         #sent_labels: a list of indices where the sentences should be included in the summary, label=1
         _sent_labels = [0] * len(src)
         for l in sent_labels:
             _sent_labels[l] = 1
-            
-        #remove short and long sentences from src
-        if self.args.max_src_ntokens_per_sent!=0:     
-            src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
-        else:
-            src = [src[i] for i in idxs]
-        
-        #remove short sentences from token_struct_vec
-        token_struct_vec = [_token_struct_vec[i] for i in idxs]
     
-        #remove short sentences
+        #list of indices of enough long sentences, use it to remove short sentences later
+        idxs = [i for i, s in enumerate(src) if (len(s) > self.args.min_src_ntokens_per_sent)]
+        
+        #remove short sentences 
+        src = [src[i] for i in idxs]
         sent_labels = [_sent_labels[i] for i in idxs]
         sent_struct_vec = [_sent_struct_vec[i] for i in idxs]
         overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
+        if _token_struct_vec is None:
+            token_struct_vec = None
+        else:
+            token_struct_vec = [_token_struct_vec[i] for i in idxs]
+            
+#        #remove short and long sentences from src
+#        if self.args.max_src_ntokens_per_sent!=0:     
+#            src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
+#        else:
+#            src = [src[i] for i in idxs]
+        
+#        #remove short sentences from token_struct_vec
+#        token_struct_vec = [_token_struct_vec[i] for i in idxs]
+    
+#        #remove short sentences
+#        sent_labels = [_sent_labels[i] for i in idxs]
+#        sent_struct_vec = [_sent_struct_vec[i] for i in idxs]
+#        overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
         
         #shorten long documents
         if (self.args.max_src_nsents!=0):
@@ -340,20 +389,38 @@ class BertData():
             overall_sent_pos = overall_sent_pos[:self.args.max_src_nsents]
         
         #flat list
-        token_struct_vec = sum(token_struct_vec,[]) 
+        if token_struct_vec is not None:
+            token_struct_vec = sum(token_struct_vec,[]) 
+#        #flat list
+#        token_struct_vec = sum(token_struct_vec,[]) 
        
-        
-        
-        #skip too short documents
+        #skip too short documents if it is not test data
         if ((not is_test) and len(src) < self.args.min_src_nsents):
-            logger.info('Too short document is skipped.')
-            return None
+            logger.info('Too short document (less than %d sentences) is skipped.'%(self.args.min_src_nsents))
+            logger.info('length of original text %d'%len(original_src_txt))
+            logger.info('length of text after removing short sentences %d'%len(src))
+            skip_reason='too short document (less than %d sentences)'%self.args.min_src_nsents
+            return None, skip_reason
+        
+#        #skip too short documents
+#        if ((not is_test) and len(src) < self.args.min_src_nsents):
+#            logger.info('Too short document is skipped.')
+#            return None
         
 
         #preprocessed src, join tokens into sentences
         src_txt = [' '.join(sent) for sent in src]#
+        #replace cls & sep token
+        src_txt = [sent.replace(self.cls_token,' '.join([c for c in self.cls_token])).replace(self.sep_token,' '.join([c for c in self.sep_token])) for sent in src_txt]
+        
         #join sentences into text, add cls_token and sep_token between sentences
-        text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
+        if self.args.base_LM.startswith('roberta'):
+            text = '{} {}'.format(self.sep_token, self.cls_token).join(src_txt)
+        else:
+            text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
+            
+#        #join sentences into text, add cls_token and sep_token between sentences
+#        text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
         #tokenize using the tokenizer
         src_subtokens = self.tokenizer.tokenize(text)
         #add cls_token and sep_token at the beginning and the end of the text
@@ -367,8 +434,6 @@ class BertData():
 #        print("#################src_subtokens_idxs",len( src_subtoken_idxs),  src_subtoken_idxs)
 #        print("#################sent_labels",len(sent_labels), sent_labels)
        
-        
-        
         #segments_ids
         _segs = [-1] + [i for i, t in enumerate(src_subtoken_idxs) if t == self.sep_vid]    
         segs = [_segs[i] - _segs[i - 1] for i in range(1, len(_segs))]
@@ -402,7 +467,8 @@ class BertData():
         #skip if the summary is too short
         if ((not is_test) and len(tgt_subtoken) < self.args.min_tgt_ntokens):
             logger.info('Skipped since the gold summary is too short')
-            return None
+            skip_reason='too short gold summary (less than %d tokens)'%self.args.min_tgt_ntokens
+            return None, skip_reason
 
         tgt_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(tgt_subtoken) 
 #        print("#################tgt_subtokens_str",len(tgt_subtokens_str), tgt_subtokens_str)
@@ -415,56 +481,48 @@ class BertData():
 #        print("#################tgt_txt",len(tgt_txt), tgt_txt)
 #        print("#################src_txt",len(src_txt), src_txt)
         
-        
-        
-        #check length
-        flag=False
-        if not (len(sent_labels)==len(cls_ids)==len(sent_struct_vec)): 
-            print('1----Length should be the same')
-            print(len(sent_labels))
-            print(len(cls_ids))
-            print(len(sent_struct_vec))
-            
-            
-           
-        if not (len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec)):
-            flag=True
-            print('2----Length should be the same')
-            print(len(segments_ids))#,segments_ids)
-            print(len(src_subtoken_idxs))#,src_subtoken_idxs)
-#            print(len(src_txt),src_txt)#
-            print(len(token_struct_vec))#,token_struct_vec)
-       
-        #subtokens to sentences 
-        li=[]
-        lists=[]
-        if (self.args.base_LM.startswith('bert')):
-            for idx in src_subtoken_idxs:
-            
-                if not idx==102:
-                    li.append(idx)
-                else:
-                    li.append(idx)
-                    lists.append(li)
-                    li=[]
-                    continue
+        #check
+        assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
+        if token_struct_vec is not None:
+            assert len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec) #nr. of tokens
         else:
-            for idx in src_subtoken_idxs:
-                if not idx==2:
-                    li.append(idx)
-                else:
-                    li.append(idx)
-                    lists.append(li)
-                    li=[]
-                    continue
-                
-       
-        
-        #token_struct_vec to sentences
-        li2=[]
-        lists2=[]
-        count=0
-        t=token_struct_vec
+            assert len(segments_ids)==len(src_subtoken_idxs)
+            
+        check_data(self.args, src_subtoken_idxs,token_struct_vec, segments_ids)
+            
+
+        return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos,section_names
+
+def check_data(args, src_subtoken_idxs,token_struct_vec, segments_ids):
+    
+    #subtokens to sentences 
+    li=[]
+    lists=[]
+    
+    SEP_IDX=0
+    if (args.base_LM.startswith('bert')):
+        SEP_IDX=102
+    elif (args.base_LM.startswith('bigbird-pegasus')):
+        SEP_IDX=1
+    else:
+        SEP_IDX=2
+ 
+    for idx in src_subtoken_idxs:
+    
+        if not idx==SEP_IDX:#id of [SEP] or </s>
+            li.append(idx)
+        else:
+            li.append(idx)
+            lists.append(li)
+            li=[]
+            continue
+
+    #token_struct_vec to sentences
+    li2=[]
+    lists2=[]
+    count=0
+    t=token_struct_vec
+    if token_struct_vec is not None:
         for i in range(len(t)):
            
             if t[i][2]==0:                
@@ -480,66 +538,41 @@ class BertData():
                 li2.append(t[i])
                 if i == len(t)-1:
                     lists2.append(li2)
-                    
-        #segment_ids_vec to sentences
-        li3=[]
-        lists3=[]
-        for i in range(len(segments_ids)):
-            if i==0:
-                li3.append(segments_ids[i])            
-            elif segments_ids[i-1]!=segments_ids[i]:
+                
+    #segment_ids_vec to sentences
+    li3=[]
+    lists3=[]
+    for i in range(len(segments_ids)):
+        if i==0:
+            li3.append(segments_ids[i])            
+        elif segments_ids[i-1]!=segments_ids[i]:
+            lists3.append(li3)
+            li3=[]
+            li3.append(segments_ids[i])
+        else:
+            li3.append(segments_ids[i])
+            if i==len(segments_ids)-1:
                 lists3.append(li3)
-                li3=[]
-                li3.append(segments_ids[i])
-            else:
-                li3.append(segments_ids[i])
-                if i==len(segments_ids)-1:
-                    lists3.append(li3)
-                    
-                    
+                
+    #they contain same number of sentences 
+    if token_struct_vec is not None:
+        assert len(lists)==len(lists2)==len(lists3)
+    else:
+        assert len(lists)==len(lists3)
         
-                    
-        #both contains same number of sentences 
         
-        if (len(lists)!=len(lists2)!=len(lists3)):
-            flag=True
-            print('3----Nr. of sentences should be the same')
-            
-            
-        #sentences at same index contain same number of items (sutokens and its structure vector)          
-        l=[len(x) for x in lists]
+    #sentences at same index contain same number of items (sutokens and its structure vector)          
+    l=[len(x) for x in lists]
+    if token_struct_vec is not None:
         l2=[len(x) for x in lists2]
-        l3=[len(x) for x in lists3]
-
-        for i in range(len(l)):
-            if l[i]!=l2[i]:
-                flag=True
-                print("4----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. token_struct_vec")
-                print(i, l[i], l2[i])
-                print (lists[i])
-                print (lists2[i])
-#                    print(src_txt[i])   
-            if l[i]!=l3[i]:
-                flag=True
-                print("5----Nr. of items in the same sentence should be the same: Subtoken_idxs vs. segment_ids")
-                print(i, l[i], l3[i])
-                print (lists[i])
-                print (lists3[i])
-#                    print(src_txt[i])   
-            if l2[i]!=l3[i]:
-                flag=True
-                print("6----Nr. of items in the same sentence should be the same: token_struct_vec vs. segment_ids")
-                print(i, l2[i], l3[i])
-                print (lists2[i])
-                print (lists3[i])
-        
-        if (flag) :
-            raise ValueError("7----length check failed")
-            
-
-        return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos
-
-
+    l3=[len(x) for x in lists3]
+    
+    
+    for i in range(len(l)):
+        if token_struct_vec is not None:
+            assert l[i]==l2[i]==l3[i]
+        else:
+            assert l[i]==l3[i]
 def format_to_histruct(args):
     
     datasets = ['train', 'valid', 'test']
@@ -566,29 +599,43 @@ def _format_to_histruct(params):
     corpus_type, json_file, args, save_file = params
     is_test = corpus_type == 'test'
     init_logger(args.log_file)
-    
+    logger.info('Using tokenizer: '+args.base_LM)
+    if not args.obtain_tok_se:
+            logger.info('Do not obtain token structure vectors')
+            
     #check if the save file already exists
     if (os.path.exists(save_file)):
-        logger.info("Save file %s already exisits, remove it!" %(save_file))
-        os.remove(save_file)
+        text = input("Save file %s already exisits. Do you want to remove it and redo preprocessing (yes or no) ?"%(save_file))
+        if text.lower()=='yes':
+            os.remove(save_file)
+            logger.info('YES: Save file removed.')
+        else:
+            logger.info('NO: Program stopped.')
+            exit()
+    
+#    #check if the save file already exists
+#    if (os.path.exists(save_file)):
+#        logger.info("Save file %s already exisits, remove it!" %(save_file))
+#        os.remove(save_file)
 
     bert = BertData(args)
-
+    logger.info('#'*50)
     logger.info('Processing %s' % json_file)
-    jobs = json.load(open(json_file, encoding='utf-8')) #nr. of documents
-    #print("####################jobs",len(jobs))
+    jobs = json.load(open(json_file, encoding='utf-8')) #nr. of documents in one json file
+
+    #obtain oracle summaries
     datasets = []
     if (args.summ_size!=0):
         logger.info("Do greedy selection to create oracle summaries, summary size:"+str(args.summ_size))
     else:
         logger.info("Do greedy selection to create oracle summaries, summary size: long")
+        
+    skip_reasons=[]  
     for d in jobs:
         #get list of source sentences and gold summary sentences
         source, tgt = d['src'], d['tgt']
         
         #get index of selected sentences (in oracle summary)
-        
-
         if (args.summ_size!=0):
             if (args.max_src_nsents!=0):
                 sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, args.summ_size) 
@@ -600,9 +647,6 @@ def _format_to_histruct(params):
             else:
                 sent_labels = greedy_selection(source, tgt, len(source))
                 
-                
-                
-            
         tgt_sent_idx = sent_labels
         #print("####################sent_labels",len(sent_labels),sent_labels)#可能有2
         
@@ -613,15 +657,30 @@ def _format_to_histruct(params):
             #print("####################sourcelower",len(source),source)
             #print("####################tgtlower",len(tgt),tgt)
                   
-        b_data = bert.preprocess(d, source, tgt, sent_labels, use_bert_basic_tokenizer=args.use_bert_basic_tokenizer,
-                                 is_test=is_test)
+        b_data = bert.preprocess(d, source, tgt, sent_labels, is_test=is_test)
 
-        if (b_data is None):
+        if (b_data[0] is None):
+            skip_reasons.append(b_data[1])         
             continue
         
-        src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos = b_data
+#        src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos = b_data
+#        
+#              
+#        b_data_dict = {"src": src_subtoken_idxs, ##!!
+#                       "tgt": tgt_subtoken_idxs, #!!
+#                       "src_sent_labels": sent_labels, ##!!
+#                       "segs": segments_ids, ##!!
+#                       'clss': cls_ids, ##!!
+#                       'src_txt': src_txt, ##!!
+#                       "tgt_txt": tgt_txt, ##!!
+##                       "tgt_sent": tgt, #-- 
+#                       "tgt_sent_idx":tgt_sent_idx,#--
+#                       "overall_sent_pos":overall_sent_pos,#--
+#                       "sent_struct_vec":sent_struct_vec, ##!!
+#                       "token_struct_vec":token_struct_vec}##!!
         
-              
+        src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt, sent_struct_vec, token_struct_vec,overall_sent_pos,section_names = b_data
+                 
         b_data_dict = {"src": src_subtoken_idxs, ##!!
                        "tgt": tgt_subtoken_idxs, #!!
                        "src_sent_labels": sent_labels, ##!!
@@ -629,21 +688,47 @@ def _format_to_histruct(params):
                        'clss': cls_ids, ##!!
                        'src_txt': src_txt, ##!!
                        "tgt_txt": tgt_txt, ##!!
-#                       "tgt_sent": tgt, #-- 
                        "tgt_sent_idx":tgt_sent_idx,#--
                        "overall_sent_pos":overall_sent_pos,#--
                        "sent_struct_vec":sent_struct_vec, ##!!
-                       "token_struct_vec":token_struct_vec}##!!
+                       "token_struct_vec":token_struct_vec,
+                       "section_names":section_names}##!!
         
 
 
         datasets.append(b_data_dict)
+        if(len(datasets)%100==0):
+            logger.info('----------------------------------Processed %d/%d'%(len(datasets),len(jobs)))
 
               
-               
+    #save and print skip reasons for later check           
+    skip_reasons_dic ={}   
+    if skip_reasons!=[]:   
+        for r in set(skip_reasons):
+            count=0
+            for n in skip_reasons:
+                if n==r:
+                    count+=1
+            skip_reasons_dic.update({r:(count,round(count/len(jobs),4))})    
+            
+    file_path = args.save_path+'/skip_reasons'
+    file_name = file_path+'/'+ '.'.join(json_file.split('/')[-1].split('.')[:-1])+'.skip_reasons.txt'
+    if not os.path.exists(file_path):
+        os.mkdir(file_path)
+    dic ={'file_name':json_file, 'nr. of total doc':len(jobs),'nr. of processed doc':len(datasets),
+          'nr. of skipped instances':len(skip_reasons), 'skip percentage':round(len(skip_reasons)/len(jobs)*100,2),
+          'skip_reasons':skip_reasons_dic}      
+    with open(file_name, 'w+') as save:
+            save.write(json.dumps(dic))        
+    logger.info('File %s'%json_file)        
+    logger.info('There are %d instances.'%len(jobs))
     logger.info('Processed instances %d' % len(datasets))
-    logger.info('Saving to %s' % save_file)
+    logger.info('Skipped instances %d, %f percentage of the %d instances' % (len(skip_reasons), round(len(skip_reasons)/len(jobs)*100,2), len(jobs)))
+    logger.info('Skip reasons: %s'%(skip_reasons_dic))
     
+    
+    #save preprocessed dataset
+    logger.info('Saving to %s' % save_file)   
     save_path = args.save_path
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -651,6 +736,8 @@ def _format_to_histruct(params):
     torch.save(datasets, save_file)
     datasets = []
     gc.collect()
+           
+    
 
 
 def merge_data_splits(args):

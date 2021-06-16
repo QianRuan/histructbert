@@ -357,11 +357,8 @@ class BertData():
         
         init_logger(self.args.log_file)
         
-        
         #skip empty document
-        skip_reason=''
-#        if ((not is_test) and len(src) == 0):
-        
+        skip_reason=''        
         if (len([sent for sent in src if sent!=''])==0):
             logger.info('Empty document is skipped.')
             logger.info(src)
@@ -372,7 +369,6 @@ class BertData():
         #get hierchical structural information 
         skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
         
-#        if ((not is_test) and skip):
         if skip:
             return None, skip_reason
         
@@ -421,7 +417,6 @@ class BertData():
         
       
         #preprocessed article_text, a list of sentences in the article
-        
         src_txt = src
         #replace cls & sep token
         src_txt = [sent.replace(self.cls_token,' '.join([c for c in self.cls_token])).replace(self.sep_token,' '.join([c for c in self.sep_token])) for sent in src_txt]
@@ -432,23 +427,13 @@ class BertData():
         else:
             text = ' {} {} '.format(self.sep_token, self.cls_token).join(src_txt)
             
-        
-        
         #tokenize using the tokenizer
         src_subtokens = self.tokenizer.tokenize(text)
         #add cls_token and sep_token at the beginning and the end of the text
         src_subtokens = [self.cls_token] + src_subtokens + [self.sep_token]
         
-        
         #convert tokens to ids
         src_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(src_subtokens)
-        
-#        print("#################src_txt",len(src_txt),src_txt)
-#        print("#################text",len(text), text)
-#        print("#################src_subtokens",len(src_subtokens), src_subtokens)
-#        print("#################src_subtokens_idxs",len( src_subtoken_idxs),  src_subtoken_idxs)
-#        print("#################sent_labels",len(sent_labels), sent_labels)
-       
        
         #segments_ids
         _segs = [-1] + [i for i, t in enumerate(src_subtoken_idxs) if t == self.sep_vid]    
@@ -461,18 +446,11 @@ class BertData():
                 segments_ids += s * [1] 
                 
         #cls_ids, indices of cls_tokens  
-        #print('src_subtoken_idxs',src_subtoken_idxs)
         cls_ids = [i for i, t in enumerate(src_subtoken_idxs) if t == self.cls_vid] 
-        #print('cls_ids',cls_ids)
         
        
         #sent_labels
         sent_labels = sent_labels[:len(cls_ids)]
-        
-#        print('#################segments_ids',len(segments_ids),segments_ids)
-#        print("#################cls_ids",len(cls_ids), cls_ids)
-#        print("#################sent_labels",len(sent_labels), sent_labels)
-           
         
         #preprocessing of gold summaries
         
@@ -493,16 +471,12 @@ class BertData():
             return None, skip_reason
 
         tgt_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(tgt_subtoken) 
-#        print("#################tgt_subtokens_str",len(tgt_subtokens_str), tgt_subtokens_str)
-#        print("#################tgt_subtoken",len(tgt_subtoken), tgt_subtoken)
-#        print("#################tgt_subtoken_idxs",len(tgt_subtoken_idxs), tgt_subtoken_idxs)
-        
+
         #src_txt, tgt_txt
         tgt_txt = '<q>'.join(tgt) #plain text of gold summary, sentences joined by <q>
         src_txt = [original_src_txt[i] for i in idxs] #a list of sentences in the article
        
         #check
-            
         assert len(sent_labels)==len(cls_ids)==len(sent_struct_vec) #nr. of sentences
         if token_struct_vec is not None:
             assert len(segments_ids)==len(src_subtoken_idxs)==len(token_struct_vec) #nr. of tokens
