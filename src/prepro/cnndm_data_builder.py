@@ -1012,25 +1012,25 @@ def tokenize(args):
                 continue
             f.write("%s\n" % (os.path.join(stories_dir, s)))
 
-#    #split sentences (linux)
-    command_sent = [args.corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-               '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-               'json', '-outputDirectory', tok_sent_dir]
-    
-    #split paragraphs
-    command_para = [args.corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-               '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-               'json', '-outputDirectory', tok_para_dir]#
-    
-    #split sentences (windows, install java first)
-#    command_sent = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+#    #split sentences 
+#    command_sent = [args.corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
 #               '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
 #               'json', '-outputDirectory', tok_sent_dir]
 #    
 #    #split paragraphs
-#    command_para = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+#    command_para = [args.corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
 #               '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
 #               'json', '-outputDirectory', tok_para_dir]#
+    
+    #split sentences 
+    command_sent = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+               '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
+               'json', '-outputDirectory', tok_sent_dir]
+    
+    #split paragraphs
+    command_para = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+               '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
+               'json', '-outputDirectory', tok_para_dir]#
     
     logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_sent_dir))
     subprocess.call(command_sent,shell=True)
