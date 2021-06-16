@@ -1023,22 +1023,27 @@ def tokenize(args):
 #               'json', '-outputDirectory', tok_para_dir]#
     
     #split sentences 
-    command_sent = ['java', '-classpath',args.corenlp_path,'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+    #'-classpath',args.corenlp_path,
+    command_sent = ['java','edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
                '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
                'json', '-outputDirectory', tok_sent_dir]
     
     #split paragraphs
-    command_para = ['java', '-classpath',args.corenlp_path,'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
+    command_para = ['java','edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
                '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
                'json', '-outputDirectory', tok_para_dir]#
     
     logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_sent_dir))
-    subprocess.call(command_sent,shell=True)
+    #windows system
+    #subprocess.call(command_sent,shell=True)
+    subprocess.call(command_sent)
     logger.info("SENT - Stanford CoreNLP Tokenizer has finished.")
     #os.remove("mapping_for_corenlp.txt")
     
     logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_para_dir))
-    subprocess.call(command_para,shell=True)#
+    #windows system
+    #subprocess.call(command_para,shell=True)
+    subprocess.call(command_para)#
     logger.info("PARA - Stanford CoreNLP Tokenizer has finished.")
     os.remove("mapping_for_corenlp.txt")
 
