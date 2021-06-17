@@ -94,19 +94,20 @@ def load_xml(p):
 def obtain_histruct_info(doc, src, tgt, args, tokenizer):
 
     #list of tokens
-    src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
+    #src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
+    src_sent_tokens=src
     src_para_tokens = doc['src_para_tokens']
     overall_sent_pos = [i for i in range(len(src))]
     
     #pegasus tokenizer has problems tokenizing punctuation, do clean
     import string
     if (args.base_LM.startswith('bigbird-pegasus')):
-        src_sent_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_sent_tokens]
+        #src_sent_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_sent_tokens]
         src_para_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_para_tokens]
         
     #do lowercase
     if (args.lower):
-        src_sent_tokens = [' '.join(s).strip().lower().split() for s in src_sent_tokens]
+        #src_sent_tokens = [' '.join(s).strip().lower().split() for s in src_sent_tokens]
         src_para_tokens = [' '.join(s).strip().lower().split() for s in src_para_tokens]
  
     #list of combined sentence/para text    
