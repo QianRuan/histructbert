@@ -239,7 +239,8 @@ class BigBirdPegasus(nn.Module):
             
             self.eval()
             with torch.no_grad():
-                top_vec  = self.model(x, attention_mask=mask).last_hidden_state
+                #top_vec  = self.model(x, attention_mask=mask).last_hidden_state
+                top_vec  = self.model(x).last_hidden_state
 #        print('top_vec',top_vec.shape,top_vec)       
         return top_vec
 

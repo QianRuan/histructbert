@@ -152,14 +152,6 @@ def obtain_histruct_info(doc, args, tokenizer):
         logger.info('Skipped since the sentence structure vector is not correctly generated')
         skip=True
         skip_reason='sentence structure vector not correctly generated'
-        print('#'*40,len(sent_list),len(para_list),sent_list==para_list)
-#        list(filter(lambda a: a not in sent_list, para_list))
-#        list(filter(lambda a: a not in para_list, sent_list))
-        print('sent_list',sent_list)
-        print('para_list',para_list)
-#        print('src_sent_tokens_retokenized',src_sent_tokens_retokenized)
-#        print('src_para_tokens_retokenized',src_para_tokens_retokenized)
-#    assert sent_list==para_list==[]
     
     #the SE should not be empty
     if sent_struct_vec==[]:
