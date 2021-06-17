@@ -217,6 +217,8 @@ class BigBirdPegasus(nn.Module):
     def __init__(self, args):
         super(BigBirdPegasus, self).__init__()
         
+        self.args=args
+        
         config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
 #        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
 #        self.bert.model.config.max_position_embeddings = args.max_pos
@@ -225,9 +227,9 @@ class BigBirdPegasus(nn.Module):
             config.decoder_layers = 0
         
         self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
-        print(self.model)
-        if not args.is_encoder_decoder:
-            self.model.decoder=BigBirdPegasusPooler(config)
+        
+#        if not args.is_encoder_decoder:
+#            self.model.decoder=BigBirdPegasusPooler(config)
         
         self.finetune = args.finetune_bert
 
@@ -235,13 +237,18 @@ class BigBirdPegasus(nn.Module):
         
         if(self.finetune):
             
-            top_vec  = self.model(x,  attention_mask=mask).last_hidden_state
-            
+            if not self.args.is_encoder_decoder:
+                top_vec  = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+            else:
+                top_vec  = self.model(x,  attention_mask=mask).last_hidden_state 
         else:
             
             self.eval()
             with torch.no_grad():
-                top_vec  = self.model(x, attention_mask=mask).last_hidden_state
+                if not self.args.is_encoder_decoder:
+                    top_vec  = self.model(x, attention_mask=mask).encoder_last_hidden_state
+                else:
+                    top_vec  = self.model(x, attention_mask=mask).last_hidden_state
                 
 #        print('top_vec',top_vec.shape,top_vec)       
         return top_vec
