@@ -345,6 +345,12 @@ class ExtSummarizer(nn.Module):
             my_pos_embeddings.weight.data[4098:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-4098,1)
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
             
+        if(args.base_LM.startswith('longformer') and args.max_pos<4098):
+#            print('2#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
+            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
+            my_pos_embeddings.weight.data = self.bert.model.embeddings.position_embeddings.weight.data[:args.max_pos]
+            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+            
             
             
         if(args.base_LM.startswith('bigbird-pegasus') and args.max_pos>4096):
