@@ -146,6 +146,9 @@ def obtain_histruct_info(doc, args, tokenizer):
     if not sent_list==para_list==[]:
         skip=True
         skip_reason='sentence structure vector not correctly generated'
+        print('#'*40,sent_list==para_list)
+        list(filter(lambda a: a not in sent_list, para_list))
+        list(filter(lambda a: a not in para_list, sent_list))
         print('sent_list',sent_list)
         print('para_list',para_list)
         print('src_sent_tokens_retokenized',src_sent_tokens_retokenized)
