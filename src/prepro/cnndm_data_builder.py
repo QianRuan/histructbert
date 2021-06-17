@@ -134,7 +134,7 @@ def obtain_histruct_info(doc, args, tokenizer):
                     continue
                 if src_para_tokens_retokenized[i] == []:
                     break               
-    #check that the lists are now empty
+    
     para_list=sum(src_para_tokens_retokenized,[])
     sent_list=sum(src_sent_tokens_retokenized,[])
     
@@ -145,6 +145,11 @@ def obtain_histruct_info(doc, args, tokenizer):
     #the remaining list should be empty
     if not sent_list==para_list==[]:
         skip=True
+        skip_reason='sentence structure vector not correctly generated'
+        print('sent_list',sent_list)
+        print('para_list',para_list)
+        print('src_sent_tokens_retokenized',src_sent_tokens_retokenized)
+        print('src_para_tokens_retokenized',src_para_tokens_retokenized)
     assert sent_list==para_list==[]
     
     #the SE should not be empty
