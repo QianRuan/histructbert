@@ -348,24 +348,19 @@ class ExtSummarizer(nn.Module):
             
             
         if(args.base_LM.startswith('bigbird-pegasus') and args.max_pos>4096):
-#            print('2#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
-#            print('before0',self.bert.model.config)
-#            print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
+
+            #encoder
             my_pos_embeddings = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
-            #my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:4096] = self.bert.model.encoder.embed_positions.weight.data
             my_pos_embeddings.weight.data[4096:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
             self.bert.model.encoder.embed_positions = my_pos_embeddings
-#            print('before',self.bert.model.config)
-#            self.bert.model.config.max_position_embeddings = args.max_pos
-#            self.bert.model.config.encoder_ffn_dim = args.max_pos
-#            print('after',self.bert.model.config)
-#            print(type(self.bert.model.encoder.embed_positions),self.bert.model.encoder.embed_positions)
-#            print(self.bert.model.encoder.embed_positions.weight.data)
-#            print('#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
-        
-        
-
+            
+            #decoder
+            my_pos_embeddings2 = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
+            my_pos_embeddings2.weight.data[:4096] = self.bert.model.decoder.embed_positions.weight.data
+            my_pos_embeddings2.weight.data[4096:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
+            self.bert.model.decoder.embed_positions = my_pos_embeddings2
+            
 
         if checkpoint is not None:
             self.load_state_dict(checkpoint['model'], strict=True)
