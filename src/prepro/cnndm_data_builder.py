@@ -91,23 +91,16 @@ def load_xml(p):
 
 
 
-def obtain_histruct_info(doc, src, tgt, args, tokenizer):
+def obtain_histruct_info(doc, args, tokenizer):
 
     #list of tokens
-    #src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
-    src_sent_tokens=src
+    src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
     src_para_tokens = doc['src_para_tokens']
-    overall_sent_pos = [i for i in range(len(src))]
+    overall_sent_pos = [i for i in range(len(src_sent_tokens))]
     
-    #pegasus tokenizer has problems tokenizing punctuation, do clean
-    import string
-    if (args.base_LM.startswith('bigbird-pegasus')):
-        #src_sent_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_sent_tokens]
-        src_para_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_para_tokens]
-        
     #do lowercase
     if (args.lower):
-        #src_sent_tokens = [' '.join(s).strip().lower().split() for s in src_sent_tokens]
+        src_sent_tokens = [' '.join(s).strip().lower().split() for s in src_sent_tokens]
         src_para_tokens = [' '.join(s).strip().lower().split() for s in src_para_tokens]
  
     #list of combined sentence/para text    
@@ -156,6 +149,7 @@ def obtain_histruct_info(doc, src, tgt, args, tokenizer):
     #check
     #the remaining list should be empty
     if not sent_list==para_list==[]:
+        logger.info('Skipped since the sentence structure vector is not correctly generated')
         skip=True
         skip_reason='sentence structure vector not correctly generated'
         print('#'*40,len(sent_list),len(para_list),sent_list==para_list)
@@ -172,7 +166,7 @@ def obtain_histruct_info(doc, src, tgt, args, tokenizer):
         logger.info('Skipped since the sentence structure vector is empty')
         skip=True
         skip_reason='empty sentence structure vector '
-    print("####################sent_struct_vec",len(sent_struct_vec),sent_struct_vec)
+#    print("####################sent_struct_vec",len(sent_struct_vec),sent_struct_vec)
     #obtain token structure info
     
     if not args.obtain_tok_se:
@@ -357,7 +351,7 @@ class BertData():
 #            return None
         
         #get hiarchical structural information 
-        skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, src, tgt, self.args, self.tokenizer)
+        skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
 #        skip, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
         
         if skip:
@@ -379,8 +373,6 @@ class BertData():
         #remove short sentences 
         src = [src[i] for i in idxs]
         sent_labels = [_sent_labels[i] for i in idxs]
-        print(len(_sent_struct_vec),_sent_struct_vec)
-        print(idxs)
         sent_struct_vec = [_sent_struct_vec[i] for i in idxs]
         overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
         if _token_struct_vec is None:
@@ -657,11 +649,11 @@ def _format_to_histruct(params):
         #get list of source sentences and gold summary sentences
         source, tgt = d['src'], d['tgt']
         
-        #pegasus tokenizer has problems tokenizing punctuation, do clean
-        import string
-        if (args.base_LM.startswith('bigbird-pegasus')):
-            source = [[ w.strip(string.punctuation) for w in s] for s in source]
-            tgt = [[ w.strip(string.punctuation) for w in s] for s in tgt]
+#        #pegasus tokenizer has problems tokenizing punctuation, do clean
+#        import string
+#        if (args.base_LM.startswith('bigbird-pegasus')):
+#            source = [[ w.strip(string.punctuation) for w in s] for s in source]
+#            tgt = [[ w.strip(string.punctuation) for w in s] for s in tgt]
         
         
         #get index of selected sentences (in oracle summary)
