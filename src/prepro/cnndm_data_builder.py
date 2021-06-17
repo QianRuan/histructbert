@@ -610,7 +610,7 @@ def _format_to_histruct(params):
             
     #check if the save file already exists
     if (os.path.exists(save_file)):
-        text = input("Save file %s already exisits. Do you want to remove it and redo preprocessing (yes or no) ?"%(save_file))
+        text = input("Save file already exisits. Do you want to remove it and redo preprocessing (yes or no) ?")
         if text.lower()=='yes':
             os.remove(save_file)
             logger.info('YES: Save file removed.')
