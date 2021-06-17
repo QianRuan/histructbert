@@ -378,6 +378,8 @@ class BertData():
         #remove short sentences 
         src = [src[i] for i in idxs]
         sent_labels = [_sent_labels[i] for i in idxs]
+        print(len(_sent_struct_vec),_sent_struct_vec)
+        print(idxs)
         sent_struct_vec = [_sent_struct_vec[i] for i in idxs]
         overall_sent_pos = [_overall_sent_pos[i] for i in idxs]
         if _token_struct_vec is None:
