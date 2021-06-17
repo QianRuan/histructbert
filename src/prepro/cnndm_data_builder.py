@@ -643,6 +643,13 @@ def _format_to_histruct(params):
         #get list of source sentences and gold summary sentences
         source, tgt = d['src'], d['tgt']
         
+        #pegasus tokenizer has problems tokenizing punctuation, do clean
+        import string
+        if (args.base_LM.startswith('bigbird-pegasus')):
+            source = [[ w.strip(string.punctuation) for w in s] for s in source]
+            tgt = [[ w.strip(string.punctuation) for w in s] for s in tgt]
+        
+        
         #get index of selected sentences (in oracle summary)
         if (args.summ_size!=0):
             if (args.max_src_nsents!=0):
@@ -660,8 +667,8 @@ def _format_to_histruct(params):
         
         #do lowercase
         if (args.lower):
-            source = [' '.join(s).lower().split() for s in source]
-            tgt = [' '.join(s).lower().split() for s in tgt]
+            source = [' '.join(s).strip().lower().split() for s in source]
+            tgt = [' '.join(s).strip().lower().split() for s in tgt]
             #print("####################sourcelower",len(source),source)
             #print("####################tgtlower",len(tgt),tgt)
                   
