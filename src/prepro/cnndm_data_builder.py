@@ -91,12 +91,23 @@ def load_xml(p):
 
 
 
-def obtain_histruct_info(doc, args, tokenizer):
+def obtain_histruct_info(doc, src, tgt, args, tokenizer):
 
     #list of tokens
     src_sent_tokens = doc['src'] #src_sent_tokens = doc['src_sent_tokens'] 
     src_para_tokens = doc['src_para_tokens']
-    overall_sent_pos = [i for i in range(len(src_sent_tokens))]
+    overall_sent_pos = [i for i in range(len(src))]
+    
+    #pegasus tokenizer has problems tokenizing punctuation, do clean
+    import string
+    if (args.base_LM.startswith('bigbird-pegasus')):
+        src_sent_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_sent_tokens]
+        src_para_tokens = [[ w.strip(string.punctuation) for w in s] for s in src_para_tokens]
+        
+    #do lowercase
+    if (args.lower):
+        src_sent_tokens = [' '.join(s).strip().lower().split() for s in src_sent_tokens]
+        src_para_tokens = [' '.join(s).strip().lower().split() for s in src_para_tokens]
  
     #list of combined sentence/para text    
     src_sent = [' '.join(sent) for sent in src_sent_tokens]
@@ -146,7 +157,7 @@ def obtain_histruct_info(doc, args, tokenizer):
     if not sent_list==para_list==[]:
         skip=True
         skip_reason='sentence structure vector not correctly generated'
-        print('#'*40,sent_list==para_list)
+        print('#'*40,len(sent_list),len(para_list),sent_list==para_list)
 #        list(filter(lambda a: a not in sent_list, para_list))
 #        list(filter(lambda a: a not in para_list, sent_list))
         print('sent_list',sent_list)
@@ -345,7 +356,7 @@ class BertData():
 #            return None
         
         #get hiarchical structural information 
-        skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
+        skip, skip_reason, section_names, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, src, tgt, self.args, self.tokenizer)
 #        skip, _overall_sent_pos, _sent_struct_vec, _token_struct_vec = obtain_histruct_info(doc, self.args, self.tokenizer)
         
         if skip:
