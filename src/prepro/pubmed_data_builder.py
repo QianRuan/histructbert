@@ -890,7 +890,7 @@ def encode_section_names(args):
                 embed = torch.sum(outputs,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
                 embed = torch.mean(outputs,dim=1).squeeze().tolist()
-            print('embed',embed.shape,embed)
+            print('embed',len(embed),embed)
             
             section_names_embed.update({section_name:embed})
             logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
