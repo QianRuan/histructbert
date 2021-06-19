@@ -644,8 +644,8 @@ def plot_best_summ_distribution(args, hs_step_best_models, baseline_step_best_mo
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-generate_eval_results_overview", type=str2bool, nargs='?',const=True,default=True)
-    parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=True,default=True)
-    parser.add_argument("-remove_step_models_also_best", type=str2bool, nargs='?',const=True,default=True)
+    parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument("-remove_step_models_also_best", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-plot_val_xent", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_best_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
