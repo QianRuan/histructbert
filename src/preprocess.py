@@ -84,6 +84,9 @@ if __name__ == '__main__':
     #section names encoding (pubmed&arxiv)
     parser.add_argument("-sn_embed_comb_mode", default='sum', type=str, choices=['sum', 'mean'])
     
+    ##bigbird_pegasus
+    parser.add_argument("-is_encoder_decoder", type=str2bool, nargs='?',const=False,default=False)
+    
     
   
 
