@@ -19,9 +19,8 @@ from multiprocess import Pool
 from others.logging import logger,init_logger
 from others.tokenization import BertTokenizer
 from transformers import RobertaTokenizer
-from transformers import PegasusTokenizer
 from transformers import LongformerModel, LongformerTokenizer
-from transformers import BigbirdPegasusModel
+from transformers import PegasusTokenizer, BigBirdPegasusModel
 
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
@@ -835,8 +834,6 @@ def obtain_section_names(args):
     logger.info("DONE")
     
 
-
-###############################################################################
 def encode_section_names(args):
     init_logger(args.log_file)
     with open(args.raw_path+'/unique_section_names.json', encoding='utf-8') as file:
@@ -871,10 +868,10 @@ def encode_section_names(args):
         logger.info('DONE! Section names embeddings are saved in '+path)
         
     elif args.base_LM.startswith('bigbird-pegasus'):
-        config = BigbirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
         if not args.is_encoder_decoder:
             config.decoder_layers = 0
-        model = BigbirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
         model.eval()
         tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM)
         
@@ -901,10 +898,8 @@ def encode_section_names(args):
         path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
         torch.save(section_names_embed,path)
         logger.info('DONE! Section names embeddings are saved in '+path)
-###############################################################################
-        
-    
 
+        
 def compute_statistics(args):
     
     stat_path = args.raw_path+'/statistics.json'
@@ -923,8 +918,6 @@ def compute_statistics(args):
     for f in glob.glob(pjoin(args.raw_path, '*.txt')):
         data = [json.loads(line) for line in open(f,'r',encoding='utf-8')]
         for doc in data:
-        
-            #doc=json.load(open(f, encoding='utf-8'))
             
             doc_len_para.append(len(doc["sections"]))
             doc_len_sent.append(len(doc["article_text"]))
@@ -943,9 +936,6 @@ def compute_statistics(args):
             re = get_novel_ngrams_percentage(flat_src, flat_summ, 1) 
             if re is not None:
                 novel_1grams.append(re)
-            
-            
-
         
     stat = {'avg. doc length(words)': round(statistics.mean(doc_len_word),2), 
             'min. doc length(words)': min(doc_len_word), 
@@ -989,171 +979,3 @@ def get_novel_ngrams_percentage(flat_src, flat_summ, ngrams):
         novel = len(summ_ngrams)-same
         return round((novel/len(summ_ngrams))*100,2)
 
-
-        
-
-#def extract_histruct_items(args):
-#    #tok_sent_dir = os.path.abspath(args.tok_sent_path)
-#    tok_para_dir = os.path.abspath(args.tok_para_path)
-#    histruct_dir = os.path.abspath(args.histruct_path)
-#    
-#    if not os.path.exists(histruct_dir):
-#        os.makedirs(histruct_dir)
-#        
-#    init_logger(args.log_file)
-#    logger.info("Extracting histruct items...")
-#    
-#    for f in glob.glob(pjoin(args.tok_sent_path, '*.json')):
-#       
-#        real_name = f.split('/')[-1].split('\\')[-1]
-#        histruct_story_path = histruct_dir+'\\'+real_name
-#        
-#        
-#        source, tgt = obtain_source_summ(f, args.lower)
-#        src_para_tokens = obtain_para(f,args.lower,tok_para_dir,real_name)
-#        doc = {'src': source, 'tgt':tgt, 'src_para_tokens':src_para_tokens}
-#
-#        with open(histruct_story_path, 'w+') as save:
-#                save.write(json.dumps(doc))
-#    logger.info("DONE")
-        
-    
-    
-
-#obtain list of sentences and list of paragraphs from source text
-#the results are kept to obtain hierarchical positions
-#def obtain_para(f,lower,tok_para_dir,real_name):
-#    
-#    para_story_path = tok_para_dir+'\\'+real_name #same name
-#    #print("###############sent_story_path",sent_story_path)
-#    #print("###############para_story_path",para_story_path)
-#    
-#    #get list of tokens of sentences from source text
-##    source_sent_tokens=[]
-##    flag =False
-##    for sent in json.load(open(sent_story_path, encoding='utf-8'))['sentences']:
-##        tokens = [t['word'] for t in sent['tokens']]
-##        if (lower):
-##            tokens = [t.lower() for t in tokens]
-##        if(tokens[0] == '@highlight'):
-##            flag = True
-##            #print("tokens",tokens)
-##            #print("flag",flag)
-##            continue
-##        if (not flag):
-##            source_sent_tokens.append(tokens)
-#    #print (len(source_sent_tokens),source_sent_tokens)
-#    
-#    #get list of tokens of paragraphs from source text
-#    source_para_tokens=[]
-#    tgt_para_tokens=[]
-#    flag =False
-#    for sent in json.load(open(para_story_path, encoding='utf-8'))['sentences']:
-#        tokens = [t['word'] for t in sent['tokens']]
-#        if (lower):
-#            tokens = [t.lower() for t in tokens]
-#        if(tokens[0] == '@highlight'):
-#            flag = True
-#            tgt_para_tokens.append([])
-#            continue
-#        if (flag):
-#            tgt_para_tokens[-1].extend(tokens)
-#        else:
-#            source_para_tokens.append(tokens)
-#            
-#    source_para_tokens = [clean(' '.join(para)).split() for para in source_para_tokens]        
-#    
-#    return source_para_tokens
-#
-#def obtain_source_summ(p, lower):
-#    source = []
-#    tgt = []
-#    flag = False
-#    for sent in json.load(open(p, encoding='utf-8'))['sentences']:
-#        tokens = [t['word'] for t in sent['tokens']]
-#        if (lower):
-#            tokens = [t.lower() for t in tokens]
-#        if (tokens[0] == '@highlight'):
-#            flag = True
-#            tgt.append([])
-#            continue
-#        if (flag):
-#            tgt[-1].extend(tokens)
-#        else:
-#            source.append(tokens)
-#
-#    source = [clean(' '.join(sent)).split() for sent in source]
-#    tgt = [clean(' '.join(sent)).split() for sent in tgt]
-#    return source, tgt
-#
-#
-#def tokenize(args):
-#    stories_dir = os.path.abspath(args.raw_path)
-#    tok_sent_dir = os.path.abspath(args.tok_sent_path)
-#    tok_para_dir = os.path.abspath(args.tok_para_path)
-#    init_logger(args.log_file)
-#    
-#    
-#    if os.path.exists(tok_sent_dir):
-#        logger.info("SENT - Save path %s already exisits, remove it!" % (tok_sent_dir))
-#        shutil.rmtree(tok_sent_dir)
-#    if os.path.exists(tok_para_dir):
-#        logger.info("PARA - Save path %s already exisits, remove it!" % (tok_para_dir))
-#        shutil.rmtree(tok_para_dir)
-#        
-#        
-#        
-#    logger.info("Preparing to tokenize %s" % (stories_dir))    
-#    stories = os.listdir(stories_dir)
-#    # make IO list file
-#    logger.info("Making list of files to tokenize...")
-#    with open("mapping_for_corenlp.txt", "w") as f:
-#        for s in stories:
-#            if (not s.endswith('story')):
-#                continue
-#            f.write("%s\n" % (os.path.join(stories_dir, s)))
-#
-##    #split sentences
-##    command_sent = [corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-##               '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-##               'json', '-outputDirectory', tok_sent_dir]
-##    
-##    #split paragraphs
-##    command_para = [corenlp_path, 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-##               '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-##               'json', '-outputDirectory', tok_para_dir]#
-#    
-#    #split sentences
-#    command_sent = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-#               '-ssplit.newlineIsSentenceBreak', 'always', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-#               'json', '-outputDirectory', tok_sent_dir]
-#    
-#    #split paragraphs
-#    command_para = ['java', 'edu.stanford.nlp.pipeline.StanfordCoreNLP', '-annotators', 'tokenize,ssplit',
-#               '-ssplit.eolonly', 'true', '-filelist', 'mapping_for_corenlp.txt', '-outputFormat',
-#               'json', '-outputDirectory', tok_para_dir]#
-#    
-#    logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_sent_dir))
-#    subprocess.call(command_sent,shell=True)
-#    logger.info("SENT - Stanford CoreNLP Tokenizer has finished.")
-#    #os.remove("mapping_for_corenlp.txt")
-#    
-#    logger.info("Tokenizing %i files in %s and saving in %s..." % (len(stories), stories_dir, tok_para_dir))
-#    subprocess.call(command_para,shell=True)#
-#    logger.info("PARA - Stanford CoreNLP Tokenizer has finished.")
-#    os.remove("mapping_for_corenlp.txt")
-#
-#    # Check that the tokenized stories directory contains the same number of files as the original directory
-#    num_orig = len(os.listdir(stories_dir))
-#    num_tokenized_para = len(os.listdir(tok_para_dir))
-#    num_tokenized_sent = len(os.listdir(tok_sent_dir))
-#    if num_orig != num_tokenized_sent:
-#        raise Exception(
-#            "The tokenized stories directory %s contains %i files, but it should contain the same number as %s (which has %i files). Was there an error during tokenization?" % (
-#                tok_sent_dir, num_tokenized_sent, stories_dir, num_orig))
-#    if num_orig != num_tokenized_para:
-#        raise Exception(
-#            "The tokenized stories directory %s contains %i files, but it should contain the same number as %s (which has %i files). Was there an error during tokenization?" % (
-#                tok_para_dir, num_tokenized_para, stories_dir, num_orig))
-#    logger.info("Successfully finished tokenizing %s to %s.\n" % (stories_dir, tok_para_dir))
-#    logger.info("Successfully finished tokenizing %s to %s.\n" % (stories_dir, tok_sent_dir))
