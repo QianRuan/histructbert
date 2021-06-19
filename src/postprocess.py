@@ -668,7 +668,7 @@ if __name__ == '__main__':
     if (args.remove_step_models):
 
         not_removed = []
-        if(args.remove_step_models_also_best):
+        if not (args.remove_step_models_also_best):
             flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
             flat2 = [item[0] for sublist in list(baseline_step_best_models.values()) for item in sublist]
             flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
