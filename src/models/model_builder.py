@@ -157,8 +157,11 @@ class Roberta(nn.Module):
     def forward(self, x, segs, mask):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
-            print('segs',segs)
+            print('segs',segs.shape,segs)
+            token_type_ids = torch.zeros(x.size(), dtype=torch.long)
+            print('token_type_ids',token_type_ids.shape,token_type_ids)
             print(self.model.embeddings.token_type_embeddings)
+            print(self.model.embeddings.token_type_embeddings(segs))
             top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
         else:
             self.eval()
