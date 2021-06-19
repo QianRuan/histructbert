@@ -174,7 +174,7 @@ class Roberta(nn.Module):
     def forward(self, x,  mask):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
-            position_ids = create_position_ids_from_input_ids(x, self.model.config.pad_token_id, 0)
+            position_ids = create_position_ids_from_input_ids(x, 0, 0)
             print('position_ids',position_ids.shape,position_ids)
             top_vec = self.model(x, attention_mask=mask).last_hidden_state
         else:
