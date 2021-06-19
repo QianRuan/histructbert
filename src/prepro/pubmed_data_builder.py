@@ -21,7 +21,7 @@ from others.tokenization import BertTokenizer
 from transformers import RobertaTokenizer
 from transformers import PegasusTokenizer
 from transformers import LongformerModel, LongformerTokenizer
-from transformers import BigbirdPegasusTokenizer,BigbirdPegasusModel
+from transformers import BigbirdPegasusModel
 
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
@@ -876,7 +876,7 @@ def encode_section_names(args):
             config.decoder_layers = 0
         model = BigbirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
         model.eval()
-        tokenizer = BigbirdPegasusTokenizer.from_pretrained('google/'+args.base_LM)
+        tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM)
         
         section_names_embed={}
         
