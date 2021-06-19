@@ -570,29 +570,32 @@ def plot_val_xent(args):
         if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
             
             val_xent_path = eval_path + val_xents_file
-            with open(val_xent_path, 'r') as f:
-                val_xents = json.load(f)
-                
-                val_xents_dict = {}
-                steps = []
-                for v in val_xents:
-                    xent = round(v[0],2)
-                
-                    step = int(v[1].split('/')[-1].split('_')[-1].split('.')[0])#
+            if os.path.exists(val_xent_path):
+                with open(val_xent_path, 'r') as f:
+                    val_xents = json.load(f)
                     
-                    steps.append(step)
-                    val_xents_dict.update({step:xent})
-                steps.sort()
-                xents = [val_xents_dict[step] for step in steps]
-                
-                png_file = eval_path+'val.xents.png'
-                
-                plt.plot(steps, xents)
-                plt.title('val_xents: '+model)
-                plt.ylabel('val_xents', fontsize='large')
-                plt.xlabel('step', fontsize='large')
-                plt.savefig(png_file, bbox_inches='tight')
-                plt.close()      
+                    val_xents_dict = {}
+                    steps = []
+                    for v in val_xents:
+                        xent = round(v[0],2)
+                    
+                        step = int(v[1].split('/')[-1].split('_')[-1].split('.')[0])#
+                        
+                        steps.append(step)
+                        val_xents_dict.update({step:xent})
+                    steps.sort()
+                    xents = [val_xents_dict[step] for step in steps]
+                    
+                    png_file = eval_path+'val.xents.png'
+                    
+                    plt.plot(steps, xents)
+                    plt.title('val_xents: '+model)
+                    plt.ylabel('val_xents', fontsize='large')
+                    plt.xlabel('step', fontsize='large')
+                    plt.savefig(png_file, bbox_inches='tight')
+                    plt.close()   
+            else:
+                logger.info("---Validation loss was not saved, skip it-------%s"%(model))
                 
            
         else:
