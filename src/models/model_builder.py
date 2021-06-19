@@ -158,7 +158,7 @@ class Roberta(nn.Module):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
             print('segs',segs)
-            print(self.model.embeddings.token_type_embeddings.shape,self.model.embeddings.token_type_embeddings)
+            print(self.model.embeddings.token_type_embeddings)
             top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
         else:
             self.eval()
