@@ -147,22 +147,6 @@ class Bert(nn.Module):
                 top_vec, _ = self.model(x, segs, attention_mask=mask)
         return top_vec
     
-def create_position_ids_from_input_ids(input_ids, padding_idx, past_key_values_length=0):
-    """
-    Replace non-padding symbols with their position numbers. Position numbers begin at padding_idx+1. Padding symbols
-    are ignored. This is modified from fairseq's `utils.make_positions`.
-
-    Args:
-        x: torch.Tensor x:
-
-    Returns: torch.Tensor
-    """
-    # The series of casts and type-conversions here are carefully balanced to both work with ONNX export and XLA.
-    print(padding_idx)
-    mask = input_ids.ne(padding_idx).int()
-    print(mask)
-    incremental_indices = (torch.cumsum(mask, dim=1).type_as(mask) + past_key_values_length) * mask
-    return incremental_indices.long() + padding_idx
 
 class Roberta(nn.Module):
     def __init__(self, base_LM, temp_dir, finetune):
@@ -172,20 +156,16 @@ class Roberta(nn.Module):
         self.finetune = finetune
 
     def forward(self, x,  mask):
+        #position_ids
+        seq_length = x.size(1)
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
+        position_ids = position_ids.unsqueeze(0).expand_as(x)
         if(self.finetune):
-#            top_vec, _ = self.model(x,  attention_mask=mask)
-            #position_ids = create_position_ids_from_input_ids(x, 0, 0)
-            #position_ids
-            seq_length = x.size(1)
-            position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
-            position_ids = position_ids.unsqueeze(0).expand_as(x)
-            print('position_ids',position_ids.shape,position_ids)
             top_vec = self.model(x, attention_mask=mask,position_ids=position_ids).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-#                top_vec, _ = self.model(x, attention_mask=mask)
-                top_vec = self.model(x, attention_mask=mask).last_hidden_state
+                top_vec = self.model(x, attention_mask=mask,position_ids=position_ids).last_hidden_state
         return top_vec
     
 class Longformer(nn.Module):
