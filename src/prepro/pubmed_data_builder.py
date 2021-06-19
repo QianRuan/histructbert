@@ -18,8 +18,10 @@ from multiprocess import Pool
 
 from others.logging import logger,init_logger
 from others.tokenization import BertTokenizer
-from pytorch_transformers import RobertaTokenizer,RobertaModel
+from transformers import RobertaTokenizer
 from transformers import PegasusTokenizer
+from transformers import LongformerModel, LongformerTokenizer
+from transformers import BigbirdPegasusTokenizer,BigbirdPegasusModel
 
 from others.utils import clean
 from prepro.utils import _get_word_ngrams
@@ -833,7 +835,7 @@ def obtain_section_names(args):
     logger.info("DONE")
     
 
-from transformers import LongformerModel, LongformerTokenizer
+
 ###############################################################################
 def encode_section_names(args):
     init_logger(args.log_file)
@@ -855,6 +857,32 @@ def encode_section_names(args):
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
             outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+            if args.sn_embed_comb_mode=='sum':
+                embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
+            elif args.sn_embed_comb_mode=='mean':
+                embed = torch.mean(outputs.last_hidden_state,dim=1).squeeze().tolist()
+            
+            section_names_embed.update({section_name:embed})
+            logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+        
+        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
+        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
+        torch.save(section_names_embed,path)
+        logger.info('DONE! Section names embeddings are saved in '+path)
+        
+    elif args.base_LM.startswith('bigbird-pegasus'):
+        config = BigbirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+        if not args.is_encoder_decoder:
+            config.decoder_layers = 0
+        model = BigbirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        model.eval()
+        tokenizer = BigbirdPegasusTokenizer.from_pretrained('google/'+args.base_LM)
+        
+        section_names_embed={}
+        
+        for section_name in section_names:           
+            input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
+            outputs = model(input_ids).encoder_last_hidden_state
             if args.sn_embed_comb_mode=='sum':
                 embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
