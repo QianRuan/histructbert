@@ -883,13 +883,19 @@ def encode_section_names(args):
         for section_name in section_names:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             outputs = model(input_ids).encoder_last_hidden_state
+            print('section_name',section_name)
+            print(tokenizer.encode(section_name))
+            print('input_ids',input_ids.shape,input_ids)
             if args.sn_embed_comb_mode=='sum':
                 embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
                 embed = torch.mean(outputs.last_hidden_state,dim=1).squeeze().tolist()
+            print('embed',embed.shape,embed)
             
             section_names_embed.update({section_name:embed})
             logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+            if len(section_names_embed)==10:
+                assert 1==2
         
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
         path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
