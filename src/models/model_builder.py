@@ -154,21 +154,15 @@ class Roberta(nn.Module):
         
         self.finetune = finetune
 
-    def forward(self, x, segs, mask):
+    def forward(self, x,  mask):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
-            print('segs',segs.shape,segs,segs[1])
-            token_type_ids = torch.zeros(x.size(), dtype=torch.long)
-            print('token_type_ids',token_type_ids.shape,token_type_ids,token_type_ids[1])
-            print(self.model.embeddings.token_type_embeddings)
-            
             top_vec = self.model(x, attention_mask=mask).last_hidden_state
-#            top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
 #                top_vec, _ = self.model(x, attention_mask=mask)
-                top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
+                top_vec = self.model(x, attention_mask=mask).last_hidden_state
         return top_vec
     
 class Longformer(nn.Module):
@@ -396,7 +390,7 @@ class ExtSummarizer(nn.Module):
         self.to(device)
 
     def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec, section_names):#
-        if (self.args.base_LM.startswith('bert') or self.args.base_LM.startswith('roberta')):
+        if (self.args.base_LM.startswith('bert')): #need segs
             if (self.args.add_tok_struct_emb):
                 top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
             else: 
@@ -406,7 +400,7 @@ class ExtSummarizer(nn.Module):
                 logger.info('add_tok_struct_emb is not implemented for the base model %s, please set -add_tok_struct_emb false'%self.args.base_LM)
                 exit()
             else: 
-                if self.args.base_LM.startswith('longformer'):
+                if self.args.base_LM.startswith('longformer'): #need clss
                     top_vec = self.bert(src, mask_src, clss)
                 else:
                     top_vec = self.bert(src, mask_src)
