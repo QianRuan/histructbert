@@ -853,11 +853,11 @@ def encode_section_names(args):
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
-            outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask)
+            outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
             if args.sn_embed_comb_mode=='sum':
-                embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
+                embed = torch.sum(outputs,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
-                embed = torch.mean(outputs.last_hidden_state,dim=1).squeeze().tolist()
+                embed = torch.mean(outputs,dim=1).squeeze().tolist()
             
             section_names_embed.update({section_name:embed})
             logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
@@ -871,22 +871,25 @@ def encode_section_names(args):
         config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
         if not args.is_encoder_decoder:
             config.decoder_layers = 0
-        model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir,config=config)
         model.eval()
-        tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM)
+        tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM, cache_dir=args.temp_dir)
         
         section_names_embed={}
         
         for section_name in section_names:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
-            outputs = model(input_ids).encoder_last_hidden_state
+            if not args.is_encoder_decoder:
+                outputs = model(input_ids).encoder_last_hidden_state
+            else:
+                outputs = model(input_ids).last_hidden_state
             print('section_name',section_name)
             print(tokenizer.encode(section_name))
             print('input_ids',input_ids.shape,input_ids)
             if args.sn_embed_comb_mode=='sum':
-                embed = torch.sum(outputs.last_hidden_state,dim=1).squeeze().tolist()
+                embed = torch.sum(outputs,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
-                embed = torch.mean(outputs.last_hidden_state,dim=1).squeeze().tolist()
+                embed = torch.mean(outputs,dim=1).squeeze().tolist()
             print('embed',embed.shape,embed)
             
             section_names_embed.update({section_name:embed})
