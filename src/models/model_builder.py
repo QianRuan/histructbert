@@ -146,6 +146,21 @@ class Bert(nn.Module):
             with torch.no_grad():
                 top_vec, _ = self.model(x, segs, attention_mask=mask)
         return top_vec
+    
+def create_position_ids_from_input_ids(input_ids, padding_idx, past_key_values_length=0):
+    """
+    Replace non-padding symbols with their position numbers. Position numbers begin at padding_idx+1. Padding symbols
+    are ignored. This is modified from fairseq's `utils.make_positions`.
+
+    Args:
+        x: torch.Tensor x:
+
+    Returns: torch.Tensor
+    """
+    # The series of casts and type-conversions here are carefully balanced to both work with ONNX export and XLA.
+    mask = input_ids.ne(padding_idx).int()
+    incremental_indices = (torch.cumsum(mask, dim=1).type_as(mask) + past_key_values_length) * mask
+    return incremental_indices.long() + padding_idx
 
 class Roberta(nn.Module):
     def __init__(self, base_LM, temp_dir, finetune):
@@ -157,6 +172,8 @@ class Roberta(nn.Module):
     def forward(self, x,  mask):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
+            position_ids = create_position_ids_from_input_ids(x, self.model.config.pad_token_id, 0)
+            print('position_ids',position_ids.shape,position_ids)
             top_vec = self.model(x, attention_mask=mask).last_hidden_state
         else:
             self.eval()
