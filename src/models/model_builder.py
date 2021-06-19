@@ -3,7 +3,8 @@ import copy
 import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
-from pytorch_transformers import RobertaModel
+#from pytorch_transformers import RobertaModel
+from transformers import RobertaModel
 from transformers import LongformerModel,LongformerConfig
 from transformers import PegasusTokenizer, BigBirdPegasusModel
 from transformers.models.bigbird_pegasus.modeling_bigbird_pegasus import BigBirdPegasusLearnedPositionalEmbedding
@@ -153,15 +154,15 @@ class Roberta(nn.Module):
         
         self.finetune = finetune
 
-    def forward(self, x, mask):
+    def forward(self, x, segs, mask):
         if(self.finetune):
-            top_vec, _ = self.model(x,  attention_mask=mask)
-#            top_vec, _ = self.model(x, segs, attention_mask=mask)
+#            top_vec, _ = self.model(x,  attention_mask=mask)
+            top_vec = self.model(x, segs, attention_mask=mask).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
-                top_vec, _ = self.model(x, attention_mask=mask)
-#                top_vec, _ = self.model(x, segs, attention_mask=mask)
+#                top_vec, _ = self.model(x, attention_mask=mask)
+                top_vec = self.model(x, segs, attention_mask=mask).last_hidden_state
         return top_vec
     
 class Longformer(nn.Module):
@@ -389,7 +390,7 @@ class ExtSummarizer(nn.Module):
         self.to(device)
 
     def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec,tok_struct_vec, section_names):#
-        if (self.args.base_LM.startswith('bert')):
+        if (self.args.base_LM.startswith('bert') or self.args.base_LM.startswith('roberta')):
             if (self.args.add_tok_struct_emb):
                 top_vec = self.bert(src, segs, mask_src, tok_struct_vec)
             else: 
