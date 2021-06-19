@@ -174,9 +174,13 @@ class Roberta(nn.Module):
     def forward(self, x,  mask):
         if(self.finetune):
 #            top_vec, _ = self.model(x,  attention_mask=mask)
-            position_ids = create_position_ids_from_input_ids(x, 0, 0)
+            #position_ids = create_position_ids_from_input_ids(x, 0, 0)
+            #position_ids
+            seq_length = x.size(1)
+            position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
+            position_ids = position_ids.unsqueeze(0).expand_as(x)
             print('position_ids',position_ids.shape,position_ids)
-            top_vec = self.model(x, attention_mask=mask).last_hidden_state
+            top_vec = self.model(x, attention_mask=mask,position_ids=position_ids).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
