@@ -19,7 +19,7 @@ import distributed
 from models import data_loader, model_builder
 from models.data_loader import load_dataset
 from models.model_builder import ExtSummarizer
-from models.trainer_ext import build_trainer,get_cand_list
+from models.trainer_ext import build_trainer
 from others.logging import logger, init_logger
 from others.utils import rouge_results_to_str
 
