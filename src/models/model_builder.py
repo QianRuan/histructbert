@@ -245,7 +245,7 @@ class Bart(nn.Module):
             if not self.args.is_encoder_decoder :
                 if self.args.pooled_encoder_output:
                     _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
-                    top_vec = self.pooler( _top_vec)
+                    top_vec = self.model.pooler( _top_vec)
                 else:
                     top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
             else:
@@ -257,7 +257,7 @@ class Bart(nn.Module):
                 if not self.args.is_encoder_decoder:
                     if self.args.pooled_encoder_output:
                         _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
-                        top_vec = self.pooler( _top_vec)
+                        top_vec = self.model.pooler( _top_vec)
                     else:
                         top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
                 else:
@@ -282,7 +282,7 @@ class BigBirdPegasus(nn.Module):
         self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
         
         if not args.is_encoder_decoder and args.pooled_encoder_output:
-            self.model.decoder=MyPooler(config)
+            self.model.pooler=MyPooler(config)
         
         self.finetune = args.finetune_bert
 
@@ -293,7 +293,7 @@ class BigBirdPegasus(nn.Module):
             if not self.args.is_encoder_decoder :
                 if self.args.pooled_encoder_output:
                     _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
-                    top_vec = self.pooler(_top_vec)
+                    top_vec = self.model.pooler(_top_vec)
                 else:
                     top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
             else:
@@ -305,7 +305,7 @@ class BigBirdPegasus(nn.Module):
                 if not self.args.is_encoder_decoder:
                     if self.args.pooled_encoder_output:
                         _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
-                        top_vec = self.pooler(_top_vec)
+                        top_vec = self.model.pooler(_top_vec)
                     else:
                         top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
                 else:
