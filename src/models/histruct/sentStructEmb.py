@@ -92,7 +92,7 @@ class LASentAddEmb(nn.Module):
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
         
-        if args.base_LM.startswith('bigbird-pegasus'):
+        if args.base_LM.startswith('bigbird-pegasus') or args.base_LM.startswith('bart'):
             self.LayerNorm = nn.LayerNorm(config.d_model)
             self.dropout = nn.Dropout(config.dropout)
         else:
