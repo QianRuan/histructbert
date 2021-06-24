@@ -442,13 +442,13 @@ class ExtSummarizer(nn.Module):
             #encoder
             my_pos_embeddings = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:1026] = self.bert.model.encoder.embed_positions.weight.data
-            my_pos_embeddings.weight.data[1026:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1026,1)
+            my_pos_embeddings.weight.data[1026:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
             self.bert.model.encoder.embed_positions = my_pos_embeddings
             
             #decoder
             my_pos_embeddings2 = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings2.weight.data[:1026] = self.bert.model.decoder.embed_positions.weight.data
-            my_pos_embeddings2.weight.data[1026:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1026,1)
+            my_pos_embeddings2.weight.data[1026:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
             self.bert.model.decoder.embed_positions = my_pos_embeddings2
             
 
