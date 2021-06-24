@@ -437,18 +437,18 @@ class ExtSummarizer(nn.Module):
             my_pos_embeddings2.weight.data[4096:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
             self.bert.model.decoder.embed_positions = my_pos_embeddings2
             
-        if(args.base_LM.startswith('bart') and args.max_pos>1024):
+        if(args.base_LM.startswith('bart') and args.max_pos>1026):
 
             #encoder
             my_pos_embeddings = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
-            my_pos_embeddings.weight.data[:1024] = self.bert.model.encoder.embed_positions.weight.data
-            my_pos_embeddings.weight.data[1024:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
+            my_pos_embeddings.weight.data[:1026] = self.bert.model.encoder.embed_positions.weight.data
+            my_pos_embeddings.weight.data[1026:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1026,1)
             self.bert.model.encoder.embed_positions = my_pos_embeddings
             
             #decoder
             my_pos_embeddings2 = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
-            my_pos_embeddings2.weight.data[:1024] = self.bert.model.decoder.embed_positions.weight.data
-            my_pos_embeddings2.weight.data[1024:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
+            my_pos_embeddings2.weight.data[:1026] = self.bert.model.decoder.embed_positions.weight.data
+            my_pos_embeddings2.weight.data[1026:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1026,1)
             self.bert.model.decoder.embed_positions = my_pos_embeddings2
             
 
@@ -480,11 +480,8 @@ class ExtSummarizer(nn.Module):
                     top_vec = self.bert(src, mask_src, clss)
                 else:
                     top_vec = self.bert(src, mask_src)
-        print(top_vec.shape,top_vec) 
-        print(clss.shape,clss) 
-        print(torch.arange(top_vec.size(0)).unsqueeze(1).shape,torch.arange(top_vec.size(0)).unsqueeze(1))
         sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
-        print('sents_vec',sents_vec.shape,sents_vec)
+       
         sents_vec = sents_vec * mask_cls[:, :, None].float()
 #        print('sents_vec',sents_vec.shape,sents_vec)
 #        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
