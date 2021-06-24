@@ -5,9 +5,11 @@ import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
 #from pytorch_transformers import RobertaModel
 from transformers import RobertaModel
+from transformers import BartModel
 from transformers import LongformerModel,LongformerConfig
 from transformers import PegasusTokenizer, BigBirdPegasusModel
 from transformers.models.bigbird_pegasus.modeling_bigbird_pegasus import BigBirdPegasusLearnedPositionalEmbedding
+from transformers.models.bart.modeling_bart import BartLearnedPositionalEmbedding
 from torch.nn.init import xavier_uniform_
 from others.logging import logger,init_logger
 from models.decoder import TransformerDecoder
@@ -217,23 +219,22 @@ class Longformer(nn.Module):
                     top_vec  = self.model(x, position_ids=position_ids, attention_mask=attention_mask, global_attention_mask=None).last_hidden_state
         return top_vec
     
-class BigBirdPegasus(nn.Module):
+class Bart(nn.Module):
     def __init__(self, args):
-        super(BigBirdPegasus, self).__init__()
+        super(Bart, self).__init__()
         
         self.args=args
+        config = BartModel.from_pretrained('facebook/'+args.base_LM, cache_dir=args.temp_dir).config
         
-        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
-#        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
-#        self.bert.model.config.max_position_embeddings = args.max_pos
+
         
         if not args.is_encoder_decoder:
             config.decoder_layers = 0
         
-        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        self.model = BartModel.from_pretrained('facebook/'+args.base_LM, cache_dir=args.temp_dir,config=config)
         
-#        if not args.is_encoder_decoder:
-#            self.model.decoder=BigBirdPegasusPooler(config)
+        if not args.is_encoder_decoder and args.pooled_encoder_output:
+            self.model.decoder=MyPooler(config)
         
         self.finetune = args.finetune_bert
 
@@ -241,7 +242,7 @@ class BigBirdPegasus(nn.Module):
         
         if(self.finetune):
             
-            if not self.args.is_encoder_decoder:
+            if not self.args.is_encoder_decoder and not self.args.pooled_encoder_output:
                 top_vec  = self.model(x,  attention_mask=mask).encoder_last_hidden_state
             else:
                 top_vec  = self.model(x,  attention_mask=mask).last_hidden_state 
@@ -257,8 +258,49 @@ class BigBirdPegasus(nn.Module):
 #        print('top_vec',top_vec.shape,top_vec)       
         return top_vec
     
+class BigBirdPegasus(nn.Module):
+    def __init__(self, args):
+        super(BigBirdPegasus, self).__init__()
+        
+        self.args=args
+        
+        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+#        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+#        self.bert.model.config.max_position_embeddings = args.max_pos
+        
+        if not args.is_encoder_decoder:
+            config.decoder_layers = 0
+        
+        self.model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM,cache_dir=args.temp_dir,config=config)
+        
+        if not args.is_encoder_decoder and args.pooled_encoder_output:
+            self.model.decoder=MyPooler(config)
+        
+        self.finetune = args.finetune_bert
+
+    def forward(self, x, mask):
+        
+        if(self.finetune):
+            
+            if not self.args.is_encoder_decoder and not self.args.pooled_encoder_output:
+                top_vec  = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+            else:
+                top_vec  = self.model(x,  attention_mask=mask).last_hidden_state 
+        else:
+            
+            self.eval()
+            with torch.no_grad():
+                if not self.args.is_encoder_decoder:
+                    top_vec  = self.model(x, attention_mask=mask).encoder_last_hidden_state
+                else:
+                    top_vec  = self.model(x, attention_mask=mask).last_hidden_state
+                
+#        print('top_vec',top_vec.shape,top_vec)       
+        return top_vec
+    
+    
 # Copied from transformers.models.bert.modeling_bert.BertPooler
-class BigBirdPegasusPooler(nn.Module):
+class MyPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = nn.Linear(config.hidden_size, config.hidden_size)
@@ -319,6 +361,9 @@ class ExtSummarizer(nn.Module):
                 self.bert = Longformer(args)
             elif (args.base_LM.startswith('bigbird-pegasus')):
                 self.bert = BigBirdPegasus(args)
+            elif (args.base_LM.startswith('bart')):
+                self.bert = Bart(args)
+                
                 
             logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
             logger.info("-----use original BERT learnable PosEmb, base LM: "+args.base_LM)
@@ -362,8 +407,6 @@ class ExtSummarizer(nn.Module):
             my_pos_embeddings.weight.data = self.bert.model.embeddings.position_embeddings.weight.data[:args.max_pos]
             self.bert.model.embeddings.position_embeddings = my_pos_embeddings
             
-            
-            
         if(args.base_LM.startswith('bigbird-pegasus') and args.max_pos>4096):
 
             #encoder
@@ -376,6 +419,20 @@ class ExtSummarizer(nn.Module):
             my_pos_embeddings2 = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings2.weight.data[:4096] = self.bert.model.decoder.embed_positions.weight.data
             my_pos_embeddings2.weight.data[4096:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-4096,1)
+            self.bert.model.decoder.embed_positions = my_pos_embeddings2
+            
+        if(args.base_LM.startswith('bart') and args.max_pos>1024):
+
+            #encoder
+            my_pos_embeddings = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
+            my_pos_embeddings.weight.data[:1024] = self.bert.model.encoder.embed_positions.weight.data
+            my_pos_embeddings.weight.data[1024:] = self.bert.model.encoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
+            self.bert.model.encoder.embed_positions = my_pos_embeddings
+            
+            #decoder
+            my_pos_embeddings2 = BartLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
+            my_pos_embeddings2.weight.data[:1024] = self.bert.model.decoder.embed_positions.weight.data
+            my_pos_embeddings2.weight.data[1024:] = self.bert.model.decoder.embed_positions.weight.data[-1][None,:].repeat(args.max_pos-1024,1)
             self.bert.model.decoder.embed_positions = my_pos_embeddings2
             
 

@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument("-task", default='ext', type=str, choices=['ext', 'abs'])
     parser.add_argument("-encoder", default='bert', type=str, choices=['bert', 'baseline'])
     parser.add_argument("-mode", default='train', type=str, choices=['train', 'validate', 'test','test_steps','lead','oracle'])
-    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','roberta-large','longformer-base-4096','longformer-large-4096','bigbird-pegasus-large-arxiv','bigbird-pegasus-large-pubmed'])
+    parser.add_argument("-base_LM", default='bert-base', type=str, choices=['bert-base', 'bert-large', 'roberta-base','roberta-large','bart-base','bart-large','longformer-base-4096','longformer-large-4096','bigbird-pegasus-large-arxiv','bigbird-pegasus-large-pubmed'])
     parser.add_argument("-add_tok_struct_emb", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-add_sent_struct_emb", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-tok_se_comb_mode", default='concat', type=str, choices=['sum', 'mean', 'concat'])
@@ -52,8 +52,9 @@ if __name__ == '__main__':
     parser.add_argument("-use_global_attention", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-local_attention_window", default=512, type=int)
     
-    #bigbird_pegasus
+    #bigbird_pegasus , bart to encoder-only model
     parser.add_argument("-is_encoder_decoder", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument("-pooled_encoder_output", type=str2bool, nargs='?',const=True,default=True)
     
     
     #section names embeddings
