@@ -234,7 +234,7 @@ class Bart(nn.Module):
         self.model = BartModel.from_pretrained('facebook/'+args.base_LM, cache_dir=args.temp_dir,config=config)
         
         if not args.is_encoder_decoder and args.pooled_encoder_output:
-            self.model.decoder=MyPooler(config)
+            self.model.pooler=MyPooler(config)
         
         self.finetune = args.finetune_bert
 
@@ -242,8 +242,12 @@ class Bart(nn.Module):
         
         if(self.finetune):
             
-            if not self.args.is_encoder_decoder and not self.args.pooled_encoder_output:
-                top_vec  = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+            if not self.args.is_encoder_decoder :
+                if self.args.pooled_encoder_output:
+                    _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+                    top_vec = self.pooler( _top_vec)
+                else:
+                    top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
             else:
                 top_vec  = self.model(x,  attention_mask=mask).last_hidden_state 
         else:
@@ -251,7 +255,11 @@ class Bart(nn.Module):
             self.eval()
             with torch.no_grad():
                 if not self.args.is_encoder_decoder:
-                    top_vec  = self.model(x, attention_mask=mask).encoder_last_hidden_state
+                    if self.args.pooled_encoder_output:
+                        _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+                        top_vec = self.pooler( _top_vec)
+                    else:
+                        top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
                 else:
                     top_vec  = self.model(x, attention_mask=mask).last_hidden_state
                 
@@ -282,8 +290,12 @@ class BigBirdPegasus(nn.Module):
         
         if(self.finetune):
             
-            if not self.args.is_encoder_decoder and not self.args.pooled_encoder_output:
-                top_vec  = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+            if not self.args.is_encoder_decoder :
+                if self.args.pooled_encoder_output:
+                    _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+                    top_vec = self.pooler(_top_vec)
+                else:
+                    top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
             else:
                 top_vec  = self.model(x,  attention_mask=mask).last_hidden_state 
         else:
@@ -291,7 +303,11 @@ class BigBirdPegasus(nn.Module):
             self.eval()
             with torch.no_grad():
                 if not self.args.is_encoder_decoder:
-                    top_vec  = self.model(x, attention_mask=mask).encoder_last_hidden_state
+                    if self.args.pooled_encoder_output:
+                        _top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
+                        top_vec = self.pooler(_top_vec)
+                    else:
+                        top_vec = self.model(x,  attention_mask=mask).encoder_last_hidden_state
                 else:
                     top_vec  = self.model(x, attention_mask=mask).last_hidden_state
                 
