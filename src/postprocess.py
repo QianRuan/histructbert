@@ -311,6 +311,9 @@ def generate_eval_results_overview(args):
     baseline_longformer_base_models = [model for model in baseline_models if model.split('_')[1]=='longformerB']
     baseline_longformer_large_models = [model for model in baseline_models if model.split('_')[1]=='longformerL']
     baseline_bp_models = [model for model in baseline_models if model.split('_')[1]=='bigbirdP']
+    baseline_bart_base_models = [model for model in baseline_models if model.split('_')[1]=='bartB']
+    baseline_bart_large_models = [model for model in baseline_models if model.split('_')[1]=='bartL']
+    
     
     
     histruct_models = [model for model in models if model.split('_')[1]=='hs']
@@ -321,6 +324,8 @@ def generate_eval_results_overview(args):
     histruct_longformer_base_models = [model for model in histruct_models if model.split('_')[2]=='longformerB']
     histruct_longformer_large_models = [model for model in histruct_models if model.split('_')[2]=='longformerL']
     histruct_bp_models = [model for model in histruct_models if model.split('_')[2]=='bigbirdP']
+    histruct_bart_base_models = [model for model in histruct_models if model.split('_')[2]=='bartB']
+    histruct_bart_large_models = [model for model in histruct_models if model.split('_')[2]=='bartL']
     
     logger.info("DATASET: %s"%(args.dataset))
     logger.info("There are %i baseline models"%(len(baseline_models)))
@@ -328,9 +333,15 @@ def generate_eval_results_overview(args):
     logger.info("There are %i histruct models"%(len(histruct_models)))
     logger.info("--------- %i histruct bert_base models"%(len(histruct_bert_base_models)))
     logger.info("--------- %i histruct bert_large models"%(len(histruct_bert_large_models)))
+    logger.info("--------- %i histruct roberta_base models"%(len(histruct_roberta_base_models)))
+    logger.info("--------- %i histruct roberta_large models"%(len(histruct_roberta_large_models)))
+    logger.info("--------- %i histruct bart_base models"%(len(histruct_bart_base_models)))
+    logger.info("--------- %i histruct bart_large models"%(len(histruct_bart_large_models)))
     logger.info("--------- %i histruct longformer_base models"%(len(histruct_longformer_base_models)))
     logger.info("--------- %i histruct longformer_large models"%(len(histruct_longformer_large_models)))
     logger.info("--------- %i histruct bigbird-pegasus models"%(len(histruct_bp_models)))
+    
+    
     
     
     df1, df2 = get_rouges_df(baseline_models)
@@ -342,6 +353,8 @@ def generate_eval_results_overview(args):
     df3_5, df4_5 = get_rouges_df(histruct_bp_models)
     df3_6, df4_6 = get_rouges_df(histruct_roberta_base_models)
     df3_7, df4_7 = get_rouges_df(histruct_roberta_large_models)
+    df3_8, df4_8 = get_rouges_df(histruct_bart_base_models)
+    df3_9, df4_9 = get_rouges_df(histruct_bart_large_models)
     
   
     df_cols = ['model'] + metrics
@@ -366,6 +379,8 @@ def generate_eval_results_overview(args):
     df9_5 = pd.DataFrame([{'model':'------------bigbird-pegasus models------------'}], columns = df_cols) 
     df9_6 = pd.DataFrame([{'model':'------------roberta_base models------------'}], columns = df_cols) 
     df9_7 = pd.DataFrame([{'model':'------------roberta_large models------------'}], columns = df_cols) 
+    df9_8 = pd.DataFrame([{'model':'------------bart_base models------------'}], columns = df_cols) 
+    df9_9 = pd.DataFrame([{'model':'------------bart_large models------------'}], columns = df_cols) 
     df10 = pd.DataFrame([{'model':'REPORTED BASELINES------------'}], columns = df_cols1) 
     df11 = pd.DataFrame([{'model':'BASELINES------------'}], columns = df_cols1) 
     df12 = pd.DataFrame([{'model':'OUR MODELS------------'}], columns = df_cols1) 
@@ -376,9 +391,11 @@ def generate_eval_results_overview(args):
     df12_5 = pd.DataFrame([{'model':'------------bigbird-pegasus models------------'}], columns = df_cols1) 
     df12_6 = pd.DataFrame([{'model':'------------roberta_base models------------'}], columns = df_cols1) 
     df12_7 = pd.DataFrame([{'model':'------------roberta_large models------------'}], columns = df_cols1) 
+    df12_8 = pd.DataFrame([{'model':'------------bart_base models------------'}], columns = df_cols1) 
+    df12_9 = pd.DataFrame([{'model':'------------bart_large models------------'}], columns = df_cols1) 
     
-    avg_dfs = [df7, df5, df8, df1, df9, df9_1, df3_1,df9_2, df3_2,df9_6, df3_6,df9_7, df3_7,df9_3, df3_3,df9_4, df3_4,df9_5, df3_5]
-    step_dfs = [df10, df6, df11, df2, df12, df12_1, df4_1,df12_2, df4_2,df12_6, df4_6,df12_7, df4_7,df12_3, df4_3,df12_4, df4_4,df12_5, df4_5]
+    avg_dfs = [df7, df5, df8, df1, df9, df9_1, df3_1,df9_2, df3_2,df9_6, df3_6,df9_7, df3_7,df9_8,df3_8, df9_9,df3_9,df9_3, df3_3,df9_4, df3_4,df9_5, df3_5]
+    step_dfs = [df10, df6, df11, df2, df12, df12_1, df4_1,df12_2, df4_2,df12_6, df4_6,df12_7, df4_7,df12_8, df4_8,df12_9, df4_9,df12_3, df4_3,df12_4, df4_4,df12_5, df4_5]
     
     avg_df = pd.concat(avg_dfs)  
     step_df = pd.concat(step_dfs) 
@@ -404,6 +421,11 @@ def generate_eval_results_overview(args):
     hs_avg_best_roberta_large_models = check_best_models(df3_7)
     hs_step_best_roberta_large_models = check_best_models(df4_7)
     
+    hs_avg_best_bart_base_models = check_best_models(df3_8)
+    hs_step_best_bart_base_models = check_best_models(df4_8)
+    hs_avg_best_bart_large_models = check_best_models(df3_9)
+    hs_step_best_bart_large_models = check_best_models(df4_9)
+    
     hs_avg_best_longformer_base_models = check_best_models(df3_3)
     hs_step_best_longformer_base_models = check_best_models(df4_3)
     hs_avg_best_longformer_large_models = check_best_models(df3_4)
@@ -416,6 +438,8 @@ def generate_eval_results_overview(args):
     BERT_LARGE_COLOR='FFFFE0'#yellow
     ROBERTA_BASE_COLOR='F5F5F5'#grey
     ROBERTA_LARGE_COLOR='FFFFE0'#yellow
+    BART_BASE_COLOR='F5F5F5'#grey
+    BART_LARGE_COLOR='FFFFE0'#yellow
     LONGFORMER_BASE_COLOR='ADD8E6'#blue
     LONGFORMER_LARGE_COLOR='FF0000'#red
     BP_COLOR='FFFF33'#yellow
@@ -430,6 +454,11 @@ def generate_eval_results_overview(args):
     color_the_best_metric(result_file, step_sheet, hs_step_best_roberta_base_models,color=ROBERTA_BASE_COLOR, font=True)
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_roberta_large_models,color=ROBERTA_BASE_COLOR, font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_roberta_large_models,color=ROBERTA_BASE_COLOR, font=True)
+    
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bart_base_models, color=BART_BASE_COLOR,font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bart_base_models,color=BART_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bart_large_models,color=BART_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bart_large_models,color=BART_BASE_COLOR, font=True)
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
@@ -454,6 +483,8 @@ def generate_eval_results_overview(args):
     df13_5,df14_5 = get_rouges_df(baseline_bp_models)
     df13_6,df14_6 = get_rouges_df(baseline_roberta_base_models)
     df13_7,df14_7 = get_rouges_df(baseline_roberta_large_models)
+    df13_8,df14_8 = get_rouges_df(baseline_bart_base_models)
+    df13_9,df14_9 = get_rouges_df(baseline_bart_large_models)
     
     baseline_avg_best_models = check_best_models(df13)
     baseline_step_best_models = check_best_models(df14)
@@ -466,6 +497,11 @@ def generate_eval_results_overview(args):
     baseline_step_best_roberta_base_models = check_best_models(df14_6)
     baseline_avg_best_roberta_large_models = check_best_models(df13_7)
     baseline_step_best_roberta_large_models = check_best_models(df14_7)
+    
+    baseline_avg_best_bart_base_models = check_best_models(df13_8)
+    baseline_step_best_bart_base_models = check_best_models(df14_8)
+    baseline_avg_best_bart_large_models = check_best_models(df13_9)
+    baseline_step_best_bart_large_models = check_best_models(df14_9)
     
     baseline_avg_best_longformer_base_models = check_best_models(df13_3)
     baseline_step_best_longformer_base_models = check_best_models(df14_3)
@@ -485,6 +521,11 @@ def generate_eval_results_overview(args):
     color_the_best_metric(result_file, step_sheet, baseline_step_best_roberta_base_models,color=ROBERTA_BASE_COLOR, font=True)
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
+    
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_base_models, color=ROBERTA_BASE_COLOR,font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_base_models,color=ROBERTA_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_large_models,color=ROBERTA_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_large_models,color=ROBERTA_LARGE_COLOR, font=True)
     
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
