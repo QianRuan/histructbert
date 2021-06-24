@@ -259,7 +259,7 @@ def validate(args, device_id, pt, step):
 
 def test_steps(args, device_id):
      if args.eval_path=='':
-        args.eval_path=args.model_path+'/'+args.eval_folder
+        args.eval_path=args.model_path+'/test_steps'
         print('args.eval_path',args.eval_path)
         
      if args.result_path=='':
@@ -343,6 +343,10 @@ def get_cand_list_ext(args, device_id, pt, step):
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
     
     test_from = pt
+    if args.eval_path=='':
+        args.eval_path=args.model_path+'/'+args.eval_folder
+    if args.result_path=='':
+        args.result_path=args.eval_path+'/eval.results'
     
     
     logger.info('Loading checkpoint from %s' % test_from)

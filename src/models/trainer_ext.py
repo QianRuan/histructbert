@@ -379,7 +379,7 @@ class Trainer(object):
             self.model.eval()
         stats = Statistics()
 
-        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)
+#        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)
         #gold_path = '%s_step%d.gold' % (self.args.result_path, step)
 
         
@@ -476,9 +476,11 @@ class Trainer(object):
 #                            save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
 #                            #save_gold.write(gold[i].strip() + '\n')
                         
-        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)        
+        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)  
+        print('Saving candidate sentence indices to %s'%can_list_path)
         with open(can_list_path, 'w', encoding="utf-8") as f:
             json.dump(selected,f)
+        print('DONE')
             
 #        if (step != -1 and self.args.report_rouge):
 #            rouges = test_rouge(self.args.temp_dir, can_path, gold_path)

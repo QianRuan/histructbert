@@ -185,7 +185,7 @@ if __name__ == '__main__':
             except:
                 step = 0
             get_cand_list_ext(args, device_id, cp, step)
-            os.mkdir(args.model_path+'/eval/DONE')
+            
             
         
             
