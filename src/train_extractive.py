@@ -19,7 +19,7 @@ import distributed
 from models import data_loader, model_builder
 from models.data_loader import load_dataset
 from models.model_builder import ExtSummarizer
-from models.trainer_ext import build_trainer
+from models.trainer_ext import build_trainer,get_cand_list
 from others.logging import logger, init_logger
 from others.utils import rouge_results_to_str
 
@@ -287,24 +287,6 @@ def test_steps(args, device_id):
          xent, rouges = test_ext(args, device_id, cp, step)
          test_rouge_lst.append((cp,rouges))
          
-     
-#     xent_lst = sorted(xent_lst, key=lambda x: x[0])[:3]
-#     logger.info('PPL %s' % str(xent_lst))
-#        
-#       
-#     test_xent_lst=[]
-#     test_rouge_lst=[]
-#     for xent, cp in xent_lst:
-#            step = int(cp.split('.')[-2].split('_')[-1])
-#            xent, rouges = test_ext(args, device_id, cp, step)
-#            test_xent_lst.append((xent,cp))
-#            test_rouge_lst.append((cp,rouges))
-            
-        
-    #save info for post analysis
-#    with open(args.eval_path+'/test_xent.json', 'w+') as f:
-#        xents = sorted(test_xent_lst, key=lambda x: x[0])
-#        json.dump(xents,f)
     
         
      with open(args.eval_path+'/test_rouges.json', 'w+') as f:
@@ -356,6 +338,34 @@ def test_ext(args, device_id, pt, step):
     stats, rouges =trainer.test(test_iter, step)
     
     return stats.xent(), rouges
+
+def get_cand_list_ext(args, device_id, pt, step):
+    device = "cpu" if args.visible_gpus == '-1' else "cuda"
+    
+    test_from = pt
+    
+    
+    logger.info('Loading checkpoint from %s' % test_from)
+    checkpoint = torch.load(test_from, map_location=lambda storage, loc: storage)
+    opt = vars(checkpoint['opt'])
+    for k in opt.keys():
+        if (k in model_flags):
+            setattr(args, k, opt[k])
+    
+  
+    model = ExtSummarizer(args, device, checkpoint)
+   
+    model.eval()
+    
+    test_iter = data_loader.Dataloader(args, load_dataset(args, 'test', shuffle=False),
+                                       args.test_batch_size, device,
+                                       shuffle=False, is_test=True)
+   
+    trainer = build_trainer(args, device_id, model, None)
+    
+    trainer.get_cand_list(test_iter, step)
+    
+    #return stats.xent(), rouges
 
 
 def baseline_ext(args, cal_lead=False, cal_oracle=False):

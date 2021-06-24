@@ -7,7 +7,7 @@ from __future__ import division
 import argparse
 import os
 
-from train_extractive import train_ext, validate_ext, test_ext,test_steps, baseline_ext
+from train_extractive import train_ext, validate_ext, test_ext,test_steps, baseline_ext,get_cand_list_ext
 
 
 #model_flags = ['hidden_size', 'ff_size', 'heads', 'emb_size', 'enc_layers', 'enc_hidden_size', 'enc_ff_size',
@@ -167,7 +167,10 @@ if __name__ == '__main__':
             baseline_ext(args, cal_oracle=True)
             os.mkdir(args.model_path+'/DONE')
             os.mkdir(args.model_path+'/eval/DONE')
-        if (args.mode == 'test'):#test one checkpoint
+        elif (args.mode == 'test_steps'):#test many steps
+            test_steps(args, device_id)
+            os.mkdir(args.model_path+'/eval/DONE')     
+        elif (args.mode == 'test'):#test one checkpoint
             cp = args.test_from
             try:
                 step = int(cp.split('.')[-2].split('_')[-1])
@@ -175,9 +178,16 @@ if __name__ == '__main__':
                 step = 0
             test_ext(args, device_id, cp, step)
             os.mkdir(args.model_path+'/eval/DONE')
-        elif (args.mode == 'test_steps'):#test many steps
-            test_steps(args, device_id)
+        elif (args.mode == 'get_cand_list'):#generate a list of candidate sentence indices for each document
+            cp = args.test_from
+            try:
+                step = int(cp.split('.')[-2].split('_')[-1])
+            except:
+                step = 0
+            get_cand_list_ext(args, device_id, cp, step)
             os.mkdir(args.model_path+'/eval/DONE')
+            
+        
             
         elif (args.mode == 'test_text'):
             cp = args.test_from
