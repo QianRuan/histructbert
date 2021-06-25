@@ -277,9 +277,14 @@ def test_steps(args, device_id):
         args.log_file=args.eval_path+'/eval.log'
         
      init_logger(args.log_file)
-        
-     logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, args.test_steps))
-     steps = args.test_steps.split(',')
+    
+     if args.test_steps=='all':
+        cp_files = sorted(glob.glob(os.path.join(args.model_path, 'model_step_*.pt')))
+        cp_files.sort(key=os.path.getmtime)
+        steps = [int(cp.split('.')[-2].split('_')[-1]) for cp in cp_files]
+     else:
+        steps = args.test_steps.split(',')
+     logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, steps))
      test_rouge_lst=[]
      for step in steps:
          cp = args.model_path+'/model_step_'+step+'.pt'
@@ -344,9 +349,16 @@ def get_cand_list_ext(args, device_id, pt, step):
     
     test_from = pt
     if args.eval_path=='':
-        args.eval_path=args.model_path+'/'+args.eval_folder
+        args.eval_path=args.model_path+'/matchsum'
     if args.result_path=='':
         args.result_path=args.eval_path+'/eval.results'
+        
+    if os.path.exists(args.eval_path):
+        logger.info('Eval folder already exists, remove it!')
+        shutil.rmtree(args.eval_path)
+        os.mkdir(args.eval_path)
+    else:
+        os.mkdir(args.eval_path)
     
     
     logger.info('Loading checkpoint from %s' % test_from)
@@ -469,6 +481,7 @@ def train_single_ext(args, device_id):
     device = "cpu" if args.visible_gpus == '-1' else "cuda"
     logger.info('Device ID %d' % device_id)
     logger.info('Device %s' % device)
+    
     torch.manual_seed(args.seed)
     random.seed(args.seed)
     torch.backends.cudnn.deterministic = True
