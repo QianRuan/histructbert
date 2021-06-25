@@ -281,7 +281,7 @@ def test_steps(args, device_id):
      if args.test_steps=='all':
         cp_files = sorted(glob.glob(os.path.join(args.model_path, 'model_step_*.pt')))
         cp_files.sort(key=os.path.getmtime)
-        steps = [int(cp.split('.')[-2].split('_')[-1]) for cp in cp_files]
+        steps = [cp.split('.')[-2].split('_')[-1] for cp in cp_files]
      else:
         steps = args.test_steps.split(',')
      logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, steps))
