@@ -163,14 +163,18 @@ class BertT(nn.Module):
         self.finetune = finetune
 
     def forward(self, x, segs, mask):
+        #position_ids
+        seq_length = x.size(1)
+        position_ids = torch.arange(seq_length, dtype=torch.long, device=x.device)     
+        position_ids = position_ids.unsqueeze(0).expand_as(x)
         if(self.finetune):
             #top_vec, _ = self.model(x, segs, attention_mask=mask)
-            top_vec = self.model(x, attention_mask=mask,token_type_ids=segs).last_hidden_state
+            top_vec = self.model(x, attention_mask=mask,token_type_ids=segs,position_ids=position_ids).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
                 #top_vec, _ = self.model(x, segs, attention_mask=mask)
-                top_vec = self.model(x,  attention_mask=mask,token_type_ids=segs).last_hidden_state
+                top_vec = self.model(x,  attention_mask=mask,token_type_ids=segs,position_ids=position_ids).last_hidden_state
         return top_vec
     
 
