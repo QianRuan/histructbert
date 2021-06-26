@@ -143,6 +143,29 @@ class Bert(nn.Module):
 
     def forward(self, x, segs, mask):
         if(self.finetune):
+            top_vec, _ = self.model(x, segs, attention_mask=mask)
+            
+        else:
+            self.eval()
+            with torch.no_grad():
+                top_vec, _ = self.model(x, segs, attention_mask=mask)
+                
+        return top_vec
+    
+class BertT(nn.Module):
+    def __init__(self, base_LM, temp_dir, finetune):
+        super(BertT, self).__init__()
+        if(base_LM=='bert-large'):
+            self.model = BertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
+            #self.model = HiStructBertModel(large, temp_dir)
+        elif(base_LM=='bert-base'):
+            self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
+        
+
+        self.finetune = finetune
+
+    def forward(self, x, segs, mask):
+        if(self.finetune):
             #top_vec, _ = self.model(x, segs, attention_mask=mask)
             top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
         else:
