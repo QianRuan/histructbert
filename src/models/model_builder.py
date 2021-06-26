@@ -2,9 +2,8 @@ import copy
 
 import torch
 import torch.nn as nn
-#from pytorch_transformers import BertModel, BertConfig
-#from pytorch_transformers import RobertaModel
-from transformers import BertModel, BertConfig
+from pytorch_transformers import BertModel, BertConfig
+#from transformers import BertModel, BertConfig
 from transformers import RobertaModel
 from transformers import BartModel
 from transformers import LongformerModel,LongformerConfig
@@ -134,7 +133,6 @@ class Bert(nn.Module):
         super(Bert, self).__init__()
         if(base_LM=='bert-large'):
             self.model = BertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
-            #self.model = HiStructBertModel(large, temp_dir)
         elif(base_LM=='bert-base'):
             self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
         
