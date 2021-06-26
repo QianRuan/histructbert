@@ -828,7 +828,34 @@ def merge_data_splits(args):
                 save.write(json.dumps(dataset))
                 p_ct += 1
                 dataset = []
-    logger.info('DONE')   
+    logger.info('DONE')  
+    
+def combine_data_type(args):
+    for corpus_type in ['test', 'valid', 'train']:
+    
+        pts = sorted(glob.glob(args.raw_path + '/'+args.dataset+'.' + corpus_type + '.[0-9]*.pt'))
+        type_dataset = []
+        print(corpus_type.upper(),' pts are combined',pts)
+        for pt in pts:
+            dataset = torch.load(pt)
+            for d in dataset:
+                print(d['src_txt'])
+                print(d['tgt_txt'])
+                assert 1==2
+                data={}
+                data['text'] = d['src_txt']
+                data['summary'] = d['tgt_txt']
+                type_dataset.append(data)
+        print('There are %i docs'%(len(type_dataset)))
+        if not os.path.exists(args.save_path):
+            os.makedirs(args.save_path)
+            print('Make dir ', args.save_path)
+        with open(args.save_path+'/'+corpus_type, 'w') as f:
+            json.dump(type_dataset, f) 
+            print('Saved')
+            
+    
+    
 
 def compute_statistics(args):
     

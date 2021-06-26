@@ -452,13 +452,13 @@ def generate_eval_results_overview(args):
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_roberta_base_models, color=ROBERTA_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_roberta_base_models,color=ROBERTA_BASE_COLOR, font=True)
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_roberta_large_models,color=ROBERTA_BASE_COLOR, font=True)
-    color_the_best_metric(result_file, step_sheet, hs_step_best_roberta_large_models,color=ROBERTA_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_bart_base_models, color=BART_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_bart_base_models,color=BART_BASE_COLOR, font=True)
-    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bart_large_models,color=BART_BASE_COLOR, font=True)
-    color_the_best_metric(result_file, step_sheet, hs_step_best_bart_large_models,color=BART_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, hs_avg_best_bart_large_models,color=BART_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, hs_step_best_bart_large_models,color=BART_LARGE_COLOR, font=True)
     
     color_the_best_metric(result_file, avg_sheet, hs_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, hs_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
@@ -522,10 +522,10 @@ def generate_eval_results_overview(args):
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_roberta_large_models,color=ROBERTA_LARGE_COLOR, font=True)
     
-    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_base_models, color=ROBERTA_BASE_COLOR,font=True)
-    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_base_models,color=ROBERTA_BASE_COLOR, font=True)
-    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_large_models,color=ROBERTA_LARGE_COLOR, font=True)
-    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_large_models,color=ROBERTA_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_base_models, color=BART_BASE_COLOR,font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_base_models,color=BART_BASE_COLOR, font=True)
+    color_the_best_metric(result_file, avg_sheet, baseline_avg_best_bart_large_models,color=BART_LARGE_COLOR, font=True)
+    color_the_best_metric(result_file, step_sheet, baseline_step_best_bart_large_models,color=BART_LARGE_COLOR, font=True)
     
     color_the_best_metric(result_file, avg_sheet, baseline_avg_best_longformer_base_models, color=LONGFORMER_BASE_COLOR,font=True)
     color_the_best_metric(result_file, step_sheet, baseline_step_best_longformer_base_models,color=LONGFORMER_BASE_COLOR, font=True)
