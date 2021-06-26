@@ -169,7 +169,7 @@ if __name__ == '__main__':
             os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'test_steps'):#test many steps
             test_steps(args, device_id)
-            os.mkdir(args.model_path+'/eval/DONE')     
+            os.mkdir(args.eval_path+'/DONE')     
         elif (args.mode == 'test'):#test one checkpoint
             cp = args.test_from
             try:
