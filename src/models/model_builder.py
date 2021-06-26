@@ -398,8 +398,8 @@ class ExtSummarizer(nn.Module):
                 
         else:
             if (args.base_LM.startswith('bert')):
-#                self.bert = BertT(args.base_LM, args.temp_dir, args.finetune_bert)
-                self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
+                self.bert = BertT(args.base_LM, args.temp_dir, args.finetune_bert)
+#                self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('longformer')):
