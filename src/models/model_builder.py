@@ -398,8 +398,8 @@ class ExtSummarizer(nn.Module):
                 
         else:
             if (args.base_LM.startswith('bert')):
-                self.bert = BertT(args.base_LM, args.temp_dir, args.finetune_bert)
-               # self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
+#                self.bert = BertT(args.base_LM, args.temp_dir, args.finetune_bert)
+                self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('longformer')):
@@ -426,7 +426,7 @@ class ExtSummarizer(nn.Module):
 
         if(args.base_LM.startswith('bert') and args.max_pos>512):
 #            print('1#####self.bert.model.config.max_position_embeddings',self.bert.model.config.max_position_embeddings)
-            print('########',self.bert.model.embeddings.position_embeddings)
+#            print('########',self.bert.model.embeddings.position_embeddings)
             my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
             my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
