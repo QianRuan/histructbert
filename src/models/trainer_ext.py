@@ -478,8 +478,10 @@ class Trainer(object):
                         
         can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)  
         print('Saving candidate sentence indices to %s'%can_list_path)
-        with open(can_list_path, 'w', encoding="utf-8") as f:
-            json.dump(selected,f)
+        
+        torch.save(selected,can_list_path)
+#        with open(can_list_path, 'w', encoding="utf-8") as f:
+#            json.dump(selected,f)
         print('DONE')
             
 #        if (step != -1 and self.args.report_rouge):
