@@ -847,9 +847,11 @@ def combine_data_type(args):
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
             print('Make dir ', args.save_path)
+#        torch.save(type_dataset, args.save_path+'/'+corpus_type)
         with open(args.save_path+'/'+corpus_type, 'w') as f:
-            json.dump(type_dataset, f) 
-            print('Saved')
+            for data in type_dataset:
+                f.write(json.dumps(data))
+        print('Saved')
             
     
     
