@@ -839,9 +839,6 @@ def combine_data_type(args):
         for pt in pts:
             dataset = torch.load(pt)
             for d in dataset:
-                print(d['src_txt'])
-                print(d['tgt_txt'])
-                assert 1==2
                 data={}
                 data['text'] = d['src_txt']
                 data['summary'] = d['tgt_txt']
