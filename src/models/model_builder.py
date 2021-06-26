@@ -3,7 +3,7 @@ import copy
 import torch
 import torch.nn as nn
 from pytorch_transformers import BertModel, BertConfig
-#from transformers import BertModel, BertConfig
+from transformers import BertModel as BertModelT
 from transformers import RobertaModel
 from transformers import BartModel
 from transformers import LongformerModel,LongformerConfig
@@ -154,10 +154,10 @@ class BertT(nn.Module):
     def __init__(self, base_LM, temp_dir, finetune):
         super(BertT, self).__init__()
         if(base_LM=='bert-large'):
-            self.model = BertModel.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
+            self.model = BertModelT.from_pretrained('bert-large-uncased', cache_dir=temp_dir)
             #self.model = HiStructBertModel(large, temp_dir)
         elif(base_LM=='bert-base'):
-            self.model = BertModel.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
+            self.model = BertModelT.from_pretrained('bert-base-uncased', cache_dir=temp_dir)
         
 
         self.finetune = finetune
@@ -165,12 +165,12 @@ class BertT(nn.Module):
     def forward(self, x, segs, mask):
         if(self.finetune):
             #top_vec, _ = self.model(x, segs, attention_mask=mask)
-            top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
+            top_vec = self.model(x, attention_mask=mask,token_type_ids=segs).last_hidden_state
         else:
             self.eval()
             with torch.no_grad():
                 #top_vec, _ = self.model(x, segs, attention_mask=mask)
-                top_vec = self.model(x, token_type_ids=segs, attention_mask=mask).last_hidden_state
+                top_vec = self.model(x,  attention_mask=mask,token_type_ids=segs).last_hidden_state
         return top_vec
     
 
@@ -394,7 +394,8 @@ class ExtSummarizer(nn.Module):
                 
         else:
             if (args.base_LM.startswith('bert')):
-                self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
+                self.bert = BertT(args.base_LM, args.temp_dir, args.finetune_bert)
+               # self.bert = Bert(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('roberta')):
                 self.bert = Roberta(args.base_LM, args.temp_dir, args.finetune_bert)
             elif (args.base_LM.startswith('longformer')):
