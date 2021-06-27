@@ -378,14 +378,9 @@ class Trainer(object):
         if (not cal_lead and not cal_oracle):
             self.model.eval()
         stats = Statistics()
-
-#        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)
-        #gold_path = '%s_step%d.gold' % (self.args.result_path, step)
-
         
         selected=[]
-#        with open(can_list_path, 'w', encoding="utf-8") as save_pred:
-            #with open(gold_path, 'w', encoding="utf-8") as save_gold:
+
         with torch.no_grad():
            
             for batch in test_iter:
@@ -396,15 +391,40 @@ class Trainer(object):
                 mask = batch.mask_src
                 mask_cls = batch.mask_cls
                 sent_struct_vec = batch.sent_struct_vec
+                
+                src_txt = batch.src_str
+                tgt_txt = batch.tgt_str
+                print(type(src_txt),src_txt.shape)
+                print(type(tgt_txt),tgt_txt.shape)
+#                type_dataset = []
+#        print(corpus_type.upper(),' pts are combined',pts)
+#        for pt in pts:
+#            dataset = torch.load(pt)
+#            for d in dataset:
+#                data={}
+#                data['text'] = d['src_txt']
+#                data['summary'] = d['tgt_txt']
+#                type_dataset.append(data)
+#        print('There are %i docs'%(len(type_dataset)))
+#        if not os.path.exists(args.save_path):
+#            os.makedirs(args.save_path)
+#            print('Make dir ', args.save_path)
+#        torch.save(type_dataset, args.save_path+'/'+corpus_type)
+##        with open(args.save_path+'/'+corpus_type, 'w') as f:
+##            for data in type_dataset:
+##                f.write(json.dumps(data))
+#        print('Saved')
                 if hasattr(batch, 'tok_struct_vec'):
                     tok_struct_vec = batch.tok_struct_vec
                 else:
                     tok_struct_vec = None
-                overall_sent_pos = batch.overall_sent_pos
-                section_names=batch.section_names
+                
+                
+                
                 
                 #gold = []
                 pred = []
+                
 
                 
                 if (cal_lead):
