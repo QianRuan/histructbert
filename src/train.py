@@ -60,6 +60,9 @@ if __name__ == '__main__':
     #section names embeddings
     parser.add_argument("-section_names_embed_path", default='')
     
+    #get_cand_list(matchsum)
+    parser.add_argument("-corpus_type", default='')
+    
     
     
     parser.add_argument("-bert_data_path", default='')

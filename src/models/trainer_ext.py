@@ -380,6 +380,7 @@ class Trainer(object):
         stats = Statistics()
         
         selected=[]
+        type_dataset = []
 
         with torch.no_grad():
            
@@ -391,31 +392,18 @@ class Trainer(object):
                 mask = batch.mask_src
                 mask_cls = batch.mask_cls
                 sent_struct_vec = batch.sent_struct_vec
+                section_names=batch.section_names
                 
                 src_txt = batch.src_str
                 tgt_txt = batch.tgt_str
-                print('#'*30)
-                print(type(src),len(src),src)      
-                print(type(src_txt),len(src_txt),src_txt)
-                print(type(tgt_txt),len(tgt_txt),tgt_txt)
-#                type_dataset = []
-#        print(corpus_type.upper(),' pts are combined',pts)
-#        for pt in pts:
-#            dataset = torch.load(pt)
-#            for d in dataset:
-#                data={}
-#                data['text'] = d['src_txt']
-#                data['summary'] = d['tgt_txt']
-#                type_dataset.append(data)
-#        print('There are %i docs'%(len(type_dataset)))
-#        if not os.path.exists(args.save_path):
-#            os.makedirs(args.save_path)
-#            print('Make dir ', args.save_path)
-#        torch.save(type_dataset, args.save_path+'/'+corpus_type)
-##        with open(args.save_path+'/'+corpus_type, 'w') as f:
-##            for data in type_dataset:
-##                f.write(json.dumps(data))
-#        print('Saved')
+                
+                for i in range(len(src_txt)):
+                    data={}
+                    data['text'] = src_txt[i]
+                    data['summary'] = tgt_txt[i].split('<q>')
+                    type_dataset.append(data)
+                    
+                           
                 if hasattr(batch, 'tok_struct_vec'):
                     tok_struct_vec = batch.tok_struct_vec
                 else:
@@ -498,10 +486,19 @@ class Trainer(object):
                         
         can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)  
         print('Saving candidate sentence indices to %s'%can_list_path)
-        
-#        torch.save(selected,can_list_path)
+        print('There are %i docs'%(len(selected)))
+
         with open(can_list_path, 'w', encoding="utf-8") as f:
             json.dump(selected,f)
+            
+        print('Saving text and summary to %s'%self.args.save_path+'/'+self.args.corpus_type)   
+        print('There are %i docs'%(len(type_dataset)))
+        if not os.path.exists(self.args.save_path):
+            os.makedirs(self.args.save_path)
+            print('Make dir ', self.args.save_path)
+        torch.save(type_dataset, self.args.save_path+'/'+self.args.corpus_type)
+
+        assert len(selected)==len(type_dataset)
         print('DONE')
             
 #        if (step != -1 and self.args.report_rouge):
