@@ -62,6 +62,7 @@ if __name__ == '__main__':
     
     #get_cand_list(matchsum)
     parser.add_argument("-corpus_type", default='')
+    parser.add_argument("-save_path", default='')
     
     
     
