@@ -441,17 +441,14 @@ class Trainer(object):
                         if (self.args.block_trigram):#apply block_trigram
                             if (not _block_tri(candidate, _pred)):
                                 _pred.append(candidate)
-                                if (cal_lead or cal_oracle):
-                                    _selected.append(int(j))
-                                else:
-                                    _selected.append(overall_sent_pos[i][j].item())
+                                
+                                _selected.append(int(j))
+                                
                                
                         else:
                             _pred.append(candidate)
-                            if (cal_lead or cal_oracle):
-                                    _selected.append(int(j))
-                            else:
-                                    _selected.append(overall_sent_pos[i][j].item())
+                            
+                            _selected.append(int(j))
                           
 
                         if ((not cal_oracle) and (not self.args.recall_eval) and len(_pred) == self.args.select_top_n_sent):#!!!!select top 3
