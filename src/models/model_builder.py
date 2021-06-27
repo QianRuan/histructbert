@@ -489,6 +489,9 @@ class ExtSummarizer(nn.Module):
 
         if checkpoint is not None:
             self.load_state_dict(checkpoint['model'], strict=True)
+            print('!!!'*30)
+            print(checkpoint)
+            print(checkpoint['model'])
         else:
             if args.param_init != 0.0:
                 for p in self.ext_layer.parameters():
