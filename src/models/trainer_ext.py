@@ -395,8 +395,9 @@ class Trainer(object):
                 src_txt = batch.src_str
                 tgt_txt = batch.tgt_str
                 print('#'*30)
-                print(type(src_txt),src_txt.shape,src_txt)
-                print(type(tgt_txt),tgt_txt.shape,tgt_txt)
+                print(type(src),len(src),src)      
+                print(type(src_txt),len(src_txt),src_txt)
+                print(type(tgt_txt),len(tgt_txt),tgt_txt)
 #                type_dataset = []
 #        print(corpus_type.upper(),' pts are combined',pts)
 #        for pt in pts:
