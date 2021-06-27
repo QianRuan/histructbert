@@ -461,6 +461,7 @@ class Trainer(object):
 
                     pred.append(_pred)
                     #gold.append(batch.tgt_str[i])
+                    print(_selected)
                     selected.append({'sent_id':_selected})
 
                 assert len(pred)==batch.batch_size
