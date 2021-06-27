@@ -484,7 +484,7 @@ class Trainer(object):
 #                            save_pred.write(pred[i].strip().replace('\n',' \ n ') + '\n')
 #                            #save_gold.write(gold[i].strip() + '\n')
                         
-        can_list_path = '%s_step%d.top%d.cand_list' % (self.args.result_path, step, self.args.select_top_n_sent)  
+        can_list_path = '%s_step%d.top%d.cand_list.%s' % (self.args.result_path, step, self.args.select_top_n_sent,self.args.corpus_type.upper())  
         print('Saving candidate sentence indices to %s'%can_list_path)
         print('There are %i docs'%(len(selected)))
 

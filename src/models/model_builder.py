@@ -173,6 +173,7 @@ class BertT(nn.Module):
         else:
             self.eval()
             with torch.no_grad():
+                print('###'*30,self.model.embeddings.position_embeddings.shape)
                 #top_vec, _ = self.model(x, segs, attention_mask=mask)
                 top_vec = self.model(x,  attention_mask=mask,token_type_ids=segs,position_ids=position_ids).last_hidden_state
         return top_vec
