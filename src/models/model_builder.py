@@ -477,7 +477,7 @@ class ExtSummarizer(nn.Module):
             #encoder
             my_pos_embeddings = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
             my_pos_embeddings.weight.data = self.bert.model.encoder.embed_positions.weight.data[:args.max_pos]
-            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+            self.bert.model.encoder.embed_positions = my_pos_embeddings
             
             #decoder
             my_pos_embeddings2 = BigBirdPegasusLearnedPositionalEmbedding(args.max_pos, self.bert.model.config.hidden_size)
