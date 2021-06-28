@@ -579,6 +579,26 @@ def remove_models(models,nrm):
                     logger.info("---Training of the model is not finished, skip it-------%s"%(model))
                 if not os.path.exists(eval_path+'DONE'):
                     logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
+                    
+def remove_ckp(models,nrm):
+    for model in models:
+        if model not in nrm:
+            
+            eval_path = args.models_path + model + '/eval/'
+            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+                
+                files = os.listdir(args.models_path + model)
+                step_models = [file for file in files if file.endswith('.pt')]
+                logger.info("remove %i step models from model %s"%(len(step_models),model))
+                for m in step_models:
+                    path = args.models_path + model + '/' + m
+                    os.remove(path)
+                    
+            else:
+                if not os.path.exists(args.models_path + model+'/DONE'):
+                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
+                if not os.path.exists(eval_path+'DONE'):
+                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
     
     
 def remove_step_models(args,nrm):
@@ -586,15 +606,20 @@ def remove_step_models(args,nrm):
     logger.info("Removing step models...")
     models = sorted(os.listdir(args.models_path))
     models = [model for model in models if model.startswith(args.dataset+'_')]
-#    histruct_models = [model for model in models if model.split('_')[1]=='hs']
-#    bert_baseline_models = [model for model in models if model.split('_')[1]=='bert']
+
     
     remove_models(models,nrm)
-    
-#    remove_models(histruct_models,nrm)
-#    remove_models(bert_baseline_models,nrm)
-    
+        
     logger.info("Remove step models...DONE")
+
+def remove_all_ckp(args,nrm):
+    logger.info("=================================================")
+    logger.info("Removing all ckp of not best settings...")
+    models = sorted(os.listdir(args.models_path))
+    models = [model for model in models if model.startswith(args.dataset+'_')]
+
+    remove_ckp(models,nrm)    
+    logger.info("Remove all ckp...DONE")
             
             
 def plot_val_xent(args):
@@ -727,6 +752,7 @@ if __name__ == '__main__':
     parser.add_argument("-generate_eval_results_overview", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-remove_step_models_also_best", type=str2bool, nargs='?',const=False,default=False)
+    parser.add_argument("-remove_all_ckp_of_not_best", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-plot_val_xent", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_best_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
@@ -760,6 +786,20 @@ if __name__ == '__main__':
         else:
             logger.info('Step models of best settings are removed to save space.')
         remove_step_models(args, not_removed)
+        
+    if (args.remove_all_ckp_of_not_best):
+
+        not_removed = []
+        
+        flat1 = [item[0] for sublist in list(hs_step_best_models.values()) for item in sublist]
+        flat2 = [item[0] for sublist in list(baseline_step_best_models.values()) for item in sublist]
+        flat3 = [item[0] for sublist in list(hs_avg_best_models.values()) for item in sublist]
+        flat4 = [item[0] for sublist in list(baseline_avg_best_models.values()) for item in sublist]
+        not_removed.extend(flat1+flat2+flat3+flat4)
+        not_removed=set(not_removed)
+        logger.info('Step models of best settings are not removed: '+ ','.join(not_removed))
+        
+        remove_all_ckp(args, not_removed)
     
     if (args.plot_val_xent):
         plot_val_xent(args)

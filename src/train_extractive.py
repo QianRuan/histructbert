@@ -57,17 +57,15 @@ def run(args, device_id, error_queue):
 
     try:
         gpu_rank = distributed.multi_init(device_id, args.world_size, args.gpu_ranks)
-        print('device_id %d' % device_id)
-        print('gpu_rank %d' % gpu_rank)      
-        print('args.gpu_ranks[device_id] %d' % args.gpu_ranks[device_id])
+
         if gpu_rank != args.gpu_ranks[device_id]:
             print("An error occurred in \
                   Distributed initialization")
             raise AssertionError("An error occurred in \
                   Distributed initialization")
-        print("train_single_ext")
+        
         train_single_ext(args, device_id)
-        print("train_single_ext DONE")
+        
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
         pass  # killed by parent, do nothing
