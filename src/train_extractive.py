@@ -347,12 +347,11 @@ def get_cand_list_ext(args, device_id, pt, step):
     
     test_from = pt
     if args.eval_path=='':
-        args.eval_path=args.model_path+'/matchsum'
+        args.eval_path=args.model_path+'/matchsum_'+args.corpus_type.upper()
     if args.result_path=='':
         args.result_path=args.eval_path+'/eval.results'
         
     if not os.path.exists(args.eval_path):
-        
         os.mkdir(args.eval_path)
    
         
