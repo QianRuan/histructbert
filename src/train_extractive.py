@@ -351,12 +351,11 @@ def get_cand_list_ext(args, device_id, pt, step):
     if args.result_path=='':
         args.result_path=args.eval_path+'/eval.results'
         
-    if os.path.exists(args.eval_path):
-        logger.info('Eval folder already exists, remove it!')
-        shutil.rmtree(args.eval_path)
+    if not os.path.exists(args.eval_path):
+        
         os.mkdir(args.eval_path)
-    else:
-        os.mkdir(args.eval_path)
+   
+        
     
     
     logger.info('Loading checkpoint from %s' % test_from)
