@@ -148,14 +148,16 @@ class ExtTransformerEncoder(nn.Module):
         
         
         #add section names embeddings
+        #section_names: index of unique section name according to the file at section_names_embed_path
         sn_emb=None
         if section_names is not None and self.args.section_names_embed_path!='':
-            
+            #section_pos: section index of each sentences in the document
             section_pos = sent_struct_vec[:,:,0]
             print('4-section_names',section_names.shape,section_names)
             print('5-section_pos',section_pos.shape,section_pos)  
 #            print('6-section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
             #sn_index=section_names[:,section_pos[0,:]]
+            #sn_index: convert section_pos into section names index 
             indices = torch.tensor(list(range(section_pos.shape[0])))
             sn_index=section_names[:,section_pos][indices,indices,:]
             print('6-indices',indices.shape,indices)
