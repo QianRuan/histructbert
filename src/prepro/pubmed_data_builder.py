@@ -915,7 +915,7 @@ def encode_section_names_cls(args):
 #    print(list(sn_emb_dic.keys())[:5]) 
 #    print(sn_emb_dic_values.shape,sn_emb_dic_values[0])
 #    print(len(sn_emb_dic_keys),sn_emb_dic_keys[:5])
-#    print(sn_cls_dic)
+#    print(sn_cls_dic,list(sn_cls_dic.keys()))
 #    assert 1==2
         
  
@@ -929,7 +929,8 @@ def encode_section_names_cls(args):
         tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
         
         section_cls_embed={}
-        sn_cls = list(sn_cls_dic.keys()).append('others')
+        sn_cls = list(sn_cls_dic.keys())
+        sn_cls.append('others')
         #encoding typical section classes
         for section_name in sn_cls:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
@@ -1001,7 +1002,8 @@ def encode_section_names_cls(args):
         tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM, cache_dir=args.temp_dir)
         
         section_cls_embed={}
-        sn_cls = list(sn_cls_dic.keys()).append('others')
+        sn_cls = list(sn_cls_dic.keys())
+        sn_cls.append('others')
         
         for section_name in sn_cls:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
