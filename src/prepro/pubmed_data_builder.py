@@ -898,6 +898,86 @@ def encode_section_names(args):
         path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
         torch.save(section_names_embed,path)
         logger.info('DONE! Section names embeddings are saved in '+path)
+        
+def encode_section_names_cls(args):
+    
+    init_logger(args.log_file)
+    with open(args.raw_path+'/SN_dic_8_Added.json', encoding='utf-8') as file:
+        sn_cls_dic = json.load(file)
+    with open(args.section_names_embed_path, encoding='utf-8') as file:
+        sn_emb_dic = json.load(file)
+        print( len(sn_emb_dic),sn_emb_dic[0])
+        
+    assert 1==2
+        
+    #sn_emb_dict = #torch.cuda.FloatTensor(list(torch.load(self.args.section_names_embed_path).values()))
+    
+    
+        
+    logger.info('Encoding typical section classes...%s'%(list(sn_cls_dic.keys())))
+    logger.info('There are %d typical section classes in the dataset %s'%(len(list(sn_cls_dic.keys())),args.dataset))
+    logger.info('Section names embeddings combination mode: %s'%(args.sn_embed_comb_mode))
+    
+    if args.base_LM.startswith('longformer'):
+        model = LongformerModel.from_pretrained('allenai/'+args.base_LM, cache_dir=args.temp_dir)  
+        model.eval()
+        tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
+        
+        section_cls_embed={}
+        
+        #encoding typical section classes
+        for section_name in list(sn_cls_dic.keys()):           
+            input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
+            attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
+            global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
+            outputs = model(input_ids, attention_mask=attention_mask, global_attention_mask=global_attention_mask).last_hidden_state
+            if args.sn_embed_comb_mode=='sum':
+                embed = torch.sum(outputs,dim=1).squeeze().tolist()
+            elif args.sn_embed_comb_mode=='mean':
+                embed = torch.mean(outputs,dim=1).squeeze().tolist()
+            
+            section_cls_embed.update({section_name:embed})
+            logger.info('section name encoded: %s, (%d/%d) '%(list(sn_cls_dic.keys()), len(section_cls_embed),len(list(sn_cls_dic.keys()))))
+        
+        section_names_embed={}
+        
+        
+        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
+        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS.pt'
+        torch.save(section_names_embed,path)
+        logger.info('DONE! Section names embeddings are saved in '+path)
+        
+    elif args.base_LM.startswith('bigbird-pegasus'):
+        config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
+        if not args.is_encoder_decoder:
+            config.decoder_layers = 0
+        model = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir,config=config)
+        model.eval()
+        tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM, cache_dir=args.temp_dir)
+        
+        section_names_embed={}
+        
+        for section_name in section_names:           
+            input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
+            if not args.is_encoder_decoder:
+                outputs = model(input_ids).encoder_last_hidden_state
+            else:
+                outputs = model(input_ids).last_hidden_state
+            
+            if args.sn_embed_comb_mode=='sum':
+                embed = torch.sum(outputs,dim=1).squeeze().tolist()
+            elif args.sn_embed_comb_mode=='mean':
+                embed = torch.mean(outputs,dim=1).squeeze().tolist()
+            
+            
+            section_names_embed.update({section_name:embed})
+            logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+            
+        
+        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
+        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
+        torch.save(section_names_embed,path)
+        logger.info('DONE! Section names embeddings are saved in '+path)
 
         
 def compute_statistics(args):

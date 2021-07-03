@@ -152,13 +152,14 @@ class ExtTransformerEncoder(nn.Module):
         if section_names is not None and self.args.section_names_embed_path!='':
             
             section_pos = sent_struct_vec[:,:,0]
-#            print('4-section_names',section_names.shape,section_names)
-#            print('5-section_pos',section_pos.shape,section_pos)  
+            print('4-section_names',section_names.shape,section_names)
+            print('5-section_pos',section_pos.shape,section_pos)  
 #            print('6-section_pos[0,:]',section_pos[0,:].shape,section_pos[0,:])
             #sn_index=section_names[:,section_pos[0,:]]
             indices = torch.tensor(list(range(section_pos.shape[0])))
             sn_index=section_names[:,section_pos][indices,indices,:]
-#            print('7-sn_index',sn_index.shape,sn_index)
+            print('6-indices',indices.shape,indices)
+            print('7-sn_index',sn_index.shape,sn_index)
             sn_emb=self.sn_emb_dict[sn_index,:]
 #            print('8-sn_emb',sn_emb.shape,sn_emb[0])
 #        print('9-x',x.shape,x[0])

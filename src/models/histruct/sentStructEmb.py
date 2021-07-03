@@ -172,6 +172,7 @@ class LASentAddEmb(nn.Module):
                  position_embeddings          
                 + sent_struct_embeddings
             )
+            
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
         
