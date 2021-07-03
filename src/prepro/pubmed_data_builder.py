@@ -911,12 +911,12 @@ def encode_section_names_cls(args):
         sn_emb_dic = torch.load(args.section_names_embed_path)
         
     
-    print(type(sn_emb_dic),type(sn_emb_dic['introduction']))   
-    print(list(sn_emb_dic.keys())[:5]) 
+#    print(type(sn_emb_dic),type(sn_emb_dic['introduction']))   
+#    print(list(sn_emb_dic.keys())[:5]) 
 #    print(sn_emb_dic_values.shape,sn_emb_dic_values[0])
 #    print(len(sn_emb_dic_keys),sn_emb_dic_keys[:5])
 #    print(sn_cls_dic)
-    assert 1==2
+#    assert 1==2
         
  
     logger.info('Encoding typical section classes...%s'%(list(sn_cls_dic.keys())))
@@ -944,13 +944,53 @@ def encode_section_names_cls(args):
             section_cls_embed.update({section_name:embed})
             logger.info('section classes encoded: %s, (%d/%d) '%(list(sn_cls_dic.keys()), len(section_cls_embed),len(list(sn_cls_dic.keys()))))
         
-        section_names_embed={}
         
-        
+        #8 classes, if a section name is not included in the 8 classes, use its original emb
+        #9 classes, if a section name is not included in the 8 classes, use the emb of the class 'others'
+        section_names_embed8={}
+        section_names_embed9={}
+        sns = list(sn_emb_dic.keys())
+        cls_v = sum(list(sn_cls_dic.values()),[])
+        for sn in sns:
+            if sn not in cls_v:
+                section_names_embed8.update({sn:sn_emb_dic[sn]})
+                section_names_embed9.update({sn:section_cls_embed['others']})
+            else:
+                for cls in list(sn_cls_dic.keys()):
+                    if sn in sn_cls_dic[cls]:
+                        section_names_embed8.update({sn:section_cls_embed[cls]})
+                        section_names_embed9.update({sn:section_cls_embed[cls]})
+                        logger.info('section name %s in section cls %s, (%d/%d) '%(sn,cls,len(section_cls_embed),len(list(sn_cls_dic.keys()))))
+                        break
+        #save
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
-        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS.pt'
-        torch.save(section_names_embed,path)
-        logger.info('DONE! Section names embeddings are saved in '+path)
+        path8 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS8.pt'
+        path9 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS9.pt'
+        torch.save(section_names_embed8,path8)
+        logger.info('DONE! Section names embeddings are saved in '+path8)
+        torch.save(section_names_embed9,path9)
+        logger.info('DONE! Section names embeddings are saved in '+path9)
+        
+#        #9 classes, section names not included in the 8 classes, use the emb of the class 'others'
+#        section_names_embed={}
+#        sns = list(sn_emb_dic.keys())
+#        cls_v = sum(list(sn_cls_dic.values()),[])
+#        for sn in sns:
+#            if sn not in cls_v:
+#                section_names_embed.update({sn:section_cls_embed['others']})
+#            else:
+#                for cls in list(sn_cls_dic.keys()):
+#                    if sn in sn_cls_dic[cls]:
+#                        section_names_embed.update({sn:section_cls_embed[cls]})
+#                        logger.info('section name %s in section cls %s, (%d/%d) '%(sn,cls,len(section_cls_embed),len(list(sn_cls_dic.keys()))))
+#                        break
+#        #save
+#        base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
+#        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS9.pt'
+#        torch.save(section_names_embed,path)
+#        logger.info('DONE! Section names embeddings are saved in '+path)
+        
+        
         
     elif args.base_LM.startswith('bigbird-pegasus'):
         config = BigBirdPegasusModel.from_pretrained('google/'+args.base_LM, cache_dir=args.temp_dir).config
@@ -960,9 +1000,10 @@ def encode_section_names_cls(args):
         model.eval()
         tokenizer = PegasusTokenizer.from_pretrained("google/"+args.base_LM, cache_dir=args.temp_dir)
         
-        section_names_embed={}
+        section_cls_embed={}
+        sn_cls = list(sn_cls_dic.keys()).append('others')
         
-        for section_name in section_names:           
+        for section_name in sn_cls:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             if not args.is_encoder_decoder:
                 outputs = model(input_ids).encoder_last_hidden_state
@@ -973,16 +1014,36 @@ def encode_section_names_cls(args):
                 embed = torch.sum(outputs,dim=1).squeeze().tolist()
             elif args.sn_embed_comb_mode=='mean':
                 embed = torch.mean(outputs,dim=1).squeeze().tolist()
-            
-            
-            section_names_embed.update({section_name:embed})
-            logger.info('section name encoded: %s, (%d/%d) '%(section_name, len(section_names_embed),len(section_names)))
+          
+            section_cls_embed.update({section_name:embed})
+            logger.info('section classes encoded: %s, (%d/%d) '%(list(sn_cls_dic.keys()), len(section_cls_embed),len(list(sn_cls_dic.keys()))))
             
         
+        #8 classes, if a section name is not included in the 8 classes, use its original emb
+        #9 classes, if a section name is not included in the 8 classes, use the emb of the class 'others'
+        section_names_embed8={}
+        section_names_embed9={}
+        sns = list(sn_emb_dic.keys())
+        cls_v = sum(list(sn_cls_dic.values()),[])
+        for sn in sns:
+            if sn not in cls_v:
+                section_names_embed8.update({sn:sn_emb_dic[sn]})
+                section_names_embed9.update({sn:section_cls_embed['others']})
+            else:
+                for cls in list(sn_cls_dic.keys()):
+                    if sn in sn_cls_dic[cls]:
+                        section_names_embed8.update({sn:section_cls_embed[cls]})
+                        section_names_embed9.update({sn:section_cls_embed[cls]})
+                        logger.info('section name %s in section cls %s, (%d/%d) '%(sn,cls,len(section_cls_embed),len(list(sn_cls_dic.keys()))))
+                        break
+        #save
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
-        path = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'.pt'
-        torch.save(section_names_embed,path)
-        logger.info('DONE! Section names embeddings are saved in '+path)
+        path8 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS8.pt'
+        path9 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS9.pt'
+        torch.save(section_names_embed8,path8)
+        logger.info('DONE! Section names embeddings are saved in '+path8)
+        torch.save(section_names_embed9,path9)
+        logger.info('DONE! Section names embeddings are saved in '+path9)
 
         
 def compute_statistics(args):
