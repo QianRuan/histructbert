@@ -905,12 +905,12 @@ def encode_section_names_cls(args):
     with open(args.raw_path+'/SN_dic_8_Added.json', encoding='utf-8') as file:
         sn_cls_dic = json.load(file)
     with open(args.section_names_embed_path, encoding='utf-8') as file:
-        sn_emb_dic = json.load(file)
-        print( len(sn_emb_dic),sn_emb_dic[0])
+        #sn_emb_dic = json.load(file)
+        sn_emb_dic = torch.cuda.FloatTensor(list(torch.load(args.section_names_embed_path).values()))
+        print( sn_emb_dic.shape,sn_emb_dic[0])
         
     assert 1==2
         
-    #sn_emb_dict = #torch.cuda.FloatTensor(list(torch.load(self.args.section_names_embed_path).values()))
     
     
         
