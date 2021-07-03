@@ -906,18 +906,18 @@ def encode_section_names_cls(args):
         sn_cls_dic = json.load(file)
     with open(args.section_names_embed_path, encoding='utf-8') as file:
         #sn_emb_dic = json.load(file)
-        sn_emb_dic_values = torch.cuda.FloatTensor(list(torch.load(args.section_names_embed_path).values()))
-        sn_emb_dic_keys = list(torch.load(args.section_names_embed_path).keys())
+#        sn_emb_dic_values = torch.cuda.FloatTensor(list(torch.load(args.section_names_embed_path).values()))
+#        sn_emb_dic_keys = list(torch.load(args.section_names_embed_path).keys())
+        sn_emb_dic = torch.load(args.section_names_embed_path)
         
-    print(sn_emb_dic_values.shape,sn_emb_dic_values[0])
-    print(len(sn_emb_dic_keys),sn_emb_dic_keys[:5])
-    print(sn_cls_dic)
-        
+    print(sn_emb_dic.shape,sn_emb_dic[:5])   
+    print(type(sn_emb_dic.shape))   
+#    print(sn_emb_dic_values.shape,sn_emb_dic_values[0])
+#    print(len(sn_emb_dic_keys),sn_emb_dic_keys[:5])
+#    print(sn_cls_dic)
     assert 1==2
         
-    
-    
-        
+ 
     logger.info('Encoding typical section classes...%s'%(list(sn_cls_dic.keys())))
     logger.info('There are %d typical section classes in the dataset %s'%(len(list(sn_cls_dic.keys())),args.dataset))
     logger.info('Section names embeddings combination mode: %s'%(args.sn_embed_comb_mode))
@@ -928,9 +928,9 @@ def encode_section_names_cls(args):
         tokenizer = LongformerTokenizer.from_pretrained('allenai/'+args.base_LM)
         
         section_cls_embed={}
-        
+        sn_cls = list(sn_cls_dic.keys()).append('others')
         #encoding typical section classes
-        for section_name in list(sn_cls_dic.keys()):           
+        for section_name in sn_cls:           
             input_ids = torch.tensor(tokenizer.encode(section_name)).unsqueeze(0)
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device) # initialize to local attention
             global_attention_mask = torch.ones(input_ids.shape, dtype=torch.long, device=input_ids.device)#do global attention everywhere
@@ -941,7 +941,7 @@ def encode_section_names_cls(args):
                 embed = torch.mean(outputs,dim=1).squeeze().tolist()
             
             section_cls_embed.update({section_name:embed})
-            logger.info('section name encoded: %s, (%d/%d) '%(list(sn_cls_dic.keys()), len(section_cls_embed),len(list(sn_cls_dic.keys()))))
+            logger.info('section classes encoded: %s, (%d/%d) '%(list(sn_cls_dic.keys()), len(section_cls_embed),len(list(sn_cls_dic.keys()))))
         
         section_names_embed={}
         
