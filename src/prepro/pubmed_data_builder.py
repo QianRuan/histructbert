@@ -1032,13 +1032,13 @@ def encode_section_names_cls(args):
             if sn not in cls_v:
                 section_names_embed8.update({sn:sn_emb_dic[sn]})
                 section_names_embed9.update({sn:section_cls_embed['others']})
-                logger.info('section name %s not included in section classes (%d/%d) '%(sn,len(section_names_embed8),len(sns)))
+                logger.info('N----section name %s not included in section classes (%d/%d) '%(sn,len(section_names_embed8),len(sns)))
             else:
                 for cls in list(sn_cls_dic.keys()):
                     if sn in sn_cls_dic[cls]:
                         section_names_embed8.update({sn:section_cls_embed[cls]})
                         section_names_embed9.update({sn:section_cls_embed[cls]})
-                        logger.info('section name %s in section cls %s, (%d/%d) '%(sn,cls,len(section_names_embed8),len(sns)))
+                        logger.info('Y----section name %s in section cls %s, (%d/%d) '%(sn,cls,len(section_names_embed8),len(sns)))
                         break
         #save
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()

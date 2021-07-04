@@ -401,14 +401,11 @@ class Rouge155(object):
         Returns: ROUGE output as string.
 
         """
-#        print("###############################convert_and_evaluate1",split_sentences)#
+
         if split_sentences:
             self.split_sentences()
-#        print("###############################convert_and_evaluate2")#
         self.__write_summaries()
-#        print("###############################convert_and_evaluate3")#
         rouge_output = self.evaluate(system_id, rouge_args)
-#        print("###############################convert_and_evaluate4")#
         return rouge_output
 
     def output_to_dict(self, output):

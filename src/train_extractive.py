@@ -256,13 +256,16 @@ def validate(args, device_id, pt, step):
     return stats.xent()
 
 def test_steps(args, device_id):
-     if args.eval_path=='':
+     if args.eval_folder=='':
         args.eval_path=args.model_path+'/test_steps'
         print('args.eval_path',args.eval_path)
+     else:
+        args.eval_path=args.model_path+'/'+args.eval_folder
+        print('args.eval_path',args.eval_path)
+         
         
-     if args.result_path=='':
-        args.result_path=args.eval_path+'/eval.results'
-        print('args.result_path',args.result_path)
+     args.result_path=args.eval_path+'/eval.results'
+     print('args.result_path',args.result_path)
         
      if os.path.exists(args.eval_path):
         logger.info('Eval folder already exists, remove it!')

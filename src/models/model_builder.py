@@ -535,131 +535,73 @@ class ExtSummarizer(nn.Module):
         sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec,section_names).squeeze(-1)
         return sent_scores, mask_cls
     
-#class ExtSummarizerSent(nn.Module):
-#    def __init__(self, args, device, checkpoint):
-#        super(ExtSummarizerSent, self).__init__()
-#        self.args = args
-#        self.device = device
-#        
-#        
-#        init_logger(self.args.log_file)
-#        
-#        #print("#####self.bert.model.embeddings",self.bert.model.embeddings)
-#        
-#        
-#        self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
-#        logger.info("#####Input embeddings_add token hierarchical structure embeddings: FALSE")
-#        logger.info("-----use original BERT learnable PosEmb") 
-#        
-#                
-#           
-#        self.ext_layer = ExtTransformerEncoder(self.bert.model,args, self.bert.model.config.hidden_size, args.ext_ff_size, args.ext_heads,
-#                                               args.ext_dropout, args.ext_layers)
-#        
-#        if (args.encoder == 'baseline'):
-#            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.ext_hidden_size,
-#                                     num_hidden_layers=args.ext_layers, num_attention_heads=args.ext_heads, intermediate_size=args.ext_ff_size)
-#            self.bert.model = BertModel(bert_config)
-#            self.ext_layer = Classifier(self.bert.model.config.hidden_size)
-#
-#        if(args.max_pos>512):
-#            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
-#            #my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
-#            #my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
-#            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
-#        
-#        
-#
-#
-#        if checkpoint is not None:
-#            self.load_state_dict(checkpoint['model'], strict=True)
-#        else:
-#            if args.param_init != 0.0:
-#                for p in self.ext_layer.parameters():
-#                    p.data.uniform_(-args.param_init, args.param_init)
-#            if args.param_init_glorot:
-#                for p in self.ext_layer.parameters():
-#                    if p.dim() > 1:
-#                        xavier_uniform_(p)
-#
-#        self.to(device)
-#
-#    def forward(self, src, segs, clss, mask_src, mask_cls,sent_struct_vec):#
-#       
-#        top_vec = self.bert(src, segs, mask_src)
-#        sents_vec = top_vec[torch.arange(top_vec.size(0)).unsqueeze(1), clss]
-#        sents_vec = sents_vec * mask_cls[:, :, None].float()
-##        sent_scores = self.ext_layer(sents_vec, mask_cls,sent_struct_vec,tok_struct_vec).squeeze(-1)
-#        sent_scores = self.ext_layer(sents_vec, mask_cls, sent_struct_vec).squeeze(-1)
-#        return sent_scores, mask_cls
+
     
 
+class AbsSummarizer(nn.Module):
+    def __init__(self, args, device, checkpoint=None, bert_from_extractive=None):
+        super(AbsSummarizer, self).__init__()
+        self.args = args
+        self.device = device
+        self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
+
+        if bert_from_extractive is not None:
+            self.bert.model.load_state_dict(
+                dict([(n[11:], p) for n, p in bert_from_extractive.items() if n.startswith('bert.model')]), strict=True)
+
+        if (args.encoder == 'baseline'):
+            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.enc_hidden_size,
+                                     num_hidden_layers=args.enc_layers, num_attention_heads=8,
+                                     intermediate_size=args.enc_ff_size,
+                                     hidden_dropout_prob=args.enc_dropout,
+                                     attention_probs_dropout_prob=args.enc_dropout)
+            self.bert.model = BertModel(bert_config)
+
+        if(args.base_LM.startswith('bert') and args.max_pos>512):
+            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
+            my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
+            my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
+            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
+        self.vocab_size = self.bert.model.config.vocab_size
+        tgt_embeddings = nn.Embedding(self.vocab_size, self.bert.model.config.hidden_size, padding_idx=0)
+        if (self.args.share_emb):
+            tgt_embeddings.weight = copy.deepcopy(self.bert.model.embeddings.word_embeddings.weight)
+
+        self.decoder = TransformerDecoder(
+            self.args.dec_layers,
+            self.args.dec_hidden_size, heads=self.args.dec_heads,
+            d_ff=self.args.dec_ff_size, dropout=self.args.dec_dropout, embeddings=tgt_embeddings)
+
+        self.generator = get_generator(self.vocab_size, self.args.dec_hidden_size, device)
+        self.generator[0].weight = self.decoder.embeddings.weight
 
 
-#class AbsSummarizer(nn.Module):
-#    def __init__(self, args, device, checkpoint=None, bert_from_extractive=None):
-#        super(AbsSummarizer, self).__init__()
-#        self.args = args
-#        self.device = device
-#        self.bert = Bert(args.large, args.temp_dir, args.finetune_bert)
-#
-#        if bert_from_extractive is not None:
-#            self.bert.model.load_state_dict(
-#                dict([(n[11:], p) for n, p in bert_from_extractive.items() if n.startswith('bert.model')]), strict=True)
-#
-#        if (args.encoder == 'baseline'):
-#            bert_config = BertConfig(self.bert.model.config.vocab_size, hidden_size=args.enc_hidden_size,
-#                                     num_hidden_layers=args.enc_layers, num_attention_heads=8,
-#                                     intermediate_size=args.enc_ff_size,
-#                                     hidden_dropout_prob=args.enc_dropout,
-#                                     attention_probs_dropout_prob=args.enc_dropout)
-#            self.bert.model = BertModel(bert_config)
-#
-#        if(args.base_LM.startswith('bert') and args.max_pos>512):
-#            my_pos_embeddings = nn.Embedding(args.max_pos, self.bert.model.config.hidden_size)
-#            my_pos_embeddings.weight.data[:512] = self.bert.model.embeddings.position_embeddings.weight.data
-#            my_pos_embeddings.weight.data[512:] = self.bert.model.embeddings.position_embeddings.weight.data[-1][None,:].repeat(args.max_pos-512,1)
-#            self.bert.model.embeddings.position_embeddings = my_pos_embeddings
-#        self.vocab_size = self.bert.model.config.vocab_size
-#        tgt_embeddings = nn.Embedding(self.vocab_size, self.bert.model.config.hidden_size, padding_idx=0)
-#        if (self.args.share_emb):
-#            tgt_embeddings.weight = copy.deepcopy(self.bert.model.embeddings.word_embeddings.weight)
-#
-#        self.decoder = TransformerDecoder(
-#            self.args.dec_layers,
-#            self.args.dec_hidden_size, heads=self.args.dec_heads,
-#            d_ff=self.args.dec_ff_size, dropout=self.args.dec_dropout, embeddings=tgt_embeddings)
-#
-#        self.generator = get_generator(self.vocab_size, self.args.dec_hidden_size, device)
-#        self.generator[0].weight = self.decoder.embeddings.weight
-#
-#
-#        if checkpoint is not None:
-#            self.load_state_dict(checkpoint['model'], strict=True)
-#        else:
-#            for module in self.decoder.modules():
-#                if isinstance(module, (nn.Linear, nn.Embedding)):
-#                    module.weight.data.normal_(mean=0.0, std=0.02)
-#                elif isinstance(module, nn.LayerNorm):
-#                    module.bias.data.zero_()
-#                    module.weight.data.fill_(1.0)
-#                if isinstance(module, nn.Linear) and module.bias is not None:
-#                    module.bias.data.zero_()
-#            for p in self.generator.parameters():
-#                if p.dim() > 1:
-#                    xavier_uniform_(p)
-#                else:
-#                    p.data.zero_()
-#            if(args.use_bert_emb):
-#                tgt_embeddings = nn.Embedding(self.vocab_size, self.bert.model.config.hidden_size, padding_idx=0)
-#                tgt_embeddings.weight = copy.deepcopy(self.bert.model.embeddings.word_embeddings.weight)
-#                self.decoder.embeddings = tgt_embeddings
-#                self.generator[0].weight = self.decoder.embeddings.weight
-#
-#        self.to(device)
-#
-#    def forward(self, src, tgt, segs, clss, mask_src, mask_tgt, mask_cls):
-#        top_vec = self.bert(src, segs, mask_src)
-#        dec_state = self.decoder.init_decoder_state(src, top_vec)
-#        decoder_outputs, state = self.decoder(tgt[:, :-1], top_vec, dec_state)
-#        return decoder_outputs, None
+        if checkpoint is not None:
+            self.load_state_dict(checkpoint['model'], strict=True)
+        else:
+            for module in self.decoder.modules():
+                if isinstance(module, (nn.Linear, nn.Embedding)):
+                    module.weight.data.normal_(mean=0.0, std=0.02)
+                elif isinstance(module, nn.LayerNorm):
+                    module.bias.data.zero_()
+                    module.weight.data.fill_(1.0)
+                if isinstance(module, nn.Linear) and module.bias is not None:
+                    module.bias.data.zero_()
+            for p in self.generator.parameters():
+                if p.dim() > 1:
+                    xavier_uniform_(p)
+                else:
+                    p.data.zero_()
+            if(args.use_bert_emb):
+                tgt_embeddings = nn.Embedding(self.vocab_size, self.bert.model.config.hidden_size, padding_idx=0)
+                tgt_embeddings.weight = copy.deepcopy(self.bert.model.embeddings.word_embeddings.weight)
+                self.decoder.embeddings = tgt_embeddings
+                self.generator[0].weight = self.decoder.embeddings.weight
+
+        self.to(device)
+
+    def forward(self, src, tgt, segs, clss, mask_src, mask_tgt, mask_cls):
+        top_vec = self.bert(src, segs, mask_src)
+        dec_state = self.decoder.init_decoder_state(src, top_vec)
+        decoder_outputs, state = self.decoder(tgt[:, :-1], top_vec, dec_state)
+        return decoder_outputs, None
