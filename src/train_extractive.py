@@ -350,7 +350,7 @@ def test_steps_without_val(args, device_id):
      logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, steps))
      test_rouge_lst=[]
      for step in steps:
-         cp = args.model_path+'/model_step_'+step+'.pt'
+         cp = args.model_path+'/model_step_'+str(step)+'.pt'
          xent, rouges = test_ext(args, device_id, cp, step)
          test_rouge_lst.append((cp,rouges))
          
