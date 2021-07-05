@@ -340,12 +340,13 @@ def test_steps_without_val(args, device_id):
         cp_files = sorted(glob.glob(os.path.join(args.model_path, 'model_step_*.pt')))
         cp_files.sort(key=os.path.getmtime)
         steps = [cp.split('.')[-2].split('_')[-1] for cp in cp_files]
-        #test begin at step 20000
-        #steps =[int(s) for s in steps if int(s)>20000]
+        #test begin at step args.test_start_from
+        steps =[int(s) for s in steps if int(s)>args.test_start_from]
      else:
         steps = args.test_steps.split(',')
         steps =[int(s) for s in steps]
         
+     logger.info('There are %i checkpoints'%(len(steps)))   
      logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, steps))
      test_rouge_lst=[]
      for step in steps:
