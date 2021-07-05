@@ -966,8 +966,8 @@ def encode_section_names_cls(args):
                         break
         #save
         base_lm_name = args.base_LM.split('-')[0]+args.base_LM.split('-')[1][0].upper()
-        path8 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS8.pt'
-        path9 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'_CLS9.pt'
+        path8 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'CLS8.pt'
+        path9 = args.save_path+'/section_names_embed_'+base_lm_name+'_'+args.sn_embed_comb_mode+'CLS9.pt'
         torch.save(section_names_embed8,path8)
         logger.info('DONE! Section names embeddings are saved in '+path8)
         torch.save(section_names_embed9,path9)

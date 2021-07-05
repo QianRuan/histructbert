@@ -311,6 +311,84 @@ def test_steps(args, device_id):
         
          json.dump(dic,f) 
          logger.info('Avg. rouges of the model______%s \n%s' % (args.model_path.split('/')[1], rouge_results_to_str(dic)))
+         
+def test_steps_without_val(args, device_id):
+     if args.eval_folder=='':
+        args.eval_path=args.model_path+'/test_steps'
+        print('args.eval_path',args.eval_path)
+     else:
+        args.eval_path=args.model_path+'/'+args.eval_folder
+        print('args.eval_path',args.eval_path)
+         
+        
+     args.result_path=args.eval_path+'/eval.results'
+     print('args.result_path',args.result_path)
+        
+     if os.path.exists(args.eval_path):
+        logger.info('Eval folder already exists, remove it!')
+        shutil.rmtree(args.eval_path)
+        os.mkdir(args.eval_path)
+     else:
+        os.mkdir(args.eval_path)
+        
+     if args.log_file=='':
+        args.log_file=args.eval_path+'/eval.log'
+        
+     init_logger(args.log_file)
+    
+     if args.test_steps=='all':
+        cp_files = sorted(glob.glob(os.path.join(args.model_path, 'model_step_*.pt')))
+        cp_files.sort(key=os.path.getmtime)
+        steps = [cp.split('.')[-2].split('_')[-1] for cp in cp_files]
+        #test begin at step 20000
+        #steps =[int(s) for s in steps if int(s)>20000]
+     else:
+        steps = args.test_steps.split(',')
+        steps =[int(s) for s in steps]
+        
+     logger.info('Testing step models in the model folder %s, steps: %s '%(args.model_path, steps))
+     test_rouge_lst=[]
+     for step in steps:
+         cp = args.model_path+'/model_step_'+step+'.pt'
+         xent, rouges = test_ext(args, device_id, cp, step)
+         test_rouge_lst.append((cp,rouges))
+         
+     with open(args.eval_path+'/test_rouges_all.json', 'w+') as f:
+         json.dump(test_rouge_lst,f)
+     
+         
+     #selcet top 3 models whose scores (sum of three metrics) are highest    
+     metrics=['rouge_1_f_score','rouge_2_f_score','rouge_l_f_score']
+     
+     li=[]
+     for item in test_rouge_lst:
+         scores=[]
+         for m in metrics:
+            scores.append(item[1][m])
+         sum_scores=sum(scores)
+         li.append(sum_scores)
+     arr = np.array(li)
+     indices = arr.argsort()[-3:][::-1]
+     test_rouge_lst_top=[]
+     for i in indices:
+         test_rouge_lst_top.append(test_rouge_lst[i])
+     
+     with open(args.eval_path+'/test_rouges.json', 'w+') as f:
+         json.dump(test_rouge_lst_top,f)
+     with open(args.eval_path+'/test_avg_rouges.json', 'w+') as f:
+         metrics=['rouge_1_f_score','rouge_2_f_score','rouge_l_f_score',
+                     'rouge_1_recall','rouge_2_recall','rouge_l_recall',
+                     'rouge_1_precision','rouge_2_precision','rouge_l_precision']
+         dic={}    
+         for m in metrics:
+            li=[]
+            for item in test_rouge_lst_top:
+                li.append(item[1][m])
+            avg=statistics.mean(li)
+            dic.update({m:avg})
+        
+         json.dump(dic,f) 
+         logger.info('Avg. rouges of the model______%s \n%s' % (args.model_path.split('/')[1], rouge_results_to_str(dic)))
     
 
 def test_ext(args, device_id, pt, step):
