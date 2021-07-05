@@ -7,7 +7,8 @@ from __future__ import division
 import argparse
 import os
 
-from train_extractive import train_ext, validate_ext, test_ext,test_steps, baseline_ext,get_cand_list_ext
+from train_extractive import train_ext, validate_ext, test_ext
+from train_extractive import test_steps, baseline_ext, get_cand_list_ext, test_steps_without_val
 
 
 #model_flags = ['hidden_size', 'ff_size', 'heads', 'emb_size', 'enc_layers', 'enc_hidden_size', 'enc_ff_size',
@@ -140,6 +141,7 @@ if __name__ == '__main__':
     parser.add_argument("-test_all", type=str2bool, nargs='?',const=True,default=False)
     parser.add_argument("-test_from", default='')
     parser.add_argument("-test_steps", default='')
+    parser.add_argument("-test_steps_without_val", default='')
     parser.add_argument("-test_start_from", default=-1, type=int)
 
     parser.add_argument("-train_from", default='')
@@ -173,7 +175,10 @@ if __name__ == '__main__':
             os.mkdir(args.model_path+'/eval/DONE')
         elif (args.mode == 'test_steps'):#test many steps
             test_steps(args, device_id)
-            os.mkdir(args.eval_path+'/DONE')     
+            os.mkdir(args.eval_path+'/DONE') 
+        elif (args.mode == 'test_steps_without_val'):#test many steps
+            test_steps_without_val(args, device_id)
+            os.mkdir(args.eval_path+'/DONE') 
         elif (args.mode == 'test'):#test one checkpoint
             cp = args.test_from
             try:
