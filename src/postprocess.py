@@ -614,8 +614,8 @@ def _remove_step_models(models,nrm):
             
             eval_path = args.models_path + model + '/eval'
             test_rouges_file = eval_path+'/test_rouges.json'
-            
-            test_rouges = json.load(test_rouges_file)
+            with open(test_rouges_file) as f:
+                test_rouges = json.load(f)
             print(test_rouges)
             assert 1==2
             
