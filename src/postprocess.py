@@ -612,16 +612,17 @@ def _remove_step_models(models,nrm):
 #                if not os.path.exists(eval_path+'DONE'):
 #                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
             
-            eval_path = args.models_path + model + '/eval'
-            test_rouges_file = eval_path+'/test_rouges.json'
-            with open(test_rouges_file) as f:
-                test_rouges = json.load(f)
-            print(test_rouges)
-            assert 1==2
+            eval_path = args.models_path + model + '/eval/'
+           
             
             
         
-#            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+                 test_rouges_file = eval_path+'test_rouges.json'
+                 with open(test_rouges_file) as f:
+                     test_rouges = json.load(f)
+                 print(test_rouges)
+                 assert 1==2
 #                files = os.listdir(eval_path)
 #                summ_files = [file for file in files if file.endswith('.gold')]
 #                steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
@@ -634,11 +635,11 @@ def _remove_step_models(models,nrm):
 #                    path = args.models_path + model + '/' + m
 #                    os.remove(path)
 #                    
-#            else:
-#                if not os.path.exists(args.models_path + model+'/DONE'):
-#                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
-#                if not os.path.exists(eval_path+'DONE'):
-#                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))    
+            else:
+                if not os.path.exists(args.models_path + model+'/DONE'):
+                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
+                if not os.path.exists(eval_path+'DONE'):
+                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))    
     
 def remove_step_models(args,nrm):
     logger.info("=================================================")
