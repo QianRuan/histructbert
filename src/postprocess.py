@@ -622,7 +622,7 @@ def _remove_step_models(models,nrm):
                  with open(test_rouges_file) as f:
                      test_rouges = json.load(f)
                  best_model_names = [item[0] for item in test_rouges]
-                 best_model_steps = [item.split('_')[-1].replace('.pt','') for item in test_rouges]
+                 best_model_steps = [item.split('_')[-1].replace('.pt','') for item in best_model_names]
                  print(best_model_names)
                  print(best_model_steps)
                  
