@@ -1,0 +1,38 @@
+####install miniconda###################################################
+wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
+chmod +x Miniconda2-latest-Linux-x86_64.sh 
+./Miniconda2-latest-Linux-x86_64.sh
+####Source your .bashrc, to update your PATH, or log out and back in again
+
+####create conda env###################################################
+conda create -n py38_pt18 python=3.8
+conda activate py38_pt18
+pip3 install multiprocess==0.70.9
+pip3 install numpy==1.20.3
+pip3 install pyrouge==0.1.3
+pip3 install pytorch-transformers==1.2.0
+pip3 install transformers==4.6.1
+pip3 install pandas==1.1.5
+pip3 install matplotlib==3.4.2
+pip3 install tensorboardX==1.9
+pip3 install openpyxl==3.0.7
+#install pytorch
+conda install pytorch==1.8.0 torchvision cudatoolkit=10.1 -c pytorch
+#setup pyrouge
+pyrouge_set_rouge_path pyrouge/rouge/tools/ROUGE-1.5.5/
+conda install -c bioconda perl-xml-parser 
+conda install -c bioconda perl-lwp-protocol-https
+conda install -c bioconda perl-db-file
+
+
+
+
+
+
+
+
+
+
+
+
+

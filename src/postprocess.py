@@ -39,13 +39,14 @@ pubmed_reported_baselines.append({'model':'DANCER PEAGASUS', 'rouge_1_f_score':4
 pubmed_reported_baselines.append({'model':'BigBird-Pegasus', 'rouge_1_f_score':46.32, 'rouge_2_f_score':20.65, 'rouge_l_f_score':42.33})
 pubmed_reported_baselines.append({'model':'ExtSum-LG+MMR-Select+', 'rouge_1_f_score':45.39, 'rouge_2_f_score':20.37, 'rouge_l_f_score':40.99})
 pubmed_reported_baselines.append({'model':'ExtSum-LG+RdLoss', 'rouge_1_f_score':45.3, 'rouge_2_f_score':20.42, 'rouge_l_f_score':40.95})
-pubmed_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':45.09, 'rouge_2_f_score':None, 'rouge_l_f_score':None})
+pubmed_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':45.49, 'rouge_2_f_score':19.90, 'rouge_l_f_score':42.42})
 
 arxiv_reported_baselines = []
 arxiv_reported_baselines.append({'model':'HAT-BART', 'rouge_1_f_score':46.74, 'rouge_2_f_score':19.19, 'rouge_l_f_score':42.2})
+arxiv_reported_baselines.append({'model':'LED-large (seqlen: 16,384)', 'rouge_1_f_score':46.63, 'rouge_2_f_score':19.62, 'rouge_l_f_score':41.48})
 arxiv_reported_baselines.append({'model':'BigBird-Pegasus', 'rouge_1_f_score':46.63, 'rouge_2_f_score':19.02, 'rouge_l_f_score':41.77})
 arxiv_reported_baselines.append({'model':'DANCER PEAGASUS', 'rouge_1_f_score':45.01, 'rouge_2_f_score':17.6, 'rouge_l_f_score':40.56})
-arxiv_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':44.67, 'rouge_2_f_score':None, 'rouge_l_f_score':None})
+arxiv_reported_baselines.append({'model':'PEGASUS', 'rouge_1_f_score':44.70, 'rouge_2_f_score':17.27, 'rouge_l_f_score':25.80})
 arxiv_reported_baselines.append({'model':'ExtSum-LG+RdLoss', 'rouge_1_f_score':44.01, 'rouge_2_f_score':17.79, 'rouge_l_f_score':39.09})
 arxiv_reported_baselines.append({'model':'ExtSum-LG+MMR-Select+', 'rouge_1_f_score':43.87, 'rouge_2_f_score':17.5, 'rouge_l_f_score':38.97})
 
@@ -555,30 +556,7 @@ def generate_eval_results_overview(args):
     #return best step models for plotting summary distribution
     return hs_step_best_models, baseline_step_best_models, hs_avg_best_models, baseline_avg_best_models
 
-def remove_models(models,nrm):
-    for model in models:
-        if model not in nrm:
-            
-            eval_path = args.models_path + model + '/eval/'
-        
-            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
-                files = os.listdir(eval_path)
-                summ_files = [file for file in files if file.endswith('.gold')]
-                steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
-                
-                files = os.listdir(args.models_path + model)
-                step_models = [file for file in files if file.endswith('.pt')]
-                removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
-                logger.info("remove %i step models from model %s"%(len(removed_step_models),model))
-                for m in removed_step_models:
-                    path = args.models_path + model + '/' + m
-                    os.remove(path)
-                    
-            else:
-                if not os.path.exists(args.models_path + model+'/DONE'):
-                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
-                if not os.path.exists(eval_path+'DONE'):
-                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
+
                     
 def remove_ckp(models,nrm):
     for model in models:
@@ -599,19 +577,7 @@ def remove_ckp(models,nrm):
                     logger.info("---Training of the model is not finished, skip it-------%s"%(model))
                 if not os.path.exists(eval_path+'DONE'):
                     logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
-    
-    
-def remove_step_models(args,nrm):
-    logger.info("=================================================")
-    logger.info("Removing step models...")
-    models = sorted(os.listdir(args.models_path))
-    models = [model for model in models if model.startswith(args.dataset+'_')]
-
-    
-    remove_models(models,nrm)
-        
-    logger.info("Remove step models...DONE")
-
+                    
 def remove_all_ckp(args,nrm):
     logger.info("=================================================")
     logger.info("Removing all ckp of not best settings...")
@@ -620,6 +586,72 @@ def remove_all_ckp(args,nrm):
 
     remove_ckp(models,nrm)    
     logger.info("Remove all ckp...DONE")
+    
+def _remove_step_models(models,nrm):
+    for model in models:
+        if model not in nrm:
+            
+#            eval_path = args.models_path + model + '/eval/'
+#            
+#            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+#                files = os.listdir(eval_path)
+#                summ_files = [file for file in files if file.endswith('.gold')]
+#                steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
+#                
+#                files = os.listdir(args.models_path + model)
+#                step_models = [file for file in files if file.endswith('.pt')]
+#                removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
+#                logger.info("remove %i step models from model %s"%(len(removed_step_models),model))
+#                for m in removed_step_models:
+#                    path = args.models_path + model + '/' + m
+#                    os.remove(path)
+#                    
+#            else:
+#                if not os.path.exists(args.models_path + model+'/DONE'):
+#                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
+#                if not os.path.exists(eval_path+'DONE'):
+#                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))
+            
+            eval_path = args.models_path + model + '/eval'
+            test_rouges_file = eval_path+'/test_rouges.json'
+            
+            test_rouges = json.load(test_rouges_file)
+            print(test_rouges)
+            assert 1==2
+            
+            
+        
+#            if os.path.exists(eval_path+'DONE') and os.path.exists(args.models_path + model+'/DONE'):
+#                files = os.listdir(eval_path)
+#                summ_files = [file for file in files if file.endswith('.gold')]
+#                steps = [file.split('.')[1].split('_')[1].split('p')[1] for file in summ_files]
+#                
+#                files = os.listdir(args.models_path + model)
+#                step_models = [file for file in files if file.endswith('.pt')]
+#                removed_step_models = [model for model in step_models if not model.split('.')[0].split('_')[-1] in steps]
+#                logger.info("remove %i step models from model %s"%(len(removed_step_models),model))
+#                for m in removed_step_models:
+#                    path = args.models_path + model + '/' + m
+#                    os.remove(path)
+#                    
+#            else:
+#                if not os.path.exists(args.models_path + model+'/DONE'):
+#                    logger.info("---Training of the model is not finished, skip it-------%s"%(model))
+#                if not os.path.exists(eval_path+'DONE'):
+#                    logger.info("---Evaluation of the model is not finished, skip it-----%s"%(model))    
+    
+def remove_step_models(args,nrm):
+    logger.info("=================================================")
+    logger.info("Removing step models...")
+    models = sorted(os.listdir(args.models_path))
+    models = [model for model in models if model.startswith(args.dataset+'_')]
+
+    
+    _remove_step_models(models,nrm)
+        
+    logger.info("Remove step models...DONE")
+
+
             
             
 def plot_val_xent(args):
@@ -752,6 +784,7 @@ if __name__ == '__main__':
     parser.add_argument("-generate_eval_results_overview", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-remove_step_models", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-remove_step_models_also_best", type=str2bool, nargs='?',const=False,default=False)
+    
     parser.add_argument("-remove_all_ckp_of_not_best", type=str2bool, nargs='?',const=False,default=False)
     parser.add_argument("-plot_val_xent", type=str2bool, nargs='?',const=True,default=True)
     parser.add_argument("-plot_best_summ_distribution", type=str2bool, nargs='?',const=True,default=True)
@@ -760,6 +793,8 @@ if __name__ == '__main__':
     
     parser.add_argument("-models_path", default='')
     parser.add_argument("-dataset", default='cnndm', type=str, choices=['cnndm', 'pubmed','arxiv'])
+    
+
 
 
     args = parser.parse_args()
@@ -786,6 +821,7 @@ if __name__ == '__main__':
         else:
             logger.info('Step models of best settings are removed to save space.')
         remove_step_models(args, not_removed)
+        
         
     if (args.remove_all_ckp_of_not_best):
 

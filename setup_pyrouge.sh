@@ -13,5 +13,6 @@ rm WordNet-2.0.exc.db # only if exist
 cd ../
 ln -s WordNet-2.0-Exceptions/WordNet-2.0.exc.db WordNet-2.0.exc.db
 #########################
-conda install -c anaconda perl
-conda install -c bioconda perl-xml-libxml
+conda install -c bioconda perl-xml-parser 
+conda install -c bioconda perl-lwp-protocol-https
+conda install -c bioconda perl-db-file

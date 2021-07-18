@@ -373,6 +373,8 @@ def test_steps_without_val(args, device_id):
      test_rouge_lst_top=[]
      for i in indices:
          test_rouge_lst_top.append(test_rouge_lst[i])
+     logger.info(str(test_rouge_lst_top))    
+     
      
      with open(args.eval_path+'/test_rouges.json', 'w+') as f:
          json.dump(test_rouge_lst_top,f)
