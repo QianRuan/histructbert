@@ -621,9 +621,11 @@ def _remove_step_models(models,nrm):
                  test_rouges_file = eval_path+'test_rouges.json'
                  with open(test_rouges_file) as f:
                      test_rouges = json.load(f)
-                 print(type(test_rouges),test_rouges)
-                 print(type(test_rouges[0]),test_rouges[0])
-                 print(type(test_rouges[0][0]),test_rouges[0][0])
+                 best_model_names = [item[0] for item in test_rouges]
+                 best_model_steps = [item.split('_')[-1].replace('.pt','') for item in test_rouges]
+                 print(best_model_names)
+                 print(best_model_steps)
+                 
                  assert 1==2
 #                files = os.listdir(eval_path)
 #                summ_files = [file for file in files if file.endswith('.gold')]
